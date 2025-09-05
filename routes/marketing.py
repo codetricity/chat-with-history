@@ -3,6 +3,7 @@ Marketing firm API routes for client management, projects, content templates, an
 """
 from fastapi import APIRouter, HTTPException, Depends, Query
 from sqlmodel import Session, select
+from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List, Optional
 from uuid import UUID
 import uuid
@@ -355,14 +356,186 @@ async def get_conversation_tags(
 # =========================
 
 @router.get("/conversations")
-async def get_conversations(session: Session = Depends(get_session)):
+async def get_conversations(session: AsyncSession = Depends(get_session)):
     """Get all conversations"""
     try:
-        # For now, return empty list since we don't have conversations yet
-        # In a real implementation, this would query the database
-        return []
+        from sqlmodel import select
+        from models import Conversation, ConversationFolder, User
+        
+        # Get all conversations with their folders and users
+        result = await session.execute(
+            select(Conversation, ConversationFolder, User)
+            .join(ConversationFolder, Conversation.folder_id == ConversationFolder.id, isouter=True)
+            .join(User, Conversation.user_id == User.id, isouter=True)
+            .where(Conversation.is_active == True)
+            .order_by(Conversation.updated_at.desc())
+        )
+        
+        conversations = []
+        for conv, folder, user in result:
+            conversations.append({
+                "id": str(conv.id),
+                "title": conv.title,
+                "created_at": conv.created_at.isoformat(),
+                "updated_at": conv.updated_at.isoformat(),
+                "folder": {
+                    "id": str(folder.id) if folder else None,
+                    "name": folder.name if folder else None
+                } if folder else None,
+                "user": {
+                    "id": str(user.id) if user else None,
+                    "email": user.email if user else None
+                } if user else None
+            })
+        
+        return conversations
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to fetch conversations: {str(e)}")
+
+@router.get("/folders")
+async def get_folders(session: AsyncSession = Depends(get_session)):
+    """Get all conversation folders"""
+    try:
+        from sqlmodel import select
+        from models import ConversationFolder, User
+        
+        # Get all folders with their users
+        result = await session.execute(
+            select(ConversationFolder, User)
+            .join(User, ConversationFolder.user_id == User.id, isouter=True)
+            .where(ConversationFolder.is_active == True)
+            .order_by(ConversationFolder.name)
+        )
+        
+        folders = []
+        for folder, user in result:
+            folders.append({
+                "id": str(folder.id),
+                "name": folder.name,
+                "description": folder.description,
+                "parent_folder_id": str(folder.parent_folder_id) if folder.parent_folder_id else None,
+                "created_at": folder.created_at.isoformat(),
+                "updated_at": folder.updated_at.isoformat(),
+                "user": {
+                    "id": str(user.id) if user else None,
+                    "email": user.email if user else None
+                } if user else None
+            })
+        
+        return folders
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to fetch folders: {str(e)}")
+
+@router.get("/folders/hierarchy")
+async def get_folder_hierarchy_marketing(session: AsyncSession = Depends(get_session)):
+    """Get the complete folder hierarchy with conversations"""
+    try:
+        from sqlmodel import select
+        from models import ConversationFolder, User, Conversation
+        
+        # Get all folders with their users
+        folders_result = await session.execute(
+            select(ConversationFolder, User)
+            .join(User, ConversationFolder.user_id == User.id, isouter=True)
+            .where(ConversationFolder.is_active == True)
+            .order_by(ConversationFolder.name)
+        )
+        
+        # Get all conversations with their folders
+        conversations_result = await session.execute(
+            select(Conversation, ConversationFolder)
+            .join(ConversationFolder, Conversation.folder_id == ConversationFolder.id, isouter=True)
+            .where(Conversation.is_active == True)
+            .order_by(Conversation.updated_at.desc())
+        )
+        
+        # Build folder hierarchy
+        folders = {}
+        root_folders = []
+        
+        for folder, user in folders_result:
+            folder_data = {
+                "id": str(folder.id),
+                "name": folder.name,
+                "description": folder.description,
+                "parent_folder_id": str(folder.parent_folder_id) if folder.parent_folder_id else None,
+                "created_at": folder.created_at.isoformat(),
+                "updated_at": folder.updated_at.isoformat(),
+                "user": {
+                    "id": str(user.id) if user else None,
+                    "email": user.email if user else None
+                } if user else None,
+                "conversations": [],
+                "sub_folders": []
+            }
+            folders[str(folder.id)] = folder_data
+            
+            if folder.parent_folder_id:
+                parent_id = str(folder.parent_folder_id)
+                if parent_id in folders:
+                    folders[parent_id]["sub_folders"].append(folder_data)
+            else:
+                root_folders.append(folder_data)
+        
+        # Add conversations to folders
+        for conversation, folder in conversations_result:
+            conv_data = {
+                "id": str(conversation.id),
+                "title": conversation.title,
+                "created_at": conversation.created_at.isoformat(),
+                "updated_at": conversation.updated_at.isoformat()
+            }
+            
+            if folder:
+                folder_id = str(folder.id)
+                if folder_id in folders:
+                    folders[folder_id]["conversations"].append(conv_data)
+            else:
+                # Root level conversations (no folder)
+                if "root_conversations" not in locals():
+                    root_conversations = []
+                root_conversations.append(conv_data)
+        
+        # Build final hierarchy - return the data directly, not wrapped
+        return {
+            "folders": root_folders,
+            "root_conversations": root_conversations if "root_conversations" in locals() else []
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to fetch folder hierarchy: {str(e)}")
+
+@router.delete("/conversations/{conversation_id}")
+async def delete_conversation(conversation_id: str, session: AsyncSession = Depends(get_session)):
+    """Delete a conversation"""
+    try:
+        from sqlmodel import select
+        from models import Conversation
+        import uuid
+        
+        # Parse conversation ID
+        try:
+            conv_id = uuid.UUID(conversation_id)
+        except ValueError:
+            raise HTTPException(status_code=400, detail="Invalid conversation ID format")
+        
+        # Find the conversation
+        result = await session.execute(
+            select(Conversation).where(Conversation.id == conv_id)
+        )
+        conversation = result.scalar_one_or_none()
+        
+        if not conversation:
+            raise HTTPException(status_code=404, detail="Conversation not found")
+        
+        # Soft delete by setting is_active to False
+        conversation.is_active = False
+        await session.commit()
+        
+        return {"message": "Conversation deleted successfully"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to delete conversation: {str(e)}")
 
 # =========================
 # Search Endpoints

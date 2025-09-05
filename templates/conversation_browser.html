@@ -493,7 +493,6 @@ function conversationBrowser() {
                 // Load all data in parallel
                 await Promise.all([
                     this.loadFolders(),
-                    this.loadConversations(),
                     this.loadMarketingData()
                 ]);
                 
@@ -509,7 +508,11 @@ function conversationBrowser() {
             try {
                 const response = await fetch('/api/folders/hierarchy');
                 if (response.ok) {
-                    this.folders = await response.json();
+                    const data = await response.json();
+                    this.folders = data.folders || [];
+                    this.rootConversations = data.root_conversations || [];
+                    console.log('Loaded folders:', this.folders.length);
+                    console.log('Loaded root conversations:', this.rootConversations.length);
                 }
             } catch (error) {
                 console.error('Error loading folders:', error);
@@ -633,6 +636,42 @@ function conversationBrowser() {
         updateContentStatus(conversationId) {
             this.statusUpdate.conversation_id = conversationId;
             this.showStatusUpdateModal = true;
+        },
+
+        async deleteConversation(conversationId) {
+            if (!confirm('Are you sure you want to delete this conversation? This action cannot be undone.')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/conversations/${conversationId}`, {
+                    method: 'DELETE'
+                });
+                
+                if (response.ok) {
+                    // Remove from local arrays
+                    this.rootConversations = this.rootConversations.filter(c => c.id !== conversationId);
+                    // Also remove from folder conversations
+                    this.folders.forEach(folder => {
+                        if (folder.conversations) {
+                            folder.conversations = folder.conversations.filter(c => c.id !== conversationId);
+                        }
+                    });
+                    console.log('Conversation deleted successfully');
+                } else {
+                    const errorData = await response.json();
+                    console.error('Failed to delete conversation:', errorData);
+                    this.error = `Failed to delete conversation: ${errorData.detail || 'Unknown error'}`;
+                }
+            } catch (error) {
+                console.error('Error deleting conversation:', error);
+                this.error = 'Failed to delete conversation';
+            }
+        },
+
+        editFolder(folder) {
+            // For now, just show an alert. In a real app, you'd open an edit modal
+            alert(`Edit folder: ${folder.name}\n\nThis feature would open an edit dialog.`);
         },
 
         async searchConversations() {

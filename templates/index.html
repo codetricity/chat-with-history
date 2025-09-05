@@ -280,7 +280,15 @@
                         const response = await fetch('/api/folders/hierarchy');
                         if (response.ok) {
                             const data = await response.json();
-                            this.conversations = this.flattenConversations(data.hierarchy);
+                            // Transform the new format to the old format for compatibility
+                            const hierarchy = [];
+                            if (data.root_conversations) {
+                                hierarchy.push(...data.root_conversations.map(conv => ({...conv, type: 'conversation'})));
+                            }
+                            if (data.folders) {
+                                hierarchy.push(...data.folders.map(folder => ({...folder, type: 'folder'})));
+                            }
+                            this.conversations = this.flattenConversations(hierarchy);
                         } else {
                             // Fallback to old method if hierarchy fails
                             const response = await fetch('/api/chat/conversations');
