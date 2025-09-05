@@ -504,6 +504,39 @@ async def get_folder_hierarchy_marketing(session: AsyncSession = Depends(get_ses
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to fetch folder hierarchy: {str(e)}")
 
+@router.delete("/conversations/{conversation_id}")
+async def delete_conversation(conversation_id: str, session: AsyncSession = Depends(get_session)):
+    """Delete a conversation"""
+    try:
+        from sqlmodel import select
+        from models import Conversation
+        import uuid
+        
+        # Parse conversation ID
+        try:
+            conv_id = uuid.UUID(conversation_id)
+        except ValueError:
+            raise HTTPException(status_code=400, detail="Invalid conversation ID format")
+        
+        # Find the conversation
+        result = await session.execute(
+            select(Conversation).where(Conversation.id == conv_id)
+        )
+        conversation = result.scalar_one_or_none()
+        
+        if not conversation:
+            raise HTTPException(status_code=404, detail="Conversation not found")
+        
+        # Soft delete by setting is_active to False
+        conversation.is_active = False
+        await session.commit()
+        
+        return {"message": "Conversation deleted successfully"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to delete conversation: {str(e)}")
+
 # =========================
 # Search Endpoints
 # =========================
