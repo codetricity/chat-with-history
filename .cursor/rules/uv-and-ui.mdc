@@ -12,4 +12,4 @@ When trying to do `python oppman.py`, it should do `uv run python oppman.py`
 
 ## UI
 
-Try to use htmx, daisy ui, alpine.js, and tailwindcss when possible.
+Try to use tailwindcss when possible.

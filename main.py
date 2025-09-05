@@ -18,6 +18,7 @@ from admin.setup import setup_admin
 from routes.auth import router as auth_router
 from routes.pages import router as pages_router
 from routes.chat import router as chat_router
+from routes.marketing import router as marketing_router
 
 app = FastAPI(
     title="AI Chat Application",
@@ -43,6 +44,7 @@ templates = Jinja2Templates(directory="templates")
 app.include_router(auth_router)
 app.include_router(pages_router)
 app.include_router(chat_router)
+app.include_router(marketing_router)
 
 # Add exception handler for authentication
 
