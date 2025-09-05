@@ -11,6 +11,7 @@ from typing import Dict, Any, AsyncGenerator, Optional, List
 from fastapi import HTTPException
 from services.chat_history_service import ChatHistoryService
 from services.title_generation_service import TitleGenerationService
+from services.web_search_service import WebSearchService
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -27,6 +28,9 @@ LLM_MODEL = "meta-llama/llama-3.3-70b-instruct:free"
 
 class ChatService:
     """Service for AI chat operations using OpenRouter API"""
+    
+    # Initialize web search service
+    _web_search_service = WebSearchService()
 
     @staticmethod
     async def test_connection() -> Dict[str, Any]:
@@ -165,11 +169,29 @@ class ChatService:
             # Add conversation history
             messages.extend(conversation_context)
             
+            # Check if web search is needed and perform it
+            search_results = ""
+            if ChatService._web_search_service.should_search(user_message):
+                logger.info("Web search needed for user message")
+                search_data = await ChatService._web_search_service.search(user_message)
+                if search_data.get("success"):
+                    search_results = ChatService._web_search_service.format_search_results_for_llm(search_data)
+                    logger.info(f"Web search completed. Found {search_data.get('total_results', 0)} results")
+                else:
+                    logger.warning(f"Web search failed: {search_data.get('error', 'Unknown error')}")
+            
             # Add current user message
             messages.append({
                 "role": "user",
                 "content": user_message
             })
+            
+            # Add web search results as context if available
+            if search_results:
+                messages.append({
+                    "role": "system",
+                    "content": f"Here is some current information that might be relevant to the user's question:\n\n{search_results}\n\nPlease use this information to provide a comprehensive and up-to-date answer. If the search results don't contain relevant information, you can still provide a general answer based on your knowledge."
+                })
             
             # free model is meta-llama/llama-3.3-70b-instruct:free
             # paid model is meta-llama/llama-3.3-70b-instruct
@@ -354,11 +376,29 @@ class ChatService:
             # Add conversation history
             messages.extend(conversation_context)
             
+            # Check if web search is needed and perform it
+            search_results = ""
+            if ChatService._web_search_service.should_search(user_message):
+                logger.info("Web search needed for user message")
+                search_data = await ChatService._web_search_service.search(user_message)
+                if search_data.get("success"):
+                    search_results = ChatService._web_search_service.format_search_results_for_llm(search_data)
+                    logger.info(f"Web search completed. Found {search_data.get('total_results', 0)} results")
+                else:
+                    logger.warning(f"Web search failed: {search_data.get('error', 'Unknown error')}")
+            
             # Add current user message
             messages.append({
                 "role": "user",
                 "content": user_message
             })
+            
+            # Add web search results as context if available
+            if search_results:
+                messages.append({
+                    "role": "system",
+                    "content": f"Here is some current information that might be relevant to the user's question:\n\n{search_results}\n\nPlease use this information to provide a comprehensive and up-to-date answer. If the search results don't contain relevant information, you can still provide a general answer based on your knowledge."
+                })
             
             # free model is meta-llama/llama-3.3-70b-instruct:free
             # https://openrouter.ai/meta-llama/llama-3.3-70b-instruct:free/api
