@@ -351,6 +351,20 @@ async def get_conversation_tags(
 
 
 # =========================
+# Conversation Endpoints
+# =========================
+
+@router.get("/conversations")
+async def get_conversations(session: Session = Depends(get_session)):
+    """Get all conversations"""
+    try:
+        # For now, return empty list since we don't have conversations yet
+        # In a real implementation, this would query the database
+        return []
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to fetch conversations: {str(e)}")
+
+# =========================
 # Search Endpoints
 # =========================
 
