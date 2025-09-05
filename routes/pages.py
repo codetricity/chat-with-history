@@ -17,3 +17,12 @@ async def read_root(request: Request):
         "request": request, 
         "title": "AI Chat - FastOpp"
     })
+
+
+@router.get("/conversation-browser", response_class=HTMLResponse)
+async def conversation_browser(request: Request):
+    """Conversation browser page with folder management"""
+    return templates.TemplateResponse("conversation_browser.html", {
+        "request": request,
+        "title": "Conversation Browser - FastOpp"
+    })

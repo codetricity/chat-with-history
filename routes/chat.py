@@ -6,6 +6,7 @@ from fastapi.responses import JSONResponse
 from sse_starlette.sse import EventSourceResponse
 from services.chat_service import ChatService
 from services.chat_history_service import ChatHistoryService
+from services.folder_service import FolderService
 import json
 import uuid
 from typing import Optional
@@ -314,6 +315,350 @@ async def archive_conversation(conversation_id: str):
         return JSONResponse(
             status_code=400,
             content={"error": "Invalid conversation_id format"}
+        )
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={"error": f"Internal server error: {str(e)}"}
+        )
+
+
+# =========================
+# Folder Management Endpoints
+# =========================
+
+@router.post("/api/folders")
+async def create_folder(request: Request):
+    """Create a new conversation folder"""
+    try:
+        body = await request.json()
+        name = body.get("name", "").strip()
+        description = body.get("description", "").strip() or None
+        parent_folder_id = body.get("parent_folder_id")
+        user_id = body.get("user_id")
+        
+        if not name:
+            return JSONResponse(
+                status_code=400,
+                content={"error": "Folder name is required"}
+            )
+        
+        # Parse UUIDs if provided
+        parsed_parent_folder_id = None
+        if parent_folder_id:
+            try:
+                parsed_parent_folder_id = uuid.UUID(parent_folder_id)
+            except ValueError:
+                return JSONResponse(
+                    status_code=400,
+                    content={"error": "Invalid parent_folder_id format"}
+                )
+        
+        parsed_user_id = None
+        if user_id:
+            try:
+                parsed_user_id = uuid.UUID(user_id)
+            except ValueError:
+                return JSONResponse(
+                    status_code=400,
+                    content={"error": "Invalid user_id format"}
+                )
+        
+        folder = await FolderService.create_folder(
+            name=name,
+            description=description,
+            parent_folder_id=parsed_parent_folder_id,
+            user_id=parsed_user_id
+        )
+        
+        return JSONResponse(content={
+            "id": str(folder.id),
+            "name": folder.name,
+            "description": folder.description,
+            "parent_folder_id": str(folder.parent_folder_id) if folder.parent_folder_id else None,
+            "created_at": folder.created_at.isoformat(),
+            "updated_at": folder.updated_at.isoformat()
+        })
+        
+    except json.JSONDecodeError:
+        return JSONResponse(
+            status_code=400,
+            content={"error": "Invalid JSON"}
+        )
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={"error": f"Internal server error: {str(e)}"}
+        )
+
+
+@router.get("/api/folders")
+async def get_folders(user_id: Optional[str] = None, parent_folder_id: Optional[str] = None):
+    """Get folders for a user"""
+    try:
+        parsed_user_id = None
+        if user_id:
+            try:
+                parsed_user_id = uuid.UUID(user_id)
+            except ValueError:
+                return JSONResponse(
+                    status_code=400,
+                    content={"error": "Invalid user_id format"}
+                )
+        
+        parsed_parent_folder_id = None
+        if parent_folder_id:
+            try:
+                parsed_parent_folder_id = uuid.UUID(parent_folder_id)
+            except ValueError:
+                return JSONResponse(
+                    status_code=400,
+                    content={"error": "Invalid parent_folder_id format"}
+                )
+        
+        folders = await FolderService.get_folders(
+            user_id=parsed_user_id,
+            parent_folder_id=parsed_parent_folder_id
+        )
+        
+        return JSONResponse(content={
+            "folders": [
+                {
+                    "id": str(folder.id),
+                    "name": folder.name,
+                    "description": folder.description,
+                    "parent_folder_id": str(folder.parent_folder_id) if folder.parent_folder_id else None,
+                    "created_at": folder.created_at.isoformat(),
+                    "updated_at": folder.updated_at.isoformat()
+                }
+                for folder in folders
+            ]
+        })
+        
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={"error": f"Internal server error: {str(e)}"}
+        )
+
+
+@router.get("/api/folders/hierarchy")
+async def get_folder_hierarchy(user_id: Optional[str] = None):
+    """Get the complete folder hierarchy with conversations"""
+    try:
+        parsed_user_id = None
+        if user_id:
+            try:
+                parsed_user_id = uuid.UUID(user_id)
+            except ValueError:
+                return JSONResponse(
+                    status_code=400,
+                    content={"error": "Invalid user_id format"}
+                )
+        
+        hierarchy = await FolderService.get_folder_hierarchy(user_id=parsed_user_id)
+        
+        return JSONResponse(content={"hierarchy": hierarchy})
+        
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={"error": f"Internal server error: {str(e)}"}
+        )
+
+
+@router.get("/api/folders/{folder_id}")
+async def get_folder(folder_id: str):
+    """Get a specific folder by ID"""
+    try:
+        parsed_folder_id = uuid.UUID(folder_id)
+        folder = await FolderService.get_folder(parsed_folder_id)
+        
+        if not folder:
+            return JSONResponse(
+                status_code=404,
+                content={"error": "Folder not found"}
+            )
+        
+        return JSONResponse(content={
+            "id": str(folder.id),
+            "name": folder.name,
+            "description": folder.description,
+            "parent_folder_id": str(folder.parent_folder_id) if folder.parent_folder_id else None,
+            "created_at": folder.created_at.isoformat(),
+            "updated_at": folder.updated_at.isoformat()
+        })
+        
+    except ValueError:
+        return JSONResponse(
+            status_code=400,
+            content={"error": "Invalid folder_id format"}
+        )
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={"error": f"Internal server error: {str(e)}"}
+        )
+
+
+@router.put("/api/folders/{folder_id}")
+async def update_folder(folder_id: str, request: Request):
+    """Update folder name and/or description"""
+    try:
+        parsed_folder_id = uuid.UUID(folder_id)
+        body = await request.json()
+        name = body.get("name", "").strip() or None
+        description = body.get("description", "").strip() or None
+        
+        if name is None and description is None:
+            return JSONResponse(
+                status_code=400,
+                content={"error": "At least one field (name or description) must be provided"}
+            )
+        
+        success = await FolderService.update_folder(
+            folder_id=parsed_folder_id,
+            name=name,
+            description=description
+        )
+        
+        if not success:
+            return JSONResponse(
+                status_code=404,
+                content={"error": "Folder not found"}
+            )
+        
+        return JSONResponse(content={"message": "Folder updated successfully"})
+        
+    except ValueError:
+        return JSONResponse(
+            status_code=400,
+            content={"error": "Invalid folder_id format"}
+        )
+    except json.JSONDecodeError:
+        return JSONResponse(
+            status_code=400,
+            content={"error": "Invalid JSON"}
+        )
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={"error": f"Internal server error: {str(e)}"}
+        )
+
+
+@router.delete("/api/folders/{folder_id}")
+async def delete_folder(folder_id: str):
+    """Delete a folder (soft delete)"""
+    try:
+        parsed_folder_id = uuid.UUID(folder_id)
+        success = await FolderService.delete_folder(parsed_folder_id)
+        
+        if not success:
+            return JSONResponse(
+                status_code=404,
+                content={"error": "Folder not found"}
+            )
+        
+        return JSONResponse(content={"message": "Folder deleted successfully"})
+        
+    except ValueError:
+        return JSONResponse(
+            status_code=400,
+            content={"error": "Invalid folder_id format"}
+        )
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={"error": f"Internal server error: {str(e)}"}
+        )
+
+
+@router.post("/api/conversations/{conversation_id}/move")
+async def move_conversation(conversation_id: str, request: Request):
+    """Move a conversation to a folder or to root"""
+    try:
+        parsed_conversation_id = uuid.UUID(conversation_id)
+        body = await request.json()
+        folder_id = body.get("folder_id")
+        
+        parsed_folder_id = None
+        if folder_id:
+            try:
+                parsed_folder_id = uuid.UUID(folder_id)
+            except ValueError:
+                return JSONResponse(
+                    status_code=400,
+                    content={"error": "Invalid folder_id format"}
+                )
+        
+        success = await FolderService.move_conversation_to_folder(
+            conversation_id=parsed_conversation_id,
+            folder_id=parsed_folder_id
+        )
+        
+        if not success:
+            return JSONResponse(
+                status_code=404,
+                content={"error": "Conversation not found"}
+            )
+        
+        return JSONResponse(content={"message": "Conversation moved successfully"})
+        
+    except ValueError:
+        return JSONResponse(
+            status_code=400,
+            content={"error": "Invalid conversation_id format"}
+        )
+    except json.JSONDecodeError:
+        return JSONResponse(
+            status_code=400,
+            content={"error": "Invalid JSON"}
+        )
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={"error": f"Internal server error: {str(e)}"}
+        )
+
+
+@router.get("/api/folders/{folder_id}/conversations")
+async def get_conversations_in_folder(folder_id: str, user_id: Optional[str] = None):
+    """Get conversations in a specific folder"""
+    try:
+        parsed_folder_id = uuid.UUID(folder_id)
+        parsed_user_id = None
+        if user_id:
+            try:
+                parsed_user_id = uuid.UUID(user_id)
+            except ValueError:
+                return JSONResponse(
+                    status_code=400,
+                    content={"error": "Invalid user_id format"}
+                )
+        
+        conversations = await FolderService.get_conversations_in_folder(
+            folder_id=parsed_folder_id,
+            user_id=parsed_user_id
+        )
+        
+        return JSONResponse(content={
+            "conversations": [
+                {
+                    "id": str(conv.id),
+                    "title": conv.title,
+                    "created_at": conv.created_at.isoformat(),
+                    "updated_at": conv.updated_at.isoformat(),
+                    "is_active": conv.is_active
+                }
+                for conv in conversations
+            ]
+        })
+        
+    except ValueError:
+        return JSONResponse(
+            status_code=400,
+            content={"error": "Invalid folder_id format"}
         )
     except Exception as e:
         return JSONResponse(

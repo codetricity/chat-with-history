@@ -52,11 +52,25 @@ class WebinarRegistrants(SQLModel, table=True):
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 
+class ConversationFolder(SQLModel, table=True):
+    __tablename__ = "conversation_folders"  # type: ignore
+
+    id: Optional[uuid.UUID] = Field(default_factory=uuid.uuid4, primary_key=True)
+    user_id: Optional[uuid.UUID] = Field(foreign_key="users.id", nullable=True)  # Nullable for shared folders
+    name: str = Field(max_length=200, nullable=False)
+    description: Optional[str] = Field(default=None, max_length=500, nullable=True)
+    parent_folder_id: Optional[uuid.UUID] = Field(foreign_key="conversation_folders.id", nullable=True)  # For sub-folders
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    is_active: bool = Field(default=True)  # For soft deletion
+
+
 class Conversation(SQLModel, table=True):
     __tablename__ = "conversations"  # type: ignore
 
     id: Optional[uuid.UUID] = Field(default_factory=uuid.uuid4, primary_key=True)
     user_id: Optional[uuid.UUID] = Field(foreign_key="users.id", nullable=True)  # Nullable for anonymous chats
+    folder_id: Optional[uuid.UUID] = Field(foreign_key="conversation_folders.id", nullable=True)  # Folder assignment
     title: Optional[str] = Field(default=None, max_length=200, nullable=True)
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))

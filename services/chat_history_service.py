@@ -18,7 +18,8 @@ class ChatHistoryService:
     @staticmethod
     async def create_conversation(
         user_id: Optional[uuid.UUID] = None,
-        title: Optional[str] = None
+        title: Optional[str] = None,
+        folder_id: Optional[uuid.UUID] = None
     ) -> Conversation:
         """
         Create a new conversation
@@ -26,6 +27,7 @@ class ChatHistoryService:
         Args:
             user_id: Optional user ID for authenticated users
             title: Optional conversation title
+            folder_id: Optional folder ID to assign conversation to
             
         Returns:
             Conversation: The created conversation
@@ -33,7 +35,8 @@ class ChatHistoryService:
         async with AsyncSessionLocal() as session:
             conversation = Conversation(
                 user_id=user_id,
-                title=title or f"Chat {datetime.now().strftime('%Y-%m-%d %H:%M')}"
+                title=title or f"Chat {datetime.now().strftime('%Y-%m-%d %H:%M')}",
+                folder_id=folder_id
             )
             session.add(conversation)
             await session.commit()
