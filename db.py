@@ -48,3 +48,21 @@ AsyncSessionLocal = async_sessionmaker(
 )
 
 # SQLModel will handle the base class
+
+async def create_tables():
+    """Create all tables in the database"""
+    from sqlmodel import SQLModel
+    # Import all models to register them
+    import models
+    
+    async with async_engine.begin() as conn:
+        await conn.run_sync(SQLModel.metadata.create_all)
+
+
+async def get_session():
+    """Dependency to get database session"""
+    async with AsyncSessionLocal() as session:
+        try:
+            yield session
+        finally:
+            await session.close()
