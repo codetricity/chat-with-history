@@ -2,6 +2,10 @@
 
 A modern chat application built with FastAPI, featuring intelligent conversation management, automatic title generation, and persistent chat history.
 
+![sidebar](docs/images/readme/sidebar.webp)
+
+![sqladmin](docs/images/readme/sqladmin.webp)
+
 ## Features
 
 ### 🤖 **AI Chat Interface**

@@ -6,7 +6,7 @@ from sqladmin import Admin
 from fastapi import FastAPI
 from db import async_engine
 from auth.admin import AdminAuth
-from .views import UserAdmin, ProductAdmin, WebinarRegistrantsAdmin, AuditLogAdmin
+from .views import UserAdmin, ConversationAdmin, MessageAdmin
 
 
 def setup_admin(app: FastAPI, secret_key: str):
@@ -36,7 +36,6 @@ def setup_admin(app: FastAPI, secret_key: str):
     
     # Register admin views
     admin.add_view(UserAdmin)
-    admin.add_view(ProductAdmin)
-    admin.add_view(WebinarRegistrantsAdmin)
-    admin.add_view(AuditLogAdmin)
+    admin.add_view(ConversationAdmin)
+    admin.add_view(MessageAdmin)
     return admin
