@@ -8,12 +8,18 @@ A modern chat application built with FastAPI, featuring intelligent conversation
 
 ![conversation organizer](docs/images/readme/organize.webp)
 
+Web Search
+
+![web search](docs/images/readme/web_search.webp)
+
+
 ## Features
 
 ### 🤖 **AI Chat Interface**
 
 - Real-time streaming chat with Large Language Models
 - Support for both streaming and non-streaming responses
+- **Intelligent Web Search Integration**: Automatically searches the web for current information when needed
 - Clean, modern UI built with HTMX, DaisyUI, Alpine.js, and TailwindCSS
 
 ### 📝 **Smart Conversation Management**
@@ -41,6 +47,8 @@ A modern chat application built with FastAPI, featuring intelligent conversation
 - **Backend**: FastAPI with Python
 - **Database**: SQLite with SQLAlchemy
 - **Frontend**: HTMX + Alpine.js + DaisyUI + TailwindCSS
+- **AI/LLM**: OpenRouter API with Llama 3.3 70B
+- **Web Search**: Tavily API for real-time information
 - **Package Management**: uv
 - **Migrations**: Alembic
 
@@ -50,6 +58,8 @@ A modern chat application built with FastAPI, featuring intelligent conversation
 
 - Python 3.8+
 - uv package manager
+- OpenRouter API key (for AI chat functionality)
+- Tavily API key (for web search functionality)
 
 ### Installation
 
@@ -64,6 +74,15 @@ cd store-retrieve-conversations
 
 ```bash
 uv sync
+```
+
+1. Set up environment variables:
+
+Create a `.env` file in the project root with your API keys:
+
+```bash
+OPENROUTER_API_KEY=your_openrouter_api_key_here
+TAVILY_API_KEY=your_tavily_api_key_here
 ```
 
 1. Run database migrations:
@@ -95,6 +114,9 @@ uv run python main.py
 - `GET /api/chat/conversations` - Get all conversations
 - `GET /api/chat/conversations/{conversation_id}` - Get specific conversation
 - `DELETE /api/chat/conversations/{conversation_id}` - Delete conversation
+- `GET /api/chat/test` - Test OpenRouter API connection
+- `GET /api/chat/web-search/test` - Test Tavily API connection
+- `POST /api/chat/web-search` - Perform a direct web search
 
 ### Folder Management Endpoints
 
@@ -127,7 +149,8 @@ uv run python main.py
 │   ├── chat_service.py  # Chat functionality
 │   ├── chat_history_service.py  # Conversation management
 │   ├── title_generation_service.py  # Auto-title generation
-│   └── folder_service.py  # Folder and organization management
+│   ├── folder_service.py  # Folder and organization management
+│   └── web_search_service.py  # Web search integration
 ├── templates/            # HTML templates
 ├── models.py             # Database models
 └── main.py              # Application entry point
@@ -158,6 +181,36 @@ The conversation browser provides advanced organization capabilities:
 - **Real-time Updates**: Changes are immediately reflected across all interfaces
 
 Access the conversation browser via the "Organize" button in the chat interface or navigate directly to `/conversation-browser`.
+
+### Web Search Integration
+
+The application features intelligent web search capabilities that automatically enhance AI responses with current information:
+
+- **Smart Detection**: The system automatically detects when a user's question requires current information based on keywords and context
+- **Real-time Search**: Uses Tavily API to search the web for up-to-date information
+- **Seamless Integration**: Search results are automatically included in the AI's context without user intervention
+- **Comprehensive Responses**: AI combines its knowledge with current web information to provide comprehensive answers
+
+**Search Triggers**: The system will automatically search the web when users ask about:
+
+- Current events and news
+- Real-time information (weather, stock prices, etc.)
+- Latest developments in any field
+- Recent updates on any topic
+- Questions containing keywords like "current", "latest", "recent", "today", "now", "2024", "2025", "news", "update", "happening", "trending", "what's new", "price", "cost", "rate", "stock", "market", "weather"
+
+**Example Queries that Trigger Web Search**:
+
+- "What are the latest AI developments in 2024?"
+- "What's the current weather in New York?"
+- "What's happening in the stock market today?"
+- "What are the recent updates on climate change?"
+
+**Example Queries that Don't Trigger Web Search**:
+
+- "Explain what Python is"
+- "How do I cook pasta?"
+- "What is the capital of France?"
 
 ### Modern UI/UX
 

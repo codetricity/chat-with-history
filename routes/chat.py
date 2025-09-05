@@ -7,6 +7,7 @@ from sse_starlette.sse import EventSourceResponse
 from services.chat_service import ChatService
 from services.chat_history_service import ChatHistoryService
 from services.folder_service import FolderService
+from services.web_search_service import WebSearchService
 import json
 import uuid
 from typing import Optional
@@ -24,6 +25,49 @@ async def test_chat_connection():
         return JSONResponse(
             status_code=500,
             content={"error": f"Test failed: {str(e)}"}
+        )
+
+
+@router.get("/api/chat/web-search/test")
+async def test_web_search_connection():
+    """Test endpoint to check Tavily API connection"""
+    try:
+        web_search_service = WebSearchService()
+        result = await web_search_service.test_connection()
+        return JSONResponse(content=result)
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={"error": f"Web search test failed: {str(e)}"}
+        )
+
+
+@router.post("/api/chat/web-search")
+async def test_web_search(request: Request):
+    """Test endpoint to perform a web search"""
+    try:
+        body = await request.json()
+        query = body.get("query", "")
+        
+        if not query:
+            return JSONResponse(
+                status_code=400,
+                content={"error": "Query is required"}
+            )
+        
+        web_search_service = WebSearchService()
+        result = await web_search_service.search(query)
+        return JSONResponse(content=result)
+        
+    except json.JSONDecodeError:
+        return JSONResponse(
+            status_code=400,
+            content={"error": "Invalid JSON"}
+        )
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={"error": f"Web search failed: {str(e)}"}
         )
 
 
