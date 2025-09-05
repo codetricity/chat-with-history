@@ -493,7 +493,6 @@ function conversationBrowser() {
                 // Load all data in parallel
                 await Promise.all([
                     this.loadFolders(),
-                    this.loadConversations(),
                     this.loadMarketingData()
                 ]);
                 
@@ -509,7 +508,9 @@ function conversationBrowser() {
             try {
                 const response = await fetch('/api/folders/hierarchy');
                 if (response.ok) {
-                    this.folders = await response.json();
+                    const data = await response.json();
+                    this.folders = data.folders || [];
+                    this.rootConversations = data.root_conversations || [];
                 }
             } catch (error) {
                 console.error('Error loading folders:', error);

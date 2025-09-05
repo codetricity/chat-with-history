@@ -20,11 +20,8 @@ try:
     from scripts.init_db import init_db
     from scripts.create_superuser import create_superuser
     from scripts.add_test_users import add_test_users
-    from scripts.add_sample_products import add_sample_products
-    from scripts.add_sample_webinars import add_sample_webinars
-    from scripts.add_sample_webinar_registrants import add_sample_registrants
-    from scripts.clear_and_add_registrants import clear_and_add_registrants
-    from scripts.download_sample_photos import download_sample_photos
+    from scripts.fake_data.add_sample_clients_projects import add_sample_data as add_clients_projects
+    from scripts.fake_data.add_sample_content_templates import add_sample_templates
     from scripts.check_users import check_users
     from scripts.test_auth import test_auth
     from scripts.change_password import list_users, change_password_interactive
@@ -40,11 +37,7 @@ def ensure_upload_dirs():
     """Ensure static upload directories exist regardless of current working directory."""
     project_root = Path(__file__).resolve().parent
     uploads_root = project_root / "static" / "uploads"
-    photos_dir = uploads_root / "photos"
-    sample_photos_dir = uploads_root / "sample_photos"
     uploads_root.mkdir(parents=True, exist_ok=True)
-    photos_dir.mkdir(parents=True, exist_ok=True)
-    sample_photos_dir.mkdir(parents=True, exist_ok=True)
 
 
 def backup_database():
@@ -82,11 +75,6 @@ def demo_command_help():
     print("   uv run python oppdemo.py db        # Initialize database only")
     print("   uv run python oppdemo.py superuser # Create superuser only")
     print("   uv run python oppdemo.py users     # Add test users only")
-    print("   uv run python oppdemo.py products  # Add sample products only")
-    print("   uv run python oppdemo.py webinars  # Add sample webinars only")
-    print("   uv run python oppdemo.py download_photos  # Download sample photos")
-    print("   uv run python oppdemo.py registrants      # Add sample registrants")
-    print("   uv run python oppdemo.py clear_registrants # Clear and add fresh registrants")
     print("   uv run python oppdemo.py check_users      # Check existing users")
     print("   uv run python oppdemo.py test_auth        # Test authentication")
     print("   uv run python oppdemo.py change_password  # Change user password")
@@ -205,40 +193,18 @@ async def run_users():
     print("✅ Test users creation complete")
 
 
-async def run_products():
-    """Add sample products"""
-    print("🔄 Adding sample products...")
-    await add_sample_products()
-    print("✅ Sample products creation complete")
+async def run_clients_projects():
+    """Add sample clients and projects"""
+    print("🔄 Adding sample clients and projects...")
+    await add_clients_projects()
+    print("✅ Sample clients and projects creation complete")
 
 
-async def run_webinars():
-    """Add sample webinars"""
-    print("🔄 Adding sample webinars...")
-    await add_sample_webinars()
-    print("✅ Sample webinars creation complete")
-
-
-async def run_download_photos():
-    """Download sample photos for webinar registrants"""
-    print("🔄 Downloading sample photos...")
-    ensure_upload_dirs()
-    download_sample_photos()
-    print("✅ Sample photos download complete")
-
-
-async def run_registrants():
-    """Add sample webinar registrants with photos"""
-    print("🔄 Adding sample webinar registrants...")
-    await add_sample_registrants()
-    print("✅ Sample webinar registrants creation complete")
-
-
-async def run_clear_registrants():
-    """Clear and add fresh webinar registrants with photos"""
-    print("🔄 Clearing and adding fresh webinar registrants...")
-    await clear_and_add_registrants()
-    print("✅ Fresh webinar registrants creation complete")
+async def run_content_templates():
+    """Add sample content templates"""
+    print("🔄 Adding sample content templates...")
+    await add_sample_templates()
+    print("✅ Sample content templates creation complete")
 
 
 async def run_check_users():
@@ -348,30 +314,23 @@ def run_production_server():
 
 
 async def run_full_init():
-    """Run complete initialization: init + superuser + users + products + webinars + registrants"""
+    """Run complete initialization: init + superuser + users"""
     print("🚀 Running full initialization...")
     ensure_upload_dirs()
     
     await run_init()
     await run_superuser()
     await run_users()
-    await run_products()
-    await run_webinars()
-    await run_download_photos()
-    await run_registrants()
-    await run_clear_registrants()
     
     print("✅ Full initialization complete!")
     print("\n📋 Summary:")
     print("- Database initialized")
     print("- Superuser created: admin@example.com / admin123")
     print("- Test users added (password: test123)")
-    print("- Sample products added")
-    print("- Sample webinars added")
-    print("- Sample photos downloaded")
-    print("- Webinar registrants added with photos")
     print("\n🌐 Ready to start the application with: uv run uvicorn main:app --reload")
-    print("🔐 Login to webinar registrants: http://localhost:8000/webinar-registrants")
+    print("🔐 Login to admin panel: http://localhost:8000/admin/")
+
+
 
 
 def show_help():
@@ -405,15 +364,12 @@ COMMANDS:
     # Demo data initialization (DEPRECATED - use oppdemo.py instead)
     # These commands are deprecated and will be removed in a future version
     # Use 'uv run python oppdemo.py <command>' instead
-    init        Complete initialization (database + superuser + users + products + webinars + registrants)
+    init        Complete initialization (database + superuser + users)
     db          Initialize database only
     superuser   Create superuser only
     users       Add test users only
-    products    Add sample products only
-    webinars    Add sample webinars only
-    download_photos  Download sample photos for webinar registrants
-    registrants Add sample webinar registrants with photos
-    clear_registrants Clear and add fresh webinar registrants with photos
+    clients_projects Add sample clients and projects
+    content_templates Add sample content templates
     check_users Check existing users and their permissions
     test_auth   Test the authentication system
     change_password Change user password interactively
@@ -441,11 +397,6 @@ EXAMPLES:
     # Use 'uv run python oppdemo.py <command>' instead
     uv run python oppdemo.py init          # Full initialization
     uv run python oppdemo.py users         # Add test users
-    uv run python oppdemo.py products      # Add sample products
-    uv run python oppdemo.py webinars      # Add sample webinars
-    uv run python oppdemo.py download_photos  # Download sample photos
-    uv run python oppdemo.py registrants  # Add sample registrants
-    uv run python oppdemo.py clear_registrants  # Clear and add fresh registrants
     uv run python oppdemo.py check_users  # Check existing users
     uv run python oppdemo.py test_auth    # Test authentication
     uv run python oppdemo.py change_password  # Change user password
@@ -472,10 +423,8 @@ DEFAULT CREDENTIALS:
     - bob@example.com (inactive)
 
 PERMISSION LEVELS:
-    - Superusers: Full admin access (users + products + webinars + audit)
-    - Marketing: Product management + webinar management
-    - Sales: Product management + assigned webinar viewing
-    - Support: Product management only
+    - Superusers: Full admin access (users + conversations + audit)
+    - Staff: Conversation management and viewing
     - Regular users: No admin access
 
 PASSWORD MANAGEMENT:
@@ -484,12 +433,11 @@ PASSWORD MANAGEMENT:
     - Usage: uv run python oppdemo.py change_password (DEPRECATED: use oppdemo.py)
     - Direct script: uv run python scripts/change_password.py --email user@example.com --password newpass
 
-WEBINAR REGISTRANTS:
-    - Access: http://localhost:8000/webinar-registrants
+CONVERSATION BROWSER:
+    - Access: http://localhost:8000/conversations
     - Login required: Staff or admin access
-    - Features: Photo upload, registrant management
-    - Sample data: 5 registrants with professional photos
-    - Commands: download_photos, registrants, clear_registrants (DEPRECATED: use oppdemo.py)
+    - Features: Conversation management, folder organization, message viewing
+    - Sample data: Use scripts in fake_data/ folder
 
 DATABASE:
     - Development: SQLite (test.db)
@@ -499,7 +447,7 @@ SERVER:
     - Development server: http://localhost:8000
     - Admin panel: http://localhost:8000/admin/
     - API docs: http://localhost:8000/docs
-    - Webinar registrants: http://localhost:8000/webinar-registrants
+    - Conversation browser: http://localhost:8000/conversations
 
 NOTE: Demo data initialization commands are deprecated in oppman.py.
 Use 'uv run python oppdemo.py <command>' instead for all demo-related functionality.
@@ -524,9 +472,8 @@ Examples:
         "command",
         nargs="?",
         choices=[
-            "init", "db", "superuser", "users", "products", "webinars",
-            "download_photos", "registrants", "clear_registrants", "check_users", "test_auth",
-            "change_password", "list_users",
+            "init", "db", "superuser", "users", "clients_projects", "content_templates", 
+            "check_users", "test_auth", "change_password", "list_users",
             "runserver", "stopserver", "production", "delete", "backup", "demo", "migrate", "env", "help"
         ],
         help="Command to execute"
@@ -621,31 +568,10 @@ Examples:
             print("   Use 'uv run python oppdemo.py users' instead.")
             print()
             await run_users()
-        elif args.command == "products":
-            print("⚠️  DEPRECATION WARNING: 'oppman.py products' is deprecated.")
-            print("   Use 'uv run python oppdemo.py products' instead.")
-            print()
-            await run_products()
-        elif args.command == "webinars":
-            print("⚠️  DEPRECATION WARNING: 'oppman.py webinars' is deprecated.")
-            print("   Use 'uv run python oppdemo.py webinars' instead.")
-            print()
-            await run_webinars()
-        elif args.command == "download_photos":
-            print("⚠️  DEPRECATION WARNING: 'oppman.py download_photos' is deprecated.")
-            print("   Use 'uv run python oppdemo.py download_photos' instead.")
-            print()
-            await run_download_photos()
-        elif args.command == "registrants":
-            print("⚠️  DEPRECATION WARNING: 'oppman.py registrants' is deprecated.")
-            print("   Use 'uv run python oppdemo.py registrants' instead.")
-            print()
-            await run_registrants()
-        elif args.command == "clear_registrants":
-            print("⚠️  DEPRECATION WARNING: 'oppman.py clear_registrants' is deprecated.")
-            print("   Use 'uv run python oppdemo.py clear_registrants' instead.")
-            print()
-            await run_clear_registrants()
+        elif args.command == "clients_projects":
+            await run_clients_projects()
+        elif args.command == "content_templates":
+            await run_content_templates()
         elif args.command == "check_users":
             print("⚠️  DEPRECATION WARNING: 'oppman.py check_users' is deprecated.")
             print("   Use 'uv run python oppdemo.py check_users' instead.")

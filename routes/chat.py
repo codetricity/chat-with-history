@@ -502,7 +502,20 @@ async def get_folder_hierarchy(user_id: Optional[str] = None):
         
         hierarchy = await FolderService.get_folder_hierarchy(user_id=parsed_user_id)
         
-        return JSONResponse(content={"hierarchy": hierarchy})
+        # Transform the hierarchy to match frontend expectations
+        folders = []
+        root_conversations = []
+        
+        for item in hierarchy:
+            if item.get("type") == "folder":
+                folders.append(item)
+            elif item.get("type") == "conversation":
+                root_conversations.append(item)
+        
+        return JSONResponse(content={
+            "folders": folders,
+            "root_conversations": root_conversations
+        })
         
     except Exception as e:
         return JSONResponse(
