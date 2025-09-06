@@ -15,8 +15,8 @@ async def add_sample_messages():
     """Add sample messages to existing conversations"""
     
     async with AsyncSessionLocal() as session:
-        # Get some existing conversations
-        conversations_result = await session.execute(select(Conversation).limit(5))
+        # Get all existing conversations
+        conversations_result = await session.execute(select(Conversation))
         conversations = conversations_result.scalars().all()
         
         if not conversations:
