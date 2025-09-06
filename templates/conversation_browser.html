@@ -691,12 +691,63 @@ function conversationBrowser() {
             }
         },
 
-        applyFilters() {
-            // This would implement the advanced filtering logic
+        async applyFilters() {
             console.log('Applying filters:', this.filters);
+            
+            try {
+                // Build query parameters
+                const params = new URLSearchParams();
+                
+                // Add search query if present
+                if (this.searchQuery.trim()) {
+                    params.append('q', this.searchQuery.trim());
+                }
+                
+                // Add filter parameters
+                if (this.filters.clientId) {
+                    params.append('client_id', this.filters.clientId);
+                }
+                if (this.filters.projectId) {
+                    params.append('project_id', this.filters.projectId);
+                }
+                if (this.filters.contentType) {
+                    params.append('content_type', this.filters.contentType);
+                }
+                if (this.filters.status) {
+                    params.append('status', this.filters.status);
+                }
+                if (this.filters.startDate) {
+                    params.append('start_date', this.filters.startDate);
+                }
+                if (this.filters.endDate) {
+                    params.append('end_date', this.filters.endDate);
+                }
+                
+                // Make API call to search endpoint
+                const response = await fetch(`/api/search/conversations?${params.toString()}`);
+                if (response.ok) {
+                    const filteredConversations = await response.json();
+                    
+                    // Update the displayed conversations
+                    this.rootConversations = filteredConversations.filter(conv => !conv.folder_id);
+                    
+                    // Update folder conversations
+                    this.folders.forEach(folder => {
+                        folder.conversations = filteredConversations.filter(conv => conv.folder_id === folder.id);
+                    });
+                    
+                    console.log('Filtered conversations:', filteredConversations.length);
+                } else {
+                    console.error('Filter request failed:', response.status);
+                    const errorData = await response.json();
+                    console.error('Error details:', errorData);
+                }
+            } catch (error) {
+                console.error('Error applying filters:', error);
+            }
         },
 
-        clearFilters() {
+        async clearFilters() {
             this.filters = {
                 clientId: '',
                 projectId: '',
@@ -705,7 +756,10 @@ function conversationBrowser() {
                 startDate: '',
                 endDate: ''
             };
-            this.applyFilters();
+            this.searchQuery = '';
+            
+            // Reload all conversations when clearing filters
+            await this.loadFolders();
         },
 
         getStatusClass(status) {

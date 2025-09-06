@@ -2,12 +2,11 @@
 Marketing firm API routes for client management, projects, content templates, and status tracking
 """
 from fastapi import APIRouter, HTTPException, Depends, Query
-from sqlmodel import Session, select
+from sqlmodel import Session
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List, Optional
 from uuid import UUID
 import uuid
-from datetime import datetime, timezone
 
 from db import get_session
 from models import (
@@ -367,7 +366,7 @@ async def get_conversations(session: AsyncSession = Depends(get_session)):
             select(Conversation, ConversationFolder, User)
             .join(ConversationFolder, Conversation.folder_id == ConversationFolder.id, isouter=True)
             .join(User, Conversation.user_id == User.id, isouter=True)
-            .where(Conversation.is_active == True)
+            .where(Conversation.is_active)
             .order_by(Conversation.updated_at.desc())
         )
         
@@ -445,7 +444,7 @@ async def get_folder_hierarchy_marketing(session: AsyncSession = Depends(get_ses
         conversations_result = await session.execute(
             select(Conversation, ConversationFolder)
             .join(ConversationFolder, Conversation.folder_id == ConversationFolder.id, isouter=True)
-            .where(Conversation.is_active == True)
+            .where(Conversation.is_active)
             .order_by(Conversation.updated_at.desc())
         )
         
@@ -557,18 +556,28 @@ async def search_conversations(
     """Search conversations with advanced filters"""
     try:
         from sqlmodel import select, and_, or_
-        from models import Conversation, ContentStatus
+        from models import Conversation, ContentStatus, Project, Client, ConversationFolder
         from datetime import datetime
         
-        # Build the base query
-        query = select(Conversation)
+        # Build the base query with joins
+        query = select(Conversation).distinct()
+        
+        # Join with ContentStatus for project and status filtering
+        query = query.outerjoin(ContentStatus, Conversation.id == ContentStatus.conversation_id)
+        
+        # Join with Project for client filtering
+        query = query.outerjoin(Project, ContentStatus.project_id == Project.id)
+        
+        # Join with Client for client filtering
+        query = query.outerjoin(Client, Project.client_id == Client.id)
+        
+        # Join with ConversationFolder for folder information
+        query = query.outerjoin(ConversationFolder, Conversation.folder_id == ConversationFolder.id)
         
         # Apply filters
-        conditions = []
+        conditions = [Conversation.is_active == True]  # Only active conversations
         
-        # For now, let's keep it simple and only support basic text search and date filters
-        # More complex joins can be added later when we have proper relationships
-        
+        # Date filters
         if start_date:
             try:
                 start_dt = datetime.fromisoformat(start_date)
@@ -583,16 +592,38 @@ async def search_conversations(
             except ValueError:
                 pass
         
-        # Apply text search if query provided
+        # Client filter
+        if client_id:
+            conditions.append(Client.id == client_id)
+        
+        # Project filter
+        if project_id:
+            conditions.append(Project.id == project_id)
+        
+        # Content type filter
+        if content_type:
+            conditions.append(ContentStatus.content_type == content_type)
+        
+        # Status filter
+        if status:
+            conditions.append(ContentStatus.status == status)
+        
+        # Text search
         if q:
             search_conditions = [
-                Conversation.title.contains(q)
+                Conversation.title.contains(q),
+                ConversationFolder.name.contains(q),
+                Client.name.contains(q),
+                Project.name.contains(q)
             ]
             conditions.append(or_(*search_conditions))
         
         # Apply all conditions
         if conditions:
             query = query.where(and_(*conditions))
+        
+        # Order by updated_at desc
+        query = query.order_by(Conversation.updated_at.desc())
         
         # Apply pagination
         query = query.offset(skip).limit(limit)
@@ -601,7 +632,59 @@ async def search_conversations(
         result = await session.execute(query)
         conversations = result.scalars().all()
         
-        return list(conversations)
+        # Format the response with additional data
+        formatted_conversations = []
+        for conv in conversations:
+            # Get additional data for this conversation
+            content_status_result = await session.execute(
+                select(ContentStatus, Project, Client)
+                .outerjoin(Project, ContentStatus.project_id == Project.id)
+                .outerjoin(Client, Project.client_id == Client.id)
+                .where(ContentStatus.conversation_id == conv.id)
+            )
+            
+            content_status_data = content_status_result.first()
+            
+            # Get folder data
+            folder_result = await session.execute(
+                select(ConversationFolder)
+                .where(ConversationFolder.id == conv.folder_id)
+            )
+            folder = folder_result.scalar_one_or_none()
+            
+            # Get tags
+            from sqlmodel import select
+            tags_result = await session.execute(
+                select(ContentTag)
+                .join(ConversationTag, ContentTag.id == ConversationTag.tag_id)
+                .where(ConversationTag.conversation_id == conv.id)
+            )
+            tags = tags_result.scalars().all()
+            
+            formatted_conv = {
+                "id": str(conv.id),
+                "title": conv.title,
+                "created_at": conv.created_at.isoformat(),
+                "updated_at": conv.updated_at.isoformat(),
+                "folder_id": str(conv.folder_id) if conv.folder_id else None,
+                "folder_name": folder.name if folder else None,
+                "client_id": (str(content_status_data[2].id) 
+                             if content_status_data and content_status_data[2] else None),
+                "client_name": (content_status_data[2].name 
+                               if content_status_data and content_status_data[2] else None),
+                "project_id": (str(content_status_data[1].id) 
+                              if content_status_data and content_status_data[1] else None),
+                "project_name": (content_status_data[1].name 
+                                if content_status_data and content_status_data[1] else None),
+                "status": (content_status_data[0].status 
+                          if content_status_data and content_status_data[0] else None),
+                "content_type": (content_status_data[0].content_type 
+                                if content_status_data and content_status_data[0] else None),
+                "tags": [{"id": str(tag.id), "name": tag.name} for tag in tags]
+            }
+            formatted_conversations.append(formatted_conv)
+        
+        return formatted_conversations
         
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Search failed: {str(e)}")
