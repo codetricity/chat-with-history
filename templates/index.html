@@ -365,6 +365,14 @@
                 init() {
                     // Load conversations on page load
                     this.loadConversations();
+                    
+                    // Check for conversation_id in URL parameters
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const conversationId = urlParams.get('conversation_id');
+                    if (conversationId) {
+                        console.log('Loading conversation from URL:', conversationId);
+                        this.loadConversation(conversationId);
+                    }
                 }
             }
         }
@@ -547,7 +555,7 @@
                      })">
                     
                     <!-- Welcome Message -->
-                    <div class="chat chat-start">
+                    <div x-show="messages.length === 0" class="chat chat-start">
                         <div class="chat-bubble bg-gradient-to-r from-blue-100 to-purple-100 text-gray-800 border border-blue-200">
                             <p>👋 Hello! I'm your AI assistant. How can I help you today?</p>
                             <p class="text-xs opacity-70 mt-2">Just type your message below to start chatting!</p>
