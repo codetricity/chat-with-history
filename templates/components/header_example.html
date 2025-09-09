@@ -1,0 +1,50 @@
+<!-- Example usage of the standardized header component -->
+
+<!-- Basic usage with default values -->
+{% include "components/header.html" %}
+
+<!-- Customized header for conversation browser -->
+{% set page_title="Organize Conversations" %}
+{% set page_badge="Marketing Firm" %}
+{% set show_search_button=True %}
+{% set show_new_client_button=True %}
+{% set show_new_project_button=True %}
+{% set show_new_folder_button=True %}
+{% include "components/header.html" %}
+
+<!-- Customized header for search page -->
+{% set page_title="Search" %}
+{% set page_badge="Hybrid Search" %}
+{% include "components/header.html" %}
+
+<!-- Customized header for admin pages -->
+{% set page_title="Admin Panel" %}
+{% include "components/header.html" %}
+
+<!-- Customized header with custom action buttons -->
+{% set page_title="Custom Page" %}
+{% include "components/header.html" %}
+{% block action_buttons %}
+<button class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md text-sm font-medium">
+    <i class="fas fa-trash mr-1"></i>
+    Delete All
+</button>
+<button class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-md text-sm font-medium">
+    <i class="fas fa-export mr-1"></i>
+    Export
+</button>
+{% endblock %}
+
+<!-- Customized header with custom navigation -->
+{% set page_title="Custom Navigation" %}
+{% include "components/header.html" %}
+{% block nav_links %}
+<a href="/custom-page" class="text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium">
+    <i class="fas fa-star mr-1"></i>
+    Custom Link
+</a>
+<a href="/settings" class="text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium">
+    <i class="fas fa-cog mr-1"></i>
+    Settings
+</a>
+{% endblock %}

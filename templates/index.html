@@ -12,6 +12,9 @@
     <!-- DaisyUI CDN -->
     <link href="https://cdn.jsdelivr.net/npm/daisyui@5.1.5/dist/full.min.css" rel="stylesheet" type="text/css" />
     
+    <!-- Font Awesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    
     <!-- HTMX CDN -->
     <script src="https://unpkg.com/htmx.org@2.0.6"></script>
     
@@ -137,6 +140,7 @@
                 conversationId: null,
                 conversations: [],
                 showConversations: false,
+                showLearningGoals: false,
                 formatMessage(content) {
                     // Content is already HTML from server-side markdown processing
                     return content;
@@ -392,45 +396,16 @@
     <!-- Main Application -->
     <div x-data="chatData()">
         <!-- Header -->
-        <header class="bg-white shadow-sm border-b">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex justify-between items-center py-4">
-                    <div class="flex items-center">
-                        <h1 class="text-2xl font-bold text-gray-900">AI Chat</h1>
-                    </div>
-                    <div class="flex items-center space-x-4">
-                        <button @click="showConversations = !showConversations" 
-                                class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium">
-                            Conversations
-                        </button>
-                        <button @click="newConversation()" 
-                                class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md text-sm font-medium">
-                            New Chat
-                        </button>
-                        <a href="/conversation-browser" 
-                           class="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-md text-sm font-medium">
-                            Organize
-                        </a>
-                        <nav class="flex space-x-8">
-                            <a href="/" class="text-ai-blue hover:text-blue-700 px-3 py-2 rounded-md text-sm font-medium">Chat</a>
-                            <a href="/conversation-browser" class="text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium">Browser</a>
-                            <a href="/admin/" class="text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium">Admin</a>
-                            <a href="/login" class="text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium">Login</a>
-                        </nav>
-                    </div>
-                </div>
-            </div>
-        </header>
+        {% set page_title="AI Chat" %}
+        {% set show_conversations_button=True %}
+        {% set show_new_chat_button=True %}
+        {% include "components/header.html" %}
 
-        <!-- Hero Section -->
-        <section class="relative bg-gradient-to-br from-ai-blue to-ai-purple text-white py-12">
-            <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="text-center">
-                    <h1 class="text-4xl font-bold mb-4">AI Chat Assistant</h1>
-                    <p class="text-lg mb-6 text-blue-100">
-                        Chat with our AI assistant powered by Llama 3.3 70B
-                    </p>
-                </div>
+        <!-- Learning Goals Section -->
+        <section class="relative bg-gradient-to-br from-ai-blue to-ai-purple text-white py-8">
+            <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+                <!-- Learning Goals Dropdown -->
+                {% include "components/learning_goals/chat_learning_goals.html" %}
             </div>
         </section>
 
@@ -537,7 +512,7 @@
                                 </svg>
                             </div>
                             <div>
-                                <h3 class="text-white font-semibold text-lg">AI Assistant</h3>
+                                <h3 class="text-white font-semibold text-lg">AI Chat Example</h3>
                                 <p class="text-blue-100 text-sm">Powered by Llama 3.3 70B</p>
                             </div>
                         </div>
@@ -570,7 +545,7 @@
                             <p>👋 Hello! I'm your AI assistant. How can I help you today?</p>
                             <p class="text-xs opacity-70 mt-2">Just type your message below to start chatting!</p>
                         </div>
-                        <div class="chat-footer opacity-50">AI Assistant</div>
+                        <div class="chat-footer opacity-50">AI Chat Example</div>
                     </div>
                     
                     <!-- Dynamic Messages -->
@@ -581,7 +556,7 @@
                                 <div x-html="formatMessage(message.content)"></div>
                             </div>
                             <div class="chat-footer opacity-50" 
-                                 x-text="message.role === 'user' ? 'You' : 'AI Assistant'"></div>
+                                 x-text="message.role === 'user' ? 'You' : 'AI Chat Example'"></div>
                         </div>
                     </template>
                     
@@ -593,7 +568,7 @@
                                 <span class="text-sm">AI is thinking...</span>
                             </div>
                         </div>
-                        <div class="chat-footer opacity-50">AI Assistant</div>
+                        <div class="chat-footer opacity-50">AI Chat Example</div>
                     </div>
                     
                     <!-- Streaming Indicator -->
@@ -604,7 +579,7 @@
                                 <span class="text-sm">AI is responding...</span>
                             </div>
                         </div>
-                        <div class="chat-footer opacity-50">AI Assistant</div>
+                        <div class="chat-footer opacity-50">AI Chat Example</div>
                     </div>
                 </div>
                 
