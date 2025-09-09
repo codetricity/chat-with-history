@@ -12,6 +12,26 @@
     {% set show_new_folder_button=True %}
     {% include "components/header.html" %}
 
+    <!-- Learning Goals Banner -->
+    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-4 mb-6 mx-6">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-graduation-cap text-white text-lg"></i>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900">Learning Goals</h3>
+                    <p class="text-sm text-gray-600">Understand how conversation organization and business context work in this application</p>
+                </div>
+            </div>
+            <button @click="openLearningGoals()" 
+                    class="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors">
+                <i class="fas fa-book-open"></i>
+                <span>View Learning Goals</span>
+            </button>
+        </div>
+    </div>
+
     <!-- Main Content -->
     <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
         <!-- Loading State -->
@@ -1157,6 +1177,20 @@ function conversationBrowser() {
             } catch (error) {
                 console.error('Error deleting folder:', error);
                 this.error = 'Failed to delete folder';
+            }
+        },
+
+        openLearningGoals() {
+            // Open learning goals in a popup window
+            const popup = window.open(
+                '/conversation-learning-goals',
+                'learning-goals',
+                'width=1200,height=800,scrollbars=yes,resizable=yes,menubar=no,toolbar=no,location=no,status=no'
+            );
+            
+            // Focus the popup window
+            if (popup) {
+                popup.focus();
             }
         }
     }
