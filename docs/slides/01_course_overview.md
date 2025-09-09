@@ -6,12 +6,12 @@ backgroundColor: #fff
 backgroundImage: url('https://marp.app/assets/hero-background.svg')
 ---
 
-![bg left:40% 80%](https://marp.app/assets/marp.svg)
+![bg left:40% 80%](https://oppkey.com/static/logo.jpg)
 
-# **AI-Powered Business Applications**
+# **Free FastOpp AI Course by Oppkey**
 ## Building Beyond ChatGPT with FastAPI
 
-**Enhance Your Workflow with Custom AI Solutions**
+**Enhance Business Workflows with AI**
 
 ---
 
@@ -47,7 +47,7 @@ backgroundImage: url('https://marp.app/assets/hero-background.svg')
 - **Business context integration** - Clients, projects, workflows
 - **Cost-effective deployment** - Under $1/month hosting
 - **Extensible architecture** - Build what you need
-- **Real-world examples** - Marketing agency use case
+- **Real-world examples** - Consulting agency use case
 
 ---
 
