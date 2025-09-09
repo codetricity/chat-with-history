@@ -1,0 +1,94 @@
+<!-- Standardized Header Component -->
+<header class="bg-white shadow-sm border-b">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center py-4">
+            <!-- Left Section: Title and Badge -->
+            <div class="flex items-center">
+                <h1 class="text-2xl font-bold text-gray-900">
+                    {% block page_title %}{{ page_title or "Content Management Hub" }}{% endblock %}
+                </h1>
+                {% if page_badge %}
+                <span class="ml-3 px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full">
+                    {{ page_badge }}
+                </span>
+                {% endif %}
+            </div>
+            
+            <!-- Right Section: Actions and Navigation -->
+            <div class="flex items-center space-x-4">
+                <!-- Action Buttons -->
+                {% block action_buttons %}
+                {% if show_search_button %}
+                <a href="/search" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium">
+                    <i class="fas fa-search mr-1"></i>
+                    Search
+                </a>
+                {% endif %}
+                
+                {% if show_new_client_button %}
+                <button @click="showCreateClientModal = true" 
+                        class="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-md text-sm font-medium">
+                    +Client
+                </button>
+                {% endif %}
+                
+                {% if show_new_project_button %}
+                <button @click="showCreateProjectModal = true" 
+                        class="bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-medium">
+                    +Project
+                </button>
+                {% endif %}
+                
+                {% if show_new_folder_button %}
+                <button @click="showCreateFolderModal = true" 
+                        class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md text-sm font-medium">
+                    +Folder
+                </button>
+                {% endif %}
+                
+                {% if show_conversations_button %}
+                <button @click="showConversations = !showConversations" 
+                        class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium">
+                    <i class="fas fa-comments mr-1"></i>
+                    Conversations
+                </button>
+                {% endif %}
+                
+                {% if show_new_chat_button %}
+                <button @click="newConversation()" 
+                        class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md text-sm font-medium">
+                    <i class="fas fa-plus mr-1"></i>
+                    New Chat
+                </button>
+                {% endif %}
+                {% endblock %}
+                
+                <!-- Navigation Links -->
+                <nav class="flex space-x-4">
+                    {% block nav_links %}
+                    <a href="/" class="text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium">
+                        <i class="fas fa-comment-dots mr-1"></i>
+                        Chat
+                    </a>
+                    <a href="/conversation-browser" class="text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium">
+                        <i class="fas fa-folder mr-1"></i>
+                        Organize
+                    </a>
+                    <a href="/search" class="text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium">
+                        <i class="fas fa-search mr-1"></i>
+                        Search
+                    </a>
+                    <a href="/admin/" class="text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium">
+                        <i class="fas fa-cog mr-1"></i>
+                        Admin
+                    </a>
+                    <a href="/login" class="text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium">
+                        <i class="fas fa-arrow-right-to-bracket mr-1"></i>
+                        Login
+                    </a>
+                    {% endblock %}
+                </nav>
+            </div>
+        </div>
+    </div>
+</header>
