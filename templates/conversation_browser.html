@@ -170,8 +170,8 @@
                     </div>
                     
                     <!-- Search Results Summary -->
-                    <div x-show="searchResults.length > 0" class="text-sm text-gray-600 mb-4">
-                        Found <span x-text="searchResults.length"></span> conversations matching your search
+                    <div x-show="searchResults.length > 0 || (filters.clientId || filters.projectId || filters.contentType || filters.status || filters.startDate || filters.endDate)" class="text-sm text-gray-600 mb-4">
+                        Found <span x-text="getFilteredConversationCount()"></span> conversations matching your search
                     </div>
                 </div>
             </div>
@@ -684,13 +684,26 @@ function conversationBrowser() {
         async searchConversations() {
             if (!this.searchQuery.trim()) {
                 this.searchResults = [];
+                // Reload all conversations when search is cleared
+                await this.loadFolders();
                 return;
             }
 
             try {
                 const response = await fetch(`/api/search/conversations?q=${encodeURIComponent(this.searchQuery)}`);
                 if (response.ok) {
-                    this.searchResults = await response.json();
+                    const searchResults = await response.json();
+                    this.searchResults = searchResults;
+                    
+                    // Update the displayed conversations with search results
+                    this.rootConversations = searchResults.filter(conv => !conv.folder_id);
+                    
+                    // Update folder conversations
+                    this.folders.forEach(folder => {
+                        folder.conversations = searchResults.filter(conv => conv.folder_id === folder.id);
+                    });
+                    
+                    console.log('Search results:', searchResults.length);
                 }
             } catch (error) {
                 console.error('Search error:', error);
@@ -702,6 +715,9 @@ function conversationBrowser() {
             console.log('Applying filters:', this.filters);
             
             try {
+                // Clear search results when applying filters
+                this.searchResults = [];
+                
                 // Build query parameters
                 const params = new URLSearchParams();
                 
@@ -764,6 +780,7 @@ function conversationBrowser() {
                 endDate: ''
             };
             this.searchQuery = '';
+            this.searchResults = [];
             
             // Reload all conversations when clearing filters
             await this.loadFolders();
@@ -778,6 +795,20 @@ function conversationBrowser() {
                 'published': 'status-published'
             };
             return statusClasses[status] || 'status-draft';
+        },
+
+        getFilteredConversationCount() {
+            // If we have search results, use that count
+            if (this.searchResults.length > 0) {
+                return this.searchResults.length;
+            }
+            
+            // Otherwise, count filtered conversations from root and folders
+            let count = this.rootConversations.length;
+            this.folders.forEach(folder => {
+                count += folder.conversations ? folder.conversations.length : 0;
+            });
+            return count;
         },
 
         getFilterLabel(key, value) {
