@@ -57,6 +57,7 @@ class ConversationFolder(SQLModel, table=True):
 
     id: Optional[uuid.UUID] = Field(default_factory=uuid.uuid4, primary_key=True)
     user_id: Optional[uuid.UUID] = Field(foreign_key="users.id", nullable=True)  # Nullable for shared folders
+    project_id: Optional[uuid.UUID] = Field(foreign_key="projects.id", nullable=True)  # Nullable for general folders
     name: str = Field(max_length=200, nullable=False)
     description: Optional[str] = Field(default=None, max_length=500, nullable=True)
     parent_folder_id: Optional[uuid.UUID] = Field(foreign_key="conversation_folders.id", nullable=True)  # For sub-folders

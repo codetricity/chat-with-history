@@ -380,6 +380,7 @@ async def create_folder(request: Request):
         description = body.get("description", "").strip() or None
         parent_folder_id = body.get("parent_folder_id")
         user_id = body.get("user_id")
+        project_id = body.get("project_id")
         
         if not name:
             return JSONResponse(
@@ -408,11 +409,22 @@ async def create_folder(request: Request):
                     content={"error": "Invalid user_id format"}
                 )
         
+        parsed_project_id = None
+        if project_id:
+            try:
+                parsed_project_id = uuid.UUID(project_id)
+            except ValueError:
+                return JSONResponse(
+                    status_code=400,
+                    content={"error": "Invalid project_id format"}
+                )
+        
         folder = await FolderService.create_folder(
             name=name,
             description=description,
             parent_folder_id=parsed_parent_folder_id,
-            user_id=parsed_user_id
+            user_id=parsed_user_id,
+            project_id=parsed_project_id
         )
         
         return JSONResponse(content={
@@ -420,6 +432,7 @@ async def create_folder(request: Request):
             "name": folder.name,
             "description": folder.description,
             "parent_folder_id": str(folder.parent_folder_id) if folder.parent_folder_id else None,
+            "project_id": str(folder.project_id) if folder.project_id else None,
             "created_at": folder.created_at.isoformat(),
             "updated_at": folder.updated_at.isoformat()
         })
@@ -437,8 +450,8 @@ async def create_folder(request: Request):
 
 
 @router.get("/api/folders")
-async def get_folders(user_id: Optional[str] = None, parent_folder_id: Optional[str] = None):
-    """Get folders for a user"""
+async def get_folders(user_id: Optional[str] = None, parent_folder_id: Optional[str] = None, project_id: Optional[str] = None):
+    """Get folders for a user, optionally filtered by parent folder or project"""
     try:
         parsed_user_id = None
         if user_id:
@@ -460,9 +473,20 @@ async def get_folders(user_id: Optional[str] = None, parent_folder_id: Optional[
                     content={"error": "Invalid parent_folder_id format"}
                 )
         
+        parsed_project_id = None
+        if project_id:
+            try:
+                parsed_project_id = uuid.UUID(project_id)
+            except ValueError:
+                return JSONResponse(
+                    status_code=400,
+                    content={"error": "Invalid project_id format"}
+                )
+        
         folders = await FolderService.get_folders(
             user_id=parsed_user_id,
-            parent_folder_id=parsed_parent_folder_id
+            parent_folder_id=parsed_parent_folder_id,
+            project_id=parsed_project_id
         )
         
         return JSONResponse(content={
@@ -472,6 +496,7 @@ async def get_folders(user_id: Optional[str] = None, parent_folder_id: Optional[
                     "name": folder.name,
                     "description": folder.description,
                     "parent_folder_id": str(folder.parent_folder_id) if folder.parent_folder_id else None,
+                    "project_id": str(folder.project_id) if folder.project_id else None,
                     "created_at": folder.created_at.isoformat(),
                     "updated_at": folder.updated_at.isoformat()
                 }
@@ -542,6 +567,7 @@ async def get_folder(folder_id: str):
             "name": folder.name,
             "description": folder.description,
             "parent_folder_id": str(folder.parent_folder_id) if folder.parent_folder_id else None,
+            "project_id": str(folder.project_id) if folder.project_id else None,
             "created_at": folder.created_at.isoformat(),
             "updated_at": folder.updated_at.isoformat()
         })
@@ -558,25 +584,72 @@ async def get_folder(folder_id: str):
         )
 
 
+@router.get("/api/projects/{project_id}/folders")
+async def get_project_folders(project_id: str):
+    """Get all folders for a specific project"""
+    try:
+        parsed_project_id = uuid.UUID(project_id)
+        folders = await FolderService.get_folders(project_id=parsed_project_id)
+        
+        return JSONResponse(content={
+            "folders": [
+                {
+                    "id": str(folder.id),
+                    "name": folder.name,
+                    "description": folder.description,
+                    "parent_folder_id": str(folder.parent_folder_id) if folder.parent_folder_id else None,
+                    "project_id": str(folder.project_id) if folder.project_id else None,
+                    "created_at": folder.created_at.isoformat(),
+                    "updated_at": folder.updated_at.isoformat()
+                }
+                for folder in folders
+            ]
+        })
+        
+    except ValueError:
+        return JSONResponse(
+            status_code=400,
+            content={"error": "Invalid project_id format"}
+        )
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={"error": f"Internal server error: {str(e)}"}
+        )
+
+
 @router.put("/api/folders/{folder_id}")
 async def update_folder(folder_id: str, request: Request):
-    """Update folder name and/or description"""
+    """Update folder name, description, and/or project_id"""
     try:
         parsed_folder_id = uuid.UUID(folder_id)
         body = await request.json()
         name = body.get("name", "").strip() or None
         description = body.get("description", "").strip() or None
+        project_id = body.get("project_id")
         
-        if name is None and description is None:
+        if name is None and description is None and project_id is None:
             return JSONResponse(
                 status_code=400,
-                content={"error": "At least one field (name or description) must be provided"}
+                content={"error": "At least one field (name, description, or project_id) must be provided"}
             )
+        
+        # Parse project_id if provided
+        parsed_project_id = None
+        if project_id:
+            try:
+                parsed_project_id = uuid.UUID(project_id)
+            except ValueError:
+                return JSONResponse(
+                    status_code=400,
+                    content={"error": "Invalid project_id format"}
+                )
         
         success = await FolderService.update_folder(
             folder_id=parsed_folder_id,
             name=name,
-            description=description
+            description=description,
+            project_id=parsed_project_id
         )
         
         if not success:
