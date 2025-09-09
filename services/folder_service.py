@@ -194,13 +194,29 @@ class FolderService:
                 )
                 message_count = message_count_result.scalar() or 0
                 
+                # Get client and project information
+                from models import ContentStatus, Project, Client
+                content_status_result = await session.execute(
+                    select(ContentStatus, Project, Client)
+                    .outerjoin(Project, ContentStatus.project_id == Project.id)
+                    .outerjoin(Client, Project.client_id == Client.id)
+                    .where(ContentStatus.conversation_id == conv.id)
+                )
+                content_status_data = content_status_result.first()
+                
                 hierarchy.append({
                     "type": "conversation",
                     "id": str(conv.id),
                     "title": conv.title,
                     "created_at": conv.created_at.isoformat(),
                     "updated_at": conv.updated_at.isoformat(),
-                    "message_count": message_count
+                    "message_count": message_count,
+                    "client_id": str(content_status_data[2].id) if content_status_data and content_status_data[2] else None,
+                    "client_name": content_status_data[2].name if content_status_data and content_status_data[2] else None,
+                    "project_id": str(content_status_data[1].id) if content_status_data and content_status_data[1] else None,
+                    "project_name": content_status_data[1].name if content_status_data and content_status_data[1] else None,
+                    "status": content_status_data[0].status if content_status_data and content_status_data[0] else None,
+                    "content_type": content_status_data[0].content_type if content_status_data and content_status_data[0] else None
                 })
             
             # Add root folders and their children
@@ -231,13 +247,29 @@ class FolderService:
             )
             message_count = message_count_result.scalar() or 0
             
+            # Get client and project information
+            from models import ContentStatus, Project, Client
+            content_status_result = await session.execute(
+                select(ContentStatus, Project, Client)
+                .outerjoin(Project, ContentStatus.project_id == Project.id)
+                .outerjoin(Client, Project.client_id == Client.id)
+                .where(ContentStatus.conversation_id == conv.id)
+            )
+            content_status_data = content_status_result.first()
+            
             conversations.append({
                 "type": "conversation",
                 "id": str(conv.id),
                 "title": conv.title,
                 "created_at": conv.created_at.isoformat(),
                 "updated_at": conv.updated_at.isoformat(),
-                "message_count": message_count
+                "message_count": message_count,
+                "client_id": str(content_status_data[2].id) if content_status_data and content_status_data[2] else None,
+                "client_name": content_status_data[2].name if content_status_data and content_status_data[2] else None,
+                "project_id": str(content_status_data[1].id) if content_status_data and content_status_data[1] else None,
+                "project_name": content_status_data[1].name if content_status_data and content_status_data[1] else None,
+                "status": content_status_data[0].status if content_status_data and content_status_data[0] else None,
+                "content_type": content_status_data[0].content_type if content_status_data and content_status_data[0] else None
             })
         
         # Build sub-folders list
