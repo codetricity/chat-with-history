@@ -12,7 +12,6 @@ Web Search
 
 ![web search](docs/images/readme/web_search.webp)
 
-
 ## Features
 
 ### 🤖 **AI Chat Interface**
@@ -49,6 +48,7 @@ Web Search
 - **Frontend**: HTMX + Alpine.js + DaisyUI + TailwindCSS
 - **AI/LLM**: OpenRouter API with Llama 3.3 70B
 - **Web Search**: Tavily API for real-time information
+- **Hybrid Search**: FAISS + FTS5 + OpenAI Embeddings
 - **Package Management**: uv
 - **Migrations**: Alembic
 
@@ -60,6 +60,7 @@ Web Search
 - uv package manager
 - OpenRouter API key (for AI chat functionality)
 - Tavily API key (for web search functionality)
+- OpenAI API key (for hybrid search embeddings)
 
 ### Installation
 
@@ -83,12 +84,40 @@ Create a `.env` file in the project root with your API keys:
 ```bash
 OPENROUTER_API_KEY=your_openrouter_api_key_here
 TAVILY_API_KEY=your_tavily_api_key_here
+OPENAI_API_KEY=your_openai_api_key_here
 ```
 
 1. Run database migrations:
 
 ```bash
 uv run alembic upgrade head
+```
+
+1. Set up hybrid search (optional but recommended):
+
+```bash
+# Chunk existing conversations for search
+uv run python -c "
+from services.chunking_service import ChunkingService
+from services.embedding_service import EmbeddingService
+import asyncio
+
+async def setup_search():
+    chunking_service = ChunkingService()
+    embedding_service = EmbeddingService()
+    
+    # Chunk all conversations
+    total_chunks = await chunking_service.chunk_all_conversations()
+    print(f'Created {total_chunks} conversation chunks')
+    
+    # Generate embeddings for all chunks
+    from services.hybrid_search_service import HybridSearchService
+    hybrid_service = HybridSearchService(embedding_service)
+    await hybrid_service.build_faiss_index()
+    print('FAISS index built successfully')
+
+asyncio.run(setup_search())
+"
 ```
 
 1. Start the application:
@@ -103,6 +132,7 @@ uv run python main.py
 
 - **Chat Interface**: `http://localhost:8000` - Main chat application
 - **Conversation Browser**: `http://localhost:8000/conversation-browser` - Advanced conversation organization
+- **Search Interface**: `http://localhost:8000/search` - Hybrid search across conversations and documents
 - **Admin Interface**: `http://localhost:8000/admin/` - Database administration
 
 ## API Endpoints
@@ -129,6 +159,14 @@ uv run python main.py
 - `POST /api/conversations/{conversation_id}/move` - Move conversation to folder
 - `GET /api/folders/{folder_id}/conversations` - Get conversations in specific folder
 
+### Search Endpoints
+
+- `GET /search/hybrid` - Hybrid search combining keyword and semantic search
+- `GET /search/keyword` - Keyword search using FTS5
+- `GET /search/semantic` - Semantic search using FAISS
+- `GET /search/conversations` - Search conversations with advanced filtering
+- `GET /search/documents` - Search documents with metadata filtering
+
 ### Authentication
 
 - `POST /api/auth/login` - User login
@@ -150,7 +188,10 @@ uv run python main.py
 │   ├── chat_history_service.py  # Conversation management
 │   ├── title_generation_service.py  # Auto-title generation
 │   ├── folder_service.py  # Folder and organization management
-│   └── web_search_service.py  # Web search integration
+│   ├── web_search_service.py  # Web search integration
+│   ├── hybrid_search_service.py  # Hybrid search (FAISS + FTS5)
+│   ├── embedding_service.py  # OpenAI embeddings management
+│   └── chunking_service.py  # Content chunking for search
 ├── templates/            # HTML templates
 ├── models.py             # Database models
 └── main.py              # Application entry point
@@ -211,6 +252,54 @@ The application features intelligent web search capabilities that automatically 
 - "Explain what Python is"
 - "How do I cook pasta?"
 - "What is the capital of France?"
+
+### 🔍 **Hybrid Search System**
+
+The application features a sophisticated hybrid search system that combines keyword and semantic search for comprehensive content discovery:
+
+#### **Search Technologies**
+
+- **Keyword Search (FTS5 + BM25)**: Uses SQLite's Full-Text Search extension with BM25 ranking for precise keyword matching
+- **Semantic Search (FAISS + OpenAI)**: Leverages OpenAI embeddings (1536 dimensions) with FAISS vector similarity search for meaning-based discovery
+- **Hybrid Scoring**: Combines both approaches with configurable weights (default: 35% BM25, 65% semantic)
+
+#### **Search Capabilities**
+
+- **Multi-Content Search**: Search across conversations, documents, and all content types
+- **Intelligent Chunking**: Content is automatically chunked into searchable pieces for granular discovery
+- **Real-time Indexing**: New content is automatically indexed and made searchable
+- **Advanced Filtering**: Filter by content type, date ranges, folders, and more
+- **Configurable Weights**: Adjust the balance between keyword and semantic search relevance
+
+#### **Search Methods Available**
+
+1. **Hybrid Search** (Recommended): Combines keyword and semantic search for optimal results
+2. **Keyword Search**: Traditional text search with BM25 ranking
+3. **Semantic Search**: AI-powered meaning-based search
+4. **Basic Search**: Simple text matching for quick results
+
+#### **Search Interface Features**
+
+- **Real-time Search**: Results update as you type with debounced input
+- **Search Statistics**: Shows result counts and search performance metrics
+- **Result Highlighting**: Highlights matching terms in search results
+- **Contextual Information**: Shows conversation titles, folder organization, and content metadata
+- **Export Capabilities**: Export search results for further analysis
+
+#### **API Endpoints for Search**
+
+- `GET /search/hybrid` - Perform hybrid search with configurable weights
+- `GET /search/keyword` - Keyword-only search using FTS5
+- `GET /search/semantic` - Semantic-only search using FAISS
+- `GET /search/conversations` - Search conversations with advanced filtering
+- `GET /search/documents` - Search documents with metadata filtering
+
+#### **Search Use Cases**
+
+- **Content Discovery**: Find relevant conversations and documents across your entire knowledge base
+- **Research Assistance**: Locate specific information or related content quickly
+- **Knowledge Management**: Organize and retrieve information by meaning, not just keywords
+- **Contextual Search**: Find content that's semantically related even with different terminology
 
 ### Modern UI/UX
 
