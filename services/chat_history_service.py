@@ -3,10 +3,11 @@ Chat History Service for managing conversation persistence and retrieval
 """
 import uuid
 from datetime import datetime, timezone
-from typing import List, Optional, Dict, Any, Tuple
+from typing import List, Optional, Dict, Any
 from sqlmodel import select, and_
-from models import Conversation, Message, User
+from models import Conversation, Message, Chunk
 from db import AsyncSessionLocal
+from services.chunking_service import ChunkingService
 import logging
 
 logger = logging.getLogger(__name__)
@@ -59,7 +60,7 @@ class ChatHistoryService:
             statement = select(Conversation).where(
                 and_(
                     Conversation.id == conversation_id,
-                    Conversation.is_active == True
+                    Conversation.is_active
                 )
             )
             result = await session.execute(statement)
@@ -89,7 +90,7 @@ class ChatHistoryService:
                 .where(
                     and_(
                         Conversation.user_id == user_id,
-                        Conversation.is_active == True
+                        Conversation.is_active
                     )
                 )
                 .order_by(Conversation.updated_at.desc())
@@ -146,6 +147,44 @@ class ChatHistoryService:
             await session.commit()
             await session.refresh(message)
             logger.info(f"Added {role} message to conversation {conversation_id}")
+            
+            # Automatically chunk the new message for search
+            try:
+                chunking_service = ChunkingService()
+                # Chunk only the new message, not the entire conversation
+                message_chunks = chunking_service.split_text(content)
+                
+                # Create chunks for this specific message
+                async with AsyncSessionLocal() as chunk_session:
+                    from sqlmodel import select
+                    
+                    # Get the current chunk index for this conversation
+                    chunk_count_statement = select(Chunk).where(Chunk.conversation_id == conversation_id)
+                    chunk_result = await chunk_session.execute(chunk_count_statement)
+                    existing_chunks = chunk_result.scalars().all()
+                    chunk_index = len(existing_chunks)
+                    
+                    # Create chunks for this message
+                    for i, chunk_content in enumerate(message_chunks):
+                        chunk = Chunk(
+                            conversation_id=conversation_id,
+                            content=chunk_content,
+                            chunk_index=chunk_index + i,
+                            chunk_type=role,
+                            message_id=message.id
+                        )
+                        chunk_session.add(chunk)
+                    
+                    await chunk_session.commit()
+                    logger.info(
+                        f"Created {len(message_chunks)} chunks for new {role} message "
+                        f"in conversation {conversation_id}"
+                    )
+                    
+            except Exception as e:
+                # Don't fail the message save if chunking fails
+                logger.error(f"Failed to chunk new message in conversation {conversation_id}: {e}")
+            
             return message
 
     @staticmethod
