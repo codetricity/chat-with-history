@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search - Marketing Firm Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-gray-50">
+    <div x-data="searchApp()" class="min-h-screen">
+        <!-- Header -->
+        <header class="bg-white shadow-sm border-b">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between items-center py-4">
+                    <div class="flex items-center">
+                        <h1 class="text-2xl font-bold text-gray-900">Search</h1>
+                        <span class="ml-3 px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">
+                            Hybrid Search
+                        </span>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <a href="/conversations" class="text-gray-600 hover:text-gray-900">
+                            <i class="fas fa-folder-open mr-1"></i>
+                            Organize
+                        </a>
+                        <a href="/admin/" class="text-gray-600 hover:text-gray-900">
+                            <i class="fas fa-cog mr-1"></i>
+                            Admin
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <!-- Search Interface -->
+            <div class="bg-white rounded-lg shadow-sm border p-6 mb-6">
+                <div class="space-y-4">
+                    <!-- Search Input -->
+                    <div class="flex gap-3">
+                        <div class="relative flex-1">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-search text-gray-400"></i>
+                            </div>
+                            <input type="text" 
+                                   x-model="searchQuery" 
+                                   @keyup.enter="performSearch()"
+                                   @input.debounce.500ms="performSearch()"
+                                   placeholder="Search conversations, documents, and content..."
+                                   class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg">
+                        </div>
+                        <button @click="performSearch()" 
+                                :disabled="!searchQuery.trim()"
+                                class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed">
+                            <i class="fas fa-search mr-2"></i>
+                            Search
+                        </button>
+                    </div>
+
+                    <!-- Search Options -->
+                    <div class="flex flex-wrap gap-4 items-center">
+                        <!-- Search Method -->
+                        <div class="flex items-center space-x-2">
+                            <label class="text-sm font-medium text-gray-700">Method:</label>
+                            <select x-model="searchMethod" 
+                                    @change="performSearch()"
+                                    class="px-3 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500">
+                                <option value="hybrid">Hybrid (Recommended)</option>
+                                <option value="keyword">Keyword Only</option>
+                                <option value="semantic">Semantic Only</option>
+                                <option value="basic">Basic SQL</option>
+                            </select>
+                        </div>
+
+                        <!-- Search Type -->
+                        <div class="flex items-center space-x-2">
+                            <label class="text-sm font-medium text-gray-700">Content:</label>
+                            <select x-model="searchType" 
+                                    @change="performSearch()"
+                                    class="px-3 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500">
+                                <option value="conversation">Conversations</option>
+                                <option value="document">Documents</option>
+                                <option value="both">Both</option>
+                            </select>
+                        </div>
+
+                        <!-- Results Limit -->
+                        <div class="flex items-center space-x-2">
+                            <label class="text-sm font-medium text-gray-700">Results:</label>
+                            <select x-model="resultsLimit" 
+                                    @change="performSearch()"
+                                    class="px-3 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500">
+                                <option value="10">10</option>
+                                <option value="25">25</option>
+                                <option value="50">50</option>
+                                <option value="100">100</option>
+                            </select>
+                        </div>
+
+                        <!-- Clear Button -->
+                        <button @click="clearSearch()" 
+                                class="px-3 py-1 text-sm text-gray-600 hover:text-gray-800 border border-gray-300 rounded-md hover:bg-gray-50">
+                            <i class="fas fa-times mr-1"></i>
+                            Clear
+                        </button>
+                    </div>
+
+                    <!-- Search Method Description -->
+                    <div class="text-sm text-gray-600 bg-gray-50 p-3 rounded-md" x-show="searchQuery.trim()">
+                        <div x-text="getSearchMethodDescription()"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Search Results -->
+            <div x-show="searchResults.length > 0 || isLoading" class="space-y-6">
+                <!-- Results Header -->
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h2 class="text-lg font-semibold text-gray-900">
+                            <span x-show="!isLoading" x-text="`${searchResults.length} results found`"></span>
+                            <span x-show="isLoading">Searching...</span>
+                        </h2>
+                        <p class="text-sm text-gray-600" x-show="searchQuery.trim() && !isLoading">
+                            <span x-text="`Searching for: '${searchQuery}'`"></span>
+                            <span x-show="searchMethod !== 'basic'" x-text="` using ${searchMethod} search`"></span>
+                        </p>
+                    </div>
+                    
+                    <!-- Search Stats -->
+                    <div class="text-sm text-gray-500" x-show="searchStats">
+                        <div x-text="searchStats"></div>
+                    </div>
+                </div>
+
+                <!-- Loading Indicator -->
+                <div x-show="isLoading" class="flex justify-center py-8">
+                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                </div>
+
+                <!-- Results List -->
+                <div x-show="!isLoading && searchResults.length > 0" class="space-y-4">
+                    <template x-for="(result, index) in searchResults" :key="`${result.chunk_id}-${index}`">
+                        <div class="bg-white rounded-lg shadow-sm border p-6 hover:shadow-md transition-shadow">
+                            <div class="flex justify-between items-start mb-3">
+                                <div class="flex-1">
+                                    <h3 class="text-lg font-semibold text-gray-900 mb-1">
+                                        <a :href="`/conversations/${result.conversation_id || result.document_id}`" 
+                                           class="hover:text-blue-600">
+                                            <span x-text="result.title || result.conversation_title || 'Untitled'"></span>
+                                        </a>
+                                    </h3>
+                                    
+                                    <!-- Metadata -->
+                                    <div class="flex flex-wrap gap-4 text-sm text-gray-600 mb-3">
+                                        <span x-show="result.folder_name">
+                                            <i class="fas fa-folder mr-1"></i>
+                                            <span x-text="result.folder_name"></span>
+                                        </span>
+                                        <span x-show="result.client_name">
+                                            <i class="fas fa-building mr-1"></i>
+                                            <span x-text="result.client_name"></span>
+                                        </span>
+                                        <span x-show="result.project_name">
+                                            <i class="fas fa-project-diagram mr-1"></i>
+                                            <span x-text="result.project_name"></span>
+                                        </span>
+                                        <span x-show="result.chunk_type">
+                                            <i class="fas fa-tag mr-1"></i>
+                                            <span x-text="result.chunk_type"></span>
+                                        </span>
+                                    </div>
+                                </div>
+                                
+                                <!-- Relevance Score -->
+                                <div class="flex flex-col items-end space-y-1">
+                                    <div x-show="result.hybrid_score" class="text-sm">
+                                        <span class="text-gray-500">Relevance:</span>
+                                        <span class="font-medium text-blue-600" x-text="(result.hybrid_score * 100).toFixed(1) + '%'"></span>
+                                    </div>
+                                    <div x-show="result.bm25_score" class="text-xs text-gray-400">
+                                        BM25: <span x-text="result.bm25_score.toFixed(3)"></span>
+                                    </div>
+                                    <div x-show="result.cosine_score" class="text-xs text-gray-400">
+                                        Cosine: <span x-text="result.cosine_score.toFixed(3)"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Content Preview -->
+                            <div class="text-gray-700">
+                                <p class="text-sm leading-relaxed" x-text="result.content_preview || result.content"></p>
+                            </div>
+                            
+                            <!-- Search Highlighting -->
+                            <div x-show="result.highlighted_content" class="mt-3 p-3 bg-yellow-50 border border-yellow-200 rounded-md">
+                                <div class="text-sm text-gray-700" x-html="result.highlighted_content"></div>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+
+                <!-- No Results -->
+                <div x-show="!isLoading && searchResults.length === 0 && searchQuery.trim()" 
+                     class="text-center py-12">
+                    <i class="fas fa-search text-gray-300 text-4xl mb-4"></i>
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">No results found</h3>
+                    <p class="text-gray-600 mb-4">
+                        Try adjusting your search terms or using a different search method.
+                    </p>
+                    <div class="space-y-2 text-sm text-gray-500">
+                        <p><strong>Tips:</strong></p>
+                        <ul class="list-disc list-inside space-y-1">
+                            <li>Try different keywords or phrases</li>
+                            <li>Use "Hybrid" search for best results</li>
+                            <li>Check spelling and try synonyms</li>
+                            <li>Use "Semantic" search for concept-based results</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Welcome State -->
+            <div x-show="!searchQuery.trim() && searchResults.length === 0" class="text-center py-12">
+                <i class="fas fa-search text-gray-300 text-6xl mb-6"></i>
+                <h2 class="text-2xl font-bold text-gray-900 mb-4">Search Your Content</h2>
+                <p class="text-gray-600 mb-6 max-w-2xl mx-auto">
+                    Use our advanced hybrid search to find conversations, documents, and content across your marketing firm's knowledge base. 
+                    Search by keywords, concepts, or use our AI-powered semantic search.
+                </p>
+                
+                <!-- Search Examples -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl mx-auto">
+                    <div class="bg-white p-4 rounded-lg shadow-sm border">
+                        <h3 class="font-semibold text-gray-900 mb-2">
+                            <i class="fas fa-key text-blue-600 mr-2"></i>
+                            Keyword Search
+                        </h3>
+                        <p class="text-sm text-gray-600 mb-3">Find exact matches and phrases</p>
+                        <div class="text-xs text-gray-500">
+                            <p class="font-medium">Examples:</p>
+                            <p>"social media strategy"</p>
+                            <p>"client meeting notes"</p>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white p-4 rounded-lg shadow-sm border">
+                        <h3 class="font-semibold text-gray-900 mb-2">
+                            <i class="fas fa-brain text-purple-600 mr-2"></i>
+                            Semantic Search
+                        </h3>
+                        <p class="text-sm text-gray-600 mb-3">Find related concepts and ideas</p>
+                        <div class="text-xs text-gray-500">
+                            <p class="font-medium">Examples:</p>
+                            <p>"marketing approach"</p>
+                            <p>"brand positioning"</p>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white p-4 rounded-lg shadow-sm border">
+                        <h3 class="font-semibold text-gray-900 mb-2">
+                            <i class="fas fa-magic text-green-600 mr-2"></i>
+                            Hybrid Search
+                        </h3>
+                        <p class="text-sm text-gray-600 mb-3">Best of both worlds</p>
+                        <div class="text-xs text-gray-500">
+                            <p class="font-medium">Recommended for:</p>
+                            <p>Most searches</p>
+                            <p>Complex queries</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function searchApp() {
+            return {
+                searchQuery: '',
+                searchMethod: 'hybrid',
+                searchType: 'conversation',
+                resultsLimit: 25,
+                searchResults: [],
+                isLoading: false,
+                searchStats: '',
+
+                async performSearch() {
+                    if (!this.searchQuery.trim()) {
+                        this.searchResults = [];
+                        this.searchStats = '';
+                        return;
+                    }
+
+                    this.isLoading = true;
+                    this.searchStats = '';
+
+                    try {
+                        let endpoint = '';
+                        const params = new URLSearchParams({
+                            q: this.searchQuery,
+                            limit: this.resultsLimit
+                        });
+
+                        if (this.searchType === 'both') {
+                            // For both, we'll search conversations and documents separately
+                            endpoint = `/api/search/${this.searchMethod}`;
+                            params.append('search_type', 'conversation');
+                        } else if (this.searchType === 'document') {
+                            endpoint = `/api/search/documents`;
+                            params.append('search_method', this.searchMethod);
+                        } else {
+                            endpoint = `/api/search/${this.searchMethod}`;
+                            params.append('search_type', this.searchType);
+                        }
+
+                        const response = await fetch(`${endpoint}?${params}`);
+                        
+                        if (response.ok) {
+                            const data = await response.json();
+                            this.searchResults = data.results || [];
+                            
+                            // Update search stats
+                            const method = data.search_method || this.searchMethod;
+                            const total = data.total_results || this.searchResults.length;
+                            this.searchStats = `${total} results using ${method} search`;
+                            
+                        } else {
+                            console.error('Search failed:', response.statusText);
+                            this.searchResults = [];
+                        }
+                    } catch (error) {
+                        console.error('Search error:', error);
+                        this.searchResults = [];
+                    } finally {
+                        this.isLoading = false;
+                    }
+                },
+
+                clearSearch() {
+                    this.searchQuery = '';
+                    this.searchResults = [];
+                    this.searchStats = '';
+                },
+
+                getSearchMethodDescription() {
+                    const descriptions = {
+                        'hybrid': 'Combines keyword matching with AI-powered semantic understanding for the most comprehensive results.',
+                        'keyword': 'Finds exact matches and phrases using advanced text search algorithms.',
+                        'semantic': 'Uses AI to understand meaning and find related concepts, even with different words.',
+                        'basic': 'Simple text matching in titles and metadata only.'
+                    };
+                    return descriptions[this.searchMethod] || '';
+                }
+            }
+        }
+    </script>
+</body>
+</html>
