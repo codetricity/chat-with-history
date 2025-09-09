@@ -217,24 +217,32 @@
                                 <div class="flex items-start justify-between">
                                     <div class="flex-1 min-w-0">
                                         <h3 class="text-sm font-medium text-gray-900 truncate" x-text="conversation.title"></h3>
-                                        <!-- Debug info -->
-                                        <div class="text-xs text-gray-400" x-text="'ID: ' + conversation.id"></div>
+                                        
+                                        <!-- Client and Project Info - More Prominent -->
+                                        <div class="mt-1 flex items-center space-x-2">
+                                            <span x-show="conversation.client_name" 
+                                                  class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
+                                                  x-text="conversation.client_name"></span>
+                                            <span x-show="conversation.project_name" 
+                                                  class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800"
+                                                  x-text="conversation.project_name"></span>
+                                        </div>
+                                        
                                         <div x-show="conversation.message_count === 0" class="text-xs text-orange-600 font-medium mt-1">
                                             ⚠️ Empty conversation - no messages yet
                                         </div>
+                                        
                                         <div class="mt-1 flex items-center space-x-2">
                                             <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium"
                                                   :class="getStatusClass(conversation.status)"
                                                   x-text="conversation.status || 'draft'"></span>
-                                        </div>
-                                        <div class="flex items-center space-x-4 text-xs text-gray-500">
-                                            <span x-text="new Date(conversation.updated_at).toLocaleDateString()"></span>
-                                            <span x-show="conversation.client_name" 
-                                                  x-text="'Client: ' + conversation.client_name"></span>
-                                            <span x-show="conversation.project_name" 
-                                                  x-text="'Project: ' + conversation.project_name"></span>
                                             <span x-show="conversation.content_type" 
-                                                  x-text="'Type: ' + conversation.content_type"></span>
+                                                  class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800"
+                                                  x-text="conversation.content_type.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())"></span>
+                                        </div>
+                                        
+                                        <div class="flex items-center space-x-4 text-xs text-gray-500 mt-1">
+                                            <span x-text="new Date(conversation.updated_at).toLocaleDateString()"></span>
                                             <span class="text-orange-600 font-medium" x-text="conversation.message_count ? conversation.message_count + ' messages' : 'No messages'"></span>
                                         </div>
                                         <div class="flex flex-wrap gap-1 mt-2" x-show="conversation.tags && conversation.tags.length > 0">
@@ -272,8 +280,21 @@
                 </div>
             </div>
 
+            <!-- Filtered Results Message -->
+            <div x-show="hasActiveFilters()" class="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-6">
+                <div class="flex items-center">
+                    <svg class="w-5 h-5 text-blue-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.207A1 1 0 013 6.5V4z"></path>
+                    </svg>
+                    <p class="text-sm text-blue-800">
+                        <span x-text="getFilteredConversationCount()"></span> conversations match your filters. 
+                        Folders are hidden when filters are active.
+                    </p>
+                </div>
+            </div>
+
             <!-- Project-Based Folders -->
-            <div x-show="projectsWithFolders.length > 0" class="bg-white rounded-lg shadow-sm border mt-6">
+            <div x-show="projectsWithFolders.length > 0 && !hasActiveFilters()" class="bg-white rounded-lg shadow-sm border mt-6">
                 <div class="px-6 py-4 border-b border-gray-200">
                     <h2 class="text-lg font-semibold text-gray-900">Project Folders</h2>
                     <p class="text-sm text-gray-600">Folders organized by project</p>
@@ -379,7 +400,7 @@
             </div>
 
             <!-- General Folders -->
-            <template x-for="folder in generalFolders" :key="folder.id">
+            <template x-for="folder in generalFolders" :key="folder.id" x-show="!hasActiveFilters()">
                 <div class="bg-white rounded-lg shadow-sm border mt-6">
                     <div class="px-6 py-4 border-b border-gray-200">
                         <div class="flex items-center justify-between">
@@ -707,7 +728,7 @@ function conversationBrowser() {
                         title: conv.title,
                         created_at: conv.created_at,
                         updated_at: conv.updated_at,
-                        message_count: 0, // Will be updated separately
+                        message_count: conv.message_count || 0, // Use actual message count from API
                         client_id: conv.client_id,
                         client_name: conv.client_name,
                         project_id: conv.project_id,
@@ -938,13 +959,23 @@ function conversationBrowser() {
             }
         },
 
+        hasActiveFilters() {
+            return !!(this.filters.clientId || this.filters.projectId || this.filters.contentType || 
+                     this.filters.status || this.filters.startDate || this.filters.endDate);
+        },
+
         getFilteredConversationCount() {
             // If we have search results, use that count
             if (this.searchResults && this.searchResults.length > 0) {
                 return this.searchResults.length;
             }
             
-            // Otherwise, count filtered conversations from root and folders
+            // If filters are applied, only count rootConversations (which are filtered)
+            if (this.hasActiveFilters()) {
+                return this.rootConversations ? this.rootConversations.length : 0;
+            }
+            
+            // Otherwise, count all conversations from root and folders
             let count = this.rootConversations ? this.rootConversations.length : 0;
             this.folders.forEach(folder => {
                 count += folder.conversations ? folder.conversations.length : 0;
