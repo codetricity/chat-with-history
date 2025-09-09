@@ -50,7 +50,8 @@ Web Search
 - **Web Search**: Tavily API for real-time information
 - **Hybrid Search**: FAISS + FTS5 + OpenAI Embeddings
 - **Package Management**: uv
-- **Migrations**: Alembic
+- **Migrations**: Alembic (with oppman wrapper)
+- **Database Management**: oppman.py (Django-like commands)
 
 ## Getting Started
 
@@ -90,6 +91,10 @@ OPENAI_API_KEY=your_openai_api_key_here
 1. Run database migrations:
 
 ```bash
+# Option 1: Using oppman (recommended)
+uv run python oppman.py migrate upgrade
+
+# Option 2: Using Alembic directly
 uv run alembic upgrade head
 ```
 
@@ -194,7 +199,10 @@ uv run python main.py
 │   └── chunking_service.py  # Content chunking for search
 ├── templates/            # HTML templates
 ├── models.py             # Database models
-└── main.py              # Application entry point
+├── main.py              # Application entry point
+├── oppman.py            # Database management tool (Django-like)
+├── oppsetup.py          # Complete setup tool with fake data
+└── alembic.ini          # Alembic configuration
 ```
 
 ## Key Features Explained
@@ -316,7 +324,80 @@ The application features a sophisticated hybrid search system that combines keyw
 uv run python -m pytest
 ```
 
-### Database Migrations
+### Database Management with oppman
+
+The project includes a comprehensive database management system through `oppman.py` that provides Django-like commands. This wrapper around Alembic offers several advantages:
+
+- **Simplified Commands**: Easy-to-remember commands similar to Django's `manage.py`
+- **Automatic Configuration**: Handles Alembic setup and configuration automatically
+- **Enhanced Error Handling**: Better error messages and troubleshooting
+- **Integrated Workflow**: Seamlessly integrates with the project's database initialization
+- **Backup Management**: Automatic database backups before destructive operations
+
+#### **Database Initialization**
+
+```bash
+# Complete setup with all fake data
+uv run python oppsetup.py
+
+# Minimal setup (database + superuser + users only)
+uv run python oppsetup.py minimal
+
+# Reset database and run complete setup
+uv run python oppsetup.py reset
+```
+
+#### **Database Migrations**
+
+```bash
+# Initialize migrations (first time only)
+uv run python oppman.py migrate init
+
+# Create a new migration
+uv run python oppman.py migrate create "Description of changes"
+
+# Apply all pending migrations
+uv run python oppman.py migrate upgrade
+
+# Check current migration status
+uv run python oppman.py migrate current
+
+# View migration history
+uv run python oppman.py migrate history
+
+# Downgrade to previous migration
+uv run python oppman.py migrate downgrade <revision>
+```
+
+#### **Database Management**
+
+```bash
+# Backup current database
+uv run python oppman.py backup
+
+# Delete database (with backup)
+uv run python oppman.py delete
+
+# Check environment configuration
+uv run python oppman.py env
+```
+
+#### **Server Management**
+
+```bash
+# Start development server
+uv run python oppman.py runserver
+
+# Stop development server
+uv run python oppman.py stopserver
+
+# Start production server
+uv run python oppman.py production
+```
+
+### Traditional Alembic Commands
+
+If you prefer to use Alembic directly:
 
 ```bash
 # Create a new migration
@@ -324,6 +405,12 @@ uv run alembic revision --autogenerate -m "Description of changes"
 
 # Apply migrations
 uv run alembic upgrade head
+
+# Check current status
+uv run alembic current
+
+# View migration history
+uv run alembic history
 ```
 
 ### Code Style
