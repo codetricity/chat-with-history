@@ -12,14 +12,16 @@ class FolderService:
     @staticmethod
     async def create_folder(name: str, description: Optional[str] = None, 
                           parent_folder_id: Optional[uuid.UUID] = None, 
-                          user_id: Optional[uuid.UUID] = None) -> ConversationFolder:
+                          user_id: Optional[uuid.UUID] = None,
+                          project_id: Optional[uuid.UUID] = None) -> ConversationFolder:
         """Create a new conversation folder"""
         async with AsyncSessionLocal() as session:
             folder = ConversationFolder(
                 name=name,
                 description=description,
                 parent_folder_id=parent_folder_id,
-                user_id=user_id
+                user_id=user_id,
+                project_id=project_id
             )
             session.add(folder)
             await session.commit()
@@ -28,13 +30,17 @@ class FolderService:
 
     @staticmethod
     async def get_folders(user_id: Optional[uuid.UUID] = None, 
-                         parent_folder_id: Optional[uuid.UUID] = None) -> List[ConversationFolder]:
-        """Get folders for a user, optionally filtered by parent folder"""
+                         parent_folder_id: Optional[uuid.UUID] = None,
+                         project_id: Optional[uuid.UUID] = None) -> List[ConversationFolder]:
+        """Get folders for a user, optionally filtered by parent folder or project"""
         async with AsyncSessionLocal() as session:
             query = select(ConversationFolder).where(ConversationFolder.is_active == True)
             
             if user_id is not None:
                 query = query.where(ConversationFolder.user_id == user_id)
+            
+            if project_id is not None:
+                query = query.where(ConversationFolder.project_id == project_id)
             
             if parent_folder_id is not None:
                 query = query.where(ConversationFolder.parent_folder_id == parent_folder_id)
@@ -55,8 +61,8 @@ class FolderService:
 
     @staticmethod
     async def update_folder(folder_id: uuid.UUID, name: Optional[str] = None, 
-                          description: Optional[str] = None) -> bool:
-        """Update folder name and/or description"""
+                          description: Optional[str] = None, project_id: Optional[uuid.UUID] = None) -> bool:
+        """Update folder name, description, and/or project_id"""
         async with AsyncSessionLocal() as session:
             folder = await session.get(ConversationFolder, folder_id)
             if not folder or not folder.is_active:
@@ -66,6 +72,8 @@ class FolderService:
                 folder.name = name
             if description is not None:
                 folder.description = description
+            if project_id is not None:
+                folder.project_id = project_id
             
             session.add(folder)
             await session.commit()
@@ -225,6 +233,7 @@ class FolderService:
             "id": str(folder.id),
             "name": folder.name,
             "description": folder.description,
+            "project_id": str(folder.project_id) if folder.project_id else None,
             "created_at": folder.created_at.isoformat(),
             "updated_at": folder.updated_at.isoformat(),
             "conversations": conversations,

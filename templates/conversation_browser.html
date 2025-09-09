@@ -289,14 +289,137 @@
                 </div>
             </div>
 
-            <!-- Folders -->
-            <template x-for="folder in folders" :key="folder.id">
+            <!-- Project-Based Folders -->
+            <div x-show="projectsWithFolders.length > 0" class="bg-white rounded-lg shadow-sm border mt-6">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h2 class="text-lg font-semibold text-gray-900">Project Folders</h2>
+                    <p class="text-sm text-gray-600">Folders organized by project</p>
+                </div>
+                <div class="p-6">
+                    <template x-for="project in projectsWithFolders" :key="project.id">
+                        <div class="mb-6 last:mb-0">
+                            <div class="flex items-center mb-3">
+                                <h3 class="text-md font-medium text-gray-900" x-text="project.name"></h3>
+                                <span class="ml-2 px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full" 
+                                      x-text="project.folders.length + ' folder(s)'"></span>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                <template x-for="folder in project.folders" :key="folder.id">
+                                    <div class="bg-gray-50 rounded-lg border border-gray-200">
+                                        <div class="p-4">
+                                            <div class="flex items-start justify-between">
+                                                <div class="flex items-start space-x-2 flex-1 min-w-0">
+                                                    <button @click="toggleFolder(folder.id)"
+                                                            class="p-1 text-gray-400 hover:text-gray-600 transition-transform mt-0.5"
+                                                            :class="{'rotate-90': expandedFolders[folder.id]}"
+                                                            title="Toggle folder contents">
+                                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                                        </svg>
+                                                    </button>
+                                                    <div class="flex-1 min-w-0">
+                                                        <h4 class="text-sm font-medium text-gray-900 truncate" x-text="folder.name"></h4>
+                                                        <p class="text-xs text-gray-600 mt-1" x-text="folder.description || 'No description'"></p>
+                                                        <div class="flex items-center space-x-1 mt-2">
+                                                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                                Project Folder
+                                                            </span>
+                                                            <span class="text-xs text-gray-500" 
+                                                                  x-text="(folder.conversations ? folder.conversations.length : 0) + ' conversation(s)'"></span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="flex items-center space-x-1 ml-2">
+                                                    <button @click="editFolder(folder)"
+                                                            class="p-1 text-gray-400 hover:text-gray-600"
+                                                            title="Edit Folder">
+                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                                        </svg>
+                                                    </button>
+                                                    <button @click="deleteFolder(folder.id)"
+                                                            class="p-1 text-gray-400 hover:text-red-600"
+                                                            title="Delete Folder">
+                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                                        </svg>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!-- Folder contents -->
+                                        <div x-show="expandedFolders[folder.id]" 
+                                             x-transition:enter="transition ease-out duration-200"
+                                             x-transition:enter-start="opacity-0 transform scale-95"
+                                             x-transition:enter-end="opacity-100 transform scale-100"
+                                             x-transition:leave="transition ease-in duration-150"
+                                             x-transition:leave-start="opacity-100 transform scale-100"
+                                             x-transition:leave-end="opacity-0 transform scale-95"
+                                             class="px-4 pb-4 border-t border-gray-200">
+                                            <div class="mt-3 space-y-2">
+                                                <template x-for="conversation in folder.conversations || []" :key="conversation.id">
+                                                    <div class="bg-white rounded border border-gray-200 p-3 hover:shadow-sm transition-shadow">
+                                                        <div class="flex items-start justify-between">
+                                                            <div class="flex-1 min-w-0">
+                                                                <h5 class="text-xs font-medium text-gray-900 truncate" x-text="conversation.title"></h5>
+                                                                <div class="flex items-center space-x-2 mt-1">
+                                                                    <span class="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium"
+                                                                          :class="getStatusClass(conversation.status)"
+                                                                          x-text="conversation.status || 'draft'"></span>
+                                                                    <span class="text-xs text-gray-500" 
+                                                                          x-text="new Date(conversation.updated_at).toLocaleDateString()"></span>
+                                                                </div>
+                                                            </div>
+                                                            <button @click="viewConversation(conversation.id)"
+                                                                    class="p-1 text-gray-400 hover:text-blue-600 ml-2"
+                                                                    title="View Conversation">
+                                                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                                                </svg>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </template>
+                                                <div x-show="!folder.conversations || folder.conversations.length === 0" 
+                                                     class="text-center text-gray-500 py-4 text-xs">
+                                                    <p>No conversations in this folder</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </div>
+
+            <!-- General Folders -->
+            <template x-for="folder in generalFolders" :key="folder.id">
                 <div class="bg-white rounded-lg shadow-sm border mt-6">
                     <div class="px-6 py-4 border-b border-gray-200">
                         <div class="flex items-center justify-between">
-                            <div>
-                                <h2 class="text-lg font-semibold text-gray-900" x-text="folder.name"></h2>
-                                <p class="text-sm text-gray-600" x-text="folder.description || 'No description'"></p>
+                            <div class="flex items-center space-x-3">
+                                <button @click="toggleFolder(folder.id)"
+                                        class="p-1 text-gray-400 hover:text-gray-600 transition-transform"
+                                        :class="{'rotate-90': expandedFolders[folder.id]}"
+                                        title="Toggle folder contents">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                    </svg>
+                                </button>
+                                <div>
+                                    <h2 class="text-lg font-semibold text-gray-900" x-text="folder.name"></h2>
+                                    <p class="text-sm text-gray-600" x-text="folder.description || 'No description'"></p>
+                                    <div class="flex items-center space-x-2 mt-1">
+                                        <span class="text-xs text-gray-500" 
+                                              x-text="(folder.conversations ? folder.conversations.length : 0) + ' conversation(s)'"></span>
+                                        <span x-show="folder.children && folder.children.length > 0" 
+                                              class="text-xs text-gray-500" 
+                                              x-text="folder.children.length + ' subfolder(s)'"></span>
+                                    </div>
+                                </div>
                             </div>
                             <div class="flex items-center space-x-2">
                                 <button @click="editFolder(folder)"
@@ -316,7 +439,14 @@
                             </div>
                         </div>
                     </div>
-                    <div class="p-6">
+                    <div x-show="expandedFolders[folder.id]" 
+                         x-transition:enter="transition ease-out duration-200"
+                         x-transition:enter-start="opacity-0 transform scale-95"
+                         x-transition:enter-end="opacity-100 transform scale-100"
+                         x-transition:leave="transition ease-in duration-150"
+                         x-transition:leave-start="opacity-100 transform scale-100"
+                         x-transition:leave-end="opacity-0 transform scale-95"
+                         class="p-6">
                         <div :id="'folder-' + folder.id" 
                              class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
                              x-data="{}"
@@ -395,9 +525,9 @@
     <!-- Include Modals -->
     {% include 'components/modals/client_modal.html' %}
     {% include 'components/modals/project_modal.html' %}
+    {% include 'components/modals/folder_modal.html' %}
     
     <!-- Additional modals would go here -->
-    {# {% include 'components/modals/folder_modal.html' %} #}
     {# {% include 'components/modals/status_modal.html' %} #}
 </div>
 {% endblock %}
@@ -440,12 +570,14 @@ function conversationBrowser() {
         },
         newFolder: {
             name: '',
-            description: ''
+            description: '',
+            project_id: ''
         },
         editingFolder: {
             id: null,
             name: '',
-            description: ''
+            description: '',
+            project_id: ''
         },
         newClient: {
             name: '',
@@ -471,6 +603,41 @@ function conversationBrowser() {
             content_type: '',
             review_notes: '',
             assigned_to: ''
+        },
+        expandedFolders: {},
+
+        // Computed properties for organizing folders
+        get projectsWithFolders() {
+            const projectFolders = {};
+            
+            // Group folders by project
+            this.folders.forEach(folder => {
+                if (folder.project_id) {
+                    if (!projectFolders[folder.project_id]) {
+                        projectFolders[folder.project_id] = [];
+                    }
+                    projectFolders[folder.project_id].push(folder);
+                }
+            });
+            
+            // Convert to array with project info
+            return Object.keys(projectFolders).map(projectId => {
+                const project = this.projects.find(p => p.id === projectId);
+                return {
+                    id: projectId,
+                    name: project ? project.name : 'Unknown Project',
+                    folders: projectFolders[projectId]
+                };
+            });
+        },
+
+        get generalFolders() {
+            return this.folders.filter(folder => !folder.project_id);
+        },
+
+        // Folder management methods
+        toggleFolder(folderId) {
+            this.expandedFolders[folderId] = !this.expandedFolders[folderId];
         },
 
         async init() {
@@ -677,8 +844,13 @@ function conversationBrowser() {
         },
 
         editFolder(folder) {
-            // For now, just show an alert. In a real app, you'd open an edit modal
-            alert(`Edit folder: ${folder.name}\n\nThis feature would open an edit dialog.`);
+            this.editingFolder = {
+                id: folder.id,
+                name: folder.name,
+                description: folder.description || '',
+                project_id: folder.project_id || ''
+            };
+            this.showEditFolderModal = true;
         },
 
         async searchConversations() {
@@ -829,6 +1001,80 @@ function conversationBrowser() {
                 endDate: () => `To: ${value}`
             };
             return labels[key] ? labels[key]() : `${key}: ${value}`;
+        },
+
+        async createFolder() {
+            try {
+                const response = await fetch('/api/folders', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(this.newFolder)
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to create folder');
+                }
+                
+                this.showCreateFolderModal = false;
+                this.newFolder = { name: '', description: '', project_id: '' };
+                await this.loadData();
+            } catch (error) {
+                this.error = 'Failed to create folder';
+                console.error('Error creating folder:', error);
+            }
+        },
+
+        async updateFolder() {
+            try {
+                const response = await fetch(`/api/folders/${this.editingFolder.id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        name: this.editingFolder.name,
+                        description: this.editingFolder.description,
+                        project_id: this.editingFolder.project_id
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to update folder');
+                }
+                
+                this.showEditFolderModal = false;
+                this.editingFolder = { id: null, name: '', description: '', project_id: '' };
+                await this.loadData();
+            } catch (error) {
+                this.error = 'Failed to update folder';
+                console.error('Error updating folder:', error);
+            }
+        },
+
+        async deleteFolder(folderId) {
+            if (!confirm('Are you sure you want to delete this folder? This action cannot be undone.')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/folders/${folderId}`, {
+                    method: 'DELETE'
+                });
+                
+                if (response.ok) {
+                    await this.loadData();
+                    console.log('Folder deleted successfully');
+                } else {
+                    const errorData = await response.json();
+                    console.error('Failed to delete folder:', errorData);
+                    this.error = `Failed to delete folder: ${errorData.detail || 'Unknown error'}`;
+                }
+            } catch (error) {
+                console.error('Error deleting folder:', error);
+                this.error = 'Failed to delete folder';
+            }
         }
     }
 }

@@ -10,8 +10,8 @@ import uuid
 from datetime import datetime, timedelta
 from pathlib import Path
 
-# Add the parent directory to the path so we can import from the project
-sys.path.append(str(Path(__file__).parent.parent))
+# Add the project root directory to the path so we can import from the project
+sys.path.append(str(Path(__file__).parent.parent.parent))
 
 from db import AsyncSessionLocal
 from models import Client, Project
