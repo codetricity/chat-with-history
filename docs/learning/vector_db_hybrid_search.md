@@ -2,7 +2,9 @@
 
 ## 🎯 Overview
 
-This guide explains how our FastAPI application implements hybrid search using vector databases, embeddings, and traditional text search. You'll learn about FAISS, embeddings, FTS5, and how to extend the system for real-world applications.
+This guide explains how our **FastAPI-based FastOpp application** implements hybrid search using vector databases, embeddings, and traditional text search. You'll learn about FAISS, embeddings, FTS5, and how to extend the system for real-world applications.
+
+**FastOpp** is an open source learning tool for AI applications with pre-built UI and admin components to help students spend more time on core AI learning concepts instead of configuring the full FastAPI stack from scratch with authentication and UI components. Learn more at [https://github.com/Oppkey/fastopp](https://github.com/Oppkey/fastopp).
 
 ## 🧠 What is Hybrid Search?
 

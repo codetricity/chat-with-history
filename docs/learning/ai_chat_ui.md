@@ -2,7 +2,9 @@
 
 ## 🎯 Overview
 
-This guide explains how our FastAPI application implements a ChatGPT/Claude-like AI chat interface with advanced features like streaming responses, internet search integration, and database connectivity. You'll learn about the technical architecture, implementation strategies, and potential enhancements for building production-ready chat applications.
+This guide explains how our **FastAPI-based FastOpp application** implements a ChatGPT/Claude-like AI chat interface with advanced features like streaming responses, internet search integration, and database connectivity. You'll learn about the technical architecture, implementation strategies, and potential enhancements for building production-ready chat applications.
+
+**FastOpp** is an open source learning tool for AI applications with pre-built UI and admin components to help students spend more time on core AI learning concepts instead of configuring the full FastAPI stack from scratch with authentication and UI components. Learn more at [https://github.com/Oppkey/fastopp](https://github.com/Oppkey/fastopp).
 
 ## 🧠 Core Chat Functionality
 
