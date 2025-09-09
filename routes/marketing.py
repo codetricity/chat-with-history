@@ -595,14 +595,24 @@ async def search_conversations(
         # Date filters
         if start_date:
             try:
-                start_dt = datetime.fromisoformat(start_date)
+                # Handle both YYYY-MM-DD and ISO format
+                if len(start_date) == 10:  # YYYY-MM-DD format
+                    start_dt = datetime.strptime(start_date, '%Y-%m-%d')
+                else:  # ISO format
+                    start_dt = datetime.fromisoformat(start_date)
                 conditions.append(Conversation.created_at >= start_dt)
             except ValueError:
                 pass
         
         if end_date:
             try:
-                end_dt = datetime.fromisoformat(end_date)
+                # Handle both YYYY-MM-DD and ISO format
+                if len(end_date) == 10:  # YYYY-MM-DD format
+                    end_dt = datetime.strptime(end_date, '%Y-%m-%d')
+                    # Add time to end of day for end_date
+                    end_dt = end_dt.replace(hour=23, minute=59, second=59, microsecond=999999)
+                else:  # ISO format
+                    end_dt = datetime.fromisoformat(end_date)
                 conditions.append(Conversation.created_at <= end_dt)
             except ValueError:
                 pass
