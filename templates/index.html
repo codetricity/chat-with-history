@@ -387,6 +387,20 @@
                         console.log('Loading conversation from URL:', conversationId);
                         this.loadConversation(conversationId);
                     }
+                },
+
+                openChatLearningGoals() {
+                    // Open chat learning goals in a popup window
+                    const popup = window.open(
+                        '/chat-learning-goals',
+                        'chat-learning-goals',
+                        'width=1200,height=800,scrollbars=yes,resizable=yes,menubar=no,toolbar=no,location=no,status=no'
+                    );
+                    
+                    // Focus the popup window
+                    if (popup) {
+                        popup.focus();
+                    }
                 }
             }
         }
@@ -404,8 +418,35 @@
         <!-- Learning Goals Section -->
         <section class="relative bg-gradient-to-br from-ai-blue to-ai-purple text-white py-8">
             <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-                <!-- Learning Goals Dropdown -->
-                {% include "components/learning_goals/chat_learning_goals.html" %}
+                <!-- Hero Content -->
+                <div class="text-center">
+                    <h1 class="text-4xl font-bold mb-4">AI Chat Assistant</h1>
+                    <p class="text-xl opacity-90">Powered by Llama 3.3 70B with web search capabilities</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Learning Goals Banner -->
+        <section class="py-4">
+            <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-4 mb-6">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-graduation-cap text-white text-lg"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-900">Learning Goals</h3>
+                                <p class="text-sm text-gray-600">Understand how AI chat interfaces work with streaming, search integration, and database connectivity</p>
+                            </div>
+                        </div>
+                        <button @click="openChatLearningGoals()" 
+                                class="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors">
+                            <i class="fas fa-book-open"></i>
+                            <span>View Learning Goals</span>
+                        </button>
+                    </div>
+                </div>
             </div>
         </section>
 
