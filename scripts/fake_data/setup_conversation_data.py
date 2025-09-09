@@ -14,7 +14,7 @@ sys.path.insert(0, str(project_root))
 
 from scripts.fake_data.add_sample_conversation_folders import add_sample_conversation_folders
 from scripts.fake_data.add_sample_conversations import add_sample_conversations
-from scripts.fake_data.add_sample_messages import add_sample_messages
+from scripts.fake_data.add_sample_messages_fixed import add_sample_messages
 
 
 async def setup_conversation_data():

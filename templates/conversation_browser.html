@@ -63,7 +63,7 @@
                     <div class="flex items-center justify-between mb-4">
                         <h2 class="text-lg font-semibold text-gray-900">Advanced Search</h2>
                         <div class="flex space-x-2">
-                            <button @click="clearFilters()" 
+                            <button @click="clearConversationFilters()" 
                                     class="px-3 py-1 text-sm text-gray-600 hover:text-gray-800 border border-gray-300 rounded-md hover:bg-gray-50">
                                 Clear All
                             </button>
@@ -88,7 +88,7 @@
                         <!-- Client Filter -->
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Client</label>
-                            <select x-model="filters.clientId" @change="applyFilters()"
+                            <select x-model="filters.clientId" @change="applyConversationFilters()"
                                     class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
                                 <option value="">All Clients</option>
                                 <template x-for="client in clients" :key="client.id">
@@ -100,7 +100,7 @@
                         <!-- Project Filter -->
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Project</label>
-                            <select x-model="filters.projectId" @change="applyFilters()"
+                            <select x-model="filters.projectId" @change="applyConversationFilters()"
                                     class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
                                 <option value="">All Projects</option>
                                 <template x-for="project in projects" :key="project.id">
@@ -112,7 +112,7 @@
                         <!-- Content Type Filter -->
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Content Type</label>
-                            <select x-model="filters.contentType" @change="applyFilters()"
+                            <select x-model="filters.contentType" @change="applyConversationFilters()"
                                     class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
                                 <option value="">All Types</option>
                                 <option value="blog_post">Blog Post</option>
@@ -127,7 +127,7 @@
                         <!-- Status Filter -->
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                            <select x-model="filters.status" @change="applyFilters()"
+                            <select x-model="filters.status" @change="applyConversationFilters()"
                                     class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
                                 <option value="">All Statuses</option>
                                 <option value="draft">Draft</option>
@@ -143,12 +143,12 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
-                            <input type="date" x-model="filters.startDate" @change="applyFilters()"
+                            <input type="date" x-model="filters.startDate" @change="applyConversationFilters()"
                                    class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">End Date</label>
-                            <input type="date" x-model="filters.endDate" @change="applyFilters()"
+                            <input type="date" x-model="filters.endDate" @change="applyConversationFilters()"
                                    class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
                         </div>
                     </div>
@@ -158,8 +158,8 @@
                         <template x-for="(value, key) in filters" :key="key">
                             <span x-show="value" 
                                   class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
-                                <span x-text="getFilterLabel(key, value)"></span>
-                                <button @click="filters[key] = ''; applyFilters()" 
+                                <span x-text="getConversationFilterLabel(key, value)"></span>
+                                <button @click="filters[key] = ''; applyConversationFilters()" 
                                         class="ml-1.5 inline-flex items-center justify-center w-4 h-4 rounded-full text-indigo-400 hover:bg-indigo-200 hover:text-indigo-500 focus:outline-none focus:bg-indigo-500 focus:text-white">
                                     <span class="sr-only">Remove</span>
                                     <svg class="w-2 h-2" stroke="currentColor" fill="none" viewBox="0 0 8 8">
@@ -239,10 +239,16 @@
                             }, 100);
                          ">
                         <template x-for="conversation in rootConversations" :key="conversation.id">
-                            <div class="conversation-item bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                            <div class="conversation-item bg-white border rounded-lg p-4 hover:shadow-md transition-shadow"
+                                 :class="conversation.message_count > 0 ? 'border-gray-200' : 'border-orange-200 bg-orange-50'">
                                 <div class="flex items-start justify-between">
                                     <div class="flex-1 min-w-0">
                                         <h3 class="text-sm font-medium text-gray-900 truncate" x-text="conversation.title"></h3>
+                                        <!-- Debug info -->
+                                        <div class="text-xs text-gray-400" x-text="'ID: ' + conversation.id"></div>
+                                        <div x-show="conversation.message_count === 0" class="text-xs text-orange-600 font-medium mt-1">
+                                            ⚠️ Empty conversation - no messages yet
+                                        </div>
                                         <div class="mt-1 flex items-center space-x-2">
                                             <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium"
                                                   :class="getStatusClass(conversation.status)"
@@ -254,6 +260,9 @@
                                                   x-text="'Client: ' + conversation.client_name"></span>
                                             <span x-show="conversation.project_name" 
                                                   x-text="'Project: ' + conversation.project_name"></span>
+                                            <span x-show="conversation.content_type" 
+                                                  x-text="'Type: ' + conversation.content_type"></span>
+                                            <span class="text-orange-600 font-medium" x-text="conversation.message_count ? conversation.message_count + ' messages' : 'No messages'"></span>
                                         </div>
                                         <div class="flex flex-wrap gap-1 mt-2" x-show="conversation.tags && conversation.tags.length > 0">
                                             <template x-for="tag in conversation.tags" :key="tag.id">
@@ -484,6 +493,8 @@
                                                       x-text="'Client: ' + conversation.client_name"></span>
                                                 <span x-show="conversation.project_name" 
                                                       x-text="'Project: ' + conversation.project_name"></span>
+                                                <span x-show="conversation.content_type" 
+                                                      x-text="'Type: ' + conversation.content_type"></span>
                                             </div>
                                             <div class="flex flex-wrap gap-1 mt-2" x-show="conversation.tags && conversation.tags.length > 0">
                                                 <template x-for="tag in conversation.tags" :key="tag.id">
@@ -604,6 +615,7 @@ function conversationBrowser() {
             assigned_to: ''
         },
         expandedFolders: {},
+        searchResults: [],
 
         // Computed properties for organizing folders
         get projectsWithFolders() {
@@ -689,13 +701,73 @@ function conversationBrowser() {
 
         async loadConversations() {
             try {
-                const response = await fetch('/api/conversations');
+                // Build query parameters for filtering
+                const params = new URLSearchParams();
+                
+                if (this.filters.clientId) {
+                    params.append('client_id', this.filters.clientId);
+                }
+                if (this.filters.projectId) {
+                    params.append('project_id', this.filters.projectId);
+                }
+                if (this.filters.contentType) {
+                    params.append('content_type', this.filters.contentType);
+                }
+                if (this.filters.status) {
+                    params.append('status', this.filters.status);
+                }
+                if (this.filters.startDate) {
+                    params.append('start_date', this.filters.startDate);
+                }
+                if (this.filters.endDate) {
+                    params.append('end_date', this.filters.endDate);
+                }
+                
+                // Use the search API to get conversations with all the metadata
+                const response = await fetch(`/api/search/conversations?${params.toString()}`);
                 if (response.ok) {
-                    this.rootConversations = await response.json();
+                    const conversations = await response.json();
+                    
+                    // Map the search results to our conversation format
+                    this.rootConversations = conversations.map(conv => ({
+                        id: conv.id,
+                        title: conv.title,
+                        created_at: conv.created_at,
+                        updated_at: conv.updated_at,
+                        message_count: 0, // Will be updated separately
+                        client_id: conv.client_id,
+                        client_name: conv.client_name,
+                        project_id: conv.project_id,
+                        project_name: conv.project_name,
+                        content_type: conv.content_type,
+                        status: conv.status,
+                        folder_name: conv.folder_name
+                    }));
+                    
+                    console.log('Loaded conversations:', this.rootConversations.length);
+                } else {
+                    console.error('Failed to load conversations');
                 }
             } catch (error) {
                 console.error('Error loading conversations:', error);
             }
+        },
+
+        async applyConversationFilters() {
+            console.log('Applying conversation filters:', this.filters);
+            await this.loadConversations();
+        },
+
+        clearConversationFilters() {
+            this.filters = {
+                clientId: '',
+                projectId: '',
+                contentType: '',
+                status: '',
+                startDate: '',
+                endDate: ''
+            };
+            this.loadConversations();
         },
 
         async loadMarketingData() {
@@ -803,6 +875,8 @@ function conversationBrowser() {
 
         viewConversation(conversationId) {
             // Redirect to the main chat page with the conversation ID
+            console.log('Viewing conversation with ID:', conversationId);
+            console.log('Redirecting to:', `/?conversation_id=${conversationId}`);
             window.location.href = `/?conversation_id=${conversationId}`;
         },
 
@@ -853,70 +927,6 @@ function conversationBrowser() {
         },
 
 
-        async applyFilters() {
-            console.log('Applying filters:', this.filters);
-            
-            try {
-                // Build query parameters
-                const params = new URLSearchParams();
-                
-                // Add filter parameters
-                if (this.filters.clientId) {
-                    params.append('client_id', this.filters.clientId);
-                }
-                if (this.filters.projectId) {
-                    params.append('project_id', this.filters.projectId);
-                }
-                if (this.filters.contentType) {
-                    params.append('content_type', this.filters.contentType);
-                }
-                if (this.filters.status) {
-                    params.append('status', this.filters.status);
-                }
-                if (this.filters.startDate) {
-                    params.append('start_date', this.filters.startDate);
-                }
-                if (this.filters.endDate) {
-                    params.append('end_date', this.filters.endDate);
-                }
-                
-                // Make API call to search endpoint
-                const response = await fetch(`/api/search/conversations?${params.toString()}`);
-                if (response.ok) {
-                    const filteredConversations = await response.json();
-                    
-                    // Update the displayed conversations
-                    this.rootConversations = filteredConversations.filter(conv => !conv.folder_id);
-                    
-                    // Update folder conversations
-                    this.folders.forEach(folder => {
-                        folder.conversations = filteredConversations.filter(conv => conv.folder_id === folder.id);
-                    });
-                    
-                    console.log('Filtered conversations:', filteredConversations.length);
-                } else {
-                    console.error('Filter request failed:', response.status);
-                    const errorData = await response.json();
-                    console.error('Error details:', errorData);
-                }
-            } catch (error) {
-                console.error('Error applying filters:', error);
-            }
-        },
-
-        async clearFilters() {
-            this.filters = {
-                clientId: '',
-                projectId: '',
-                contentType: '',
-                status: '',
-                startDate: '',
-                endDate: ''
-            };
-            
-            // Reload all conversations when clearing filters
-            await this.loadFolders();
-        },
 
         getStatusClass(status) {
             const statusClasses = {
@@ -929,14 +939,40 @@ function conversationBrowser() {
             return statusClasses[status] || 'status-draft';
         },
 
+        getConversationFilterLabel(key, value) {
+            if (!value) return '';
+            
+            const labels = {
+                'clientId': 'Client',
+                'projectId': 'Project', 
+                'contentType': 'Type',
+                'status': 'Status',
+                'startDate': 'From',
+                'endDate': 'To'
+            };
+            
+            const label = labels[key] || key;
+            
+            // Try to find the display name for the value
+            if (key === 'clientId') {
+                const client = this.clients.find(c => c.id === value);
+                return `${label}: ${client ? client.name : value}`;
+            } else if (key === 'projectId') {
+                const project = this.projects.find(p => p.id === value);
+                return `${label}: ${project ? project.name : value}`;
+            } else {
+                return `${label}: ${value}`;
+            }
+        },
+
         getFilteredConversationCount() {
             // If we have search results, use that count
-            if (this.searchResults.length > 0) {
+            if (this.searchResults && this.searchResults.length > 0) {
                 return this.searchResults.length;
             }
             
             // Otherwise, count filtered conversations from root and folders
-            let count = this.rootConversations.length;
+            let count = this.rootConversations ? this.rootConversations.length : 0;
             this.folders.forEach(folder => {
                 count += folder.conversations ? folder.conversations.length : 0;
             });
