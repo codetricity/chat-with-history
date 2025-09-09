@@ -297,6 +297,9 @@
                                 this.conversations = data.conversations || [];
                             }
                         }
+                        
+                        // Sort conversations by updated_at date (newest first)
+                        this.conversations.sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at));
                     } catch (error) {
                         console.error('Error loading conversations:', error);
                     }
