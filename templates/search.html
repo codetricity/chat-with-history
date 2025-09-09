@@ -17,6 +17,26 @@
 
         <!-- Main Content -->
         <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <!-- Learning Goals Banner -->
+            <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-4 mb-6">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-graduation-cap text-white text-lg"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-900">Learning Goals</h3>
+                            <p class="text-sm text-gray-600">Understand how vector databases and hybrid search work in this application</p>
+                        </div>
+                    </div>
+                    <button @click="openLearningGoals()" 
+                            class="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors">
+                        <i class="fas fa-book-open"></i>
+                        <span>View Learning Goals</span>
+                    </button>
+                </div>
+            </div>
+
             <!-- Search Interface -->
             <div class="bg-white rounded-lg shadow-sm border p-6 mb-6">
                 <div class="space-y-4">
@@ -508,6 +528,20 @@
                         'semantic': 'Uses AI to understand meaning and find related concepts, even with different words.'
                     };
                     return descriptions[this.searchMethod] || '';
+                },
+
+                openLearningGoals() {
+                    // Open learning goals in a popup window
+                    const popup = window.open(
+                        '/learning-goals',
+                        'learning-goals',
+                        'width=1200,height=800,scrollbars=yes,resizable=yes,menubar=no,toolbar=no,location=no,status=no'
+                    );
+                    
+                    // Focus the popup window
+                    if (popup) {
+                        popup.focus();
+                    }
                 }
             }
         }
