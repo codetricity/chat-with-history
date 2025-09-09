@@ -2,7 +2,7 @@
 Marketing firm API routes for client management, projects, content templates, and status tracking
 """
 from fastapi import APIRouter, HTTPException, Depends, Query
-from sqlmodel import Session
+from sqlmodel import Session, select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List, Optional
 from uuid import UUID
@@ -11,7 +11,7 @@ import logging
 
 from db import get_session
 from models import (
-    Client, Project, ContentTemplate, ContentStatus, ContentTag, ConversationTag,
+    Client, Project, ContentTemplate, ContentStatus, ContentTag, ConversationTag, Message,
     ClientCreate, ClientUpdate, ProjectCreate, ProjectUpdate, 
     ContentTemplateCreate, ContentTemplateUpdate, ContentStatusCreate, ContentStatusUpdate,
     ContentTagCreate, ContentTagUpdate
@@ -484,11 +484,19 @@ async def get_folder_hierarchy_marketing(session: AsyncSession = Depends(get_ses
         
         # Add conversations to folders
         for conversation, folder in conversations_result:
+            # Get message count for this conversation
+            message_count_result = await session.execute(
+                select(func.count(Message.id))
+                .where(Message.conversation_id == conversation.id)
+            )
+            message_count = message_count_result.scalar() or 0
+            
             conv_data = {
                 "id": str(conversation.id),
                 "title": conversation.title,
                 "created_at": conversation.created_at.isoformat(),
-                "updated_at": conversation.updated_at.isoformat()
+                "updated_at": conversation.updated_at.isoformat(),
+                "message_count": message_count
             }
             
             if folder:
@@ -562,8 +570,8 @@ async def search_conversations(
 ):
     """Search conversations with advanced filters"""
     try:
-        from sqlmodel import select, and_, or_
-        from models import Conversation, ContentStatus, Project, Client, ConversationFolder
+        from sqlmodel import select, and_, or_, func
+        from models import Conversation, ContentStatus, Project, Client, ConversationFolder, Message
         from datetime import datetime
         
         # Build the base query with joins
@@ -715,6 +723,13 @@ async def search_conversations(
             )
             tags = tags_result.scalars().all()
             
+            # Get message count for this conversation
+            message_count_result = await session.execute(
+                select(func.count(Message.id))
+                .where(Message.conversation_id == conv.id)
+            )
+            message_count = message_count_result.scalar() or 0
+            
             formatted_conv = {
                 "id": str(conv.id),
                 "title": conv.title,
@@ -734,6 +749,7 @@ async def search_conversations(
                           if content_status_data and content_status_data[0] else None),
                 "content_type": (content_status_data[0].content_type 
                                 if content_status_data and content_status_data[0] else None),
+                "message_count": message_count,
                 "tags": [{"id": str(tag.id), "name": tag.name} for tag in tags]
             }
             formatted_conversations.append(formatted_conv)

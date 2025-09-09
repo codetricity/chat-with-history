@@ -330,9 +330,13 @@
                 },
                 async loadConversation(conversationId) {
                     try {
+                        console.log('Attempting to load conversation:', conversationId);
                         const response = await fetch(`/api/chat/conversations/${conversationId}`);
+                        console.log('Response status:', response.status);
+                        
                         if (response.ok) {
                             const data = await response.json();
+                            console.log('Conversation data loaded:', data);
                             this.conversationId = conversationId;
                             this.messages = data.messages.map(msg => ({
                                 role: msg.role,
@@ -340,6 +344,9 @@
                                 timestamp: new Date(msg.created_at).toLocaleTimeString()
                             }));
                             this.showConversations = false;
+                            console.log('Messages loaded:', this.messages.length);
+                        } else {
+                            console.error('Failed to load conversation:', response.status, await response.text());
                         }
                     } catch (error) {
                         console.error('Error loading conversation:', error);

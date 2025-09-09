@@ -3,8 +3,8 @@ Service for managing conversation folders
 """
 import uuid
 from typing import List, Optional
-from sqlmodel import select
-from models import ConversationFolder, Conversation
+from sqlmodel import select, func
+from models import ConversationFolder, Conversation, Message
 from db import AsyncSessionLocal
 
 
@@ -187,24 +187,33 @@ class FolderService:
             
             # Add root conversations
             for conv in root_conversations:
+                # Get message count for this conversation
+                message_count_result = await session.execute(
+                    select(func.count(Message.id))
+                    .where(Message.conversation_id == conv.id)
+                )
+                message_count = message_count_result.scalar() or 0
+                
                 hierarchy.append({
                     "type": "conversation",
                     "id": str(conv.id),
                     "title": conv.title,
                     "created_at": conv.created_at.isoformat(),
-                    "updated_at": conv.updated_at.isoformat()
+                    "updated_at": conv.updated_at.isoformat(),
+                    "message_count": message_count
                 })
             
             # Add root folders and their children
             for folder in root_folders:
-                hierarchy.append(await FolderService._build_folder_tree(folder, folder_dict, conversations))
+                hierarchy.append(await FolderService._build_folder_tree(folder, folder_dict, conversations, session))
             
             return hierarchy
 
     @staticmethod
     async def _build_folder_tree(folder: ConversationFolder, 
                                 folder_dict: dict, 
-                                all_conversations: List[Conversation]) -> dict:
+                                all_conversations: List[Conversation],
+                                session) -> dict:
         """Recursively build folder tree structure"""
         # Get conversations in this folder
         folder_conversations = [c for c in all_conversations if c.folder_id == folder.id]
@@ -215,18 +224,26 @@ class FolderService:
         # Build conversations list
         conversations = []
         for conv in folder_conversations:
+            # Get message count for this conversation
+            message_count_result = await session.execute(
+                select(func.count(Message.id))
+                .where(Message.conversation_id == conv.id)
+            )
+            message_count = message_count_result.scalar() or 0
+            
             conversations.append({
                 "type": "conversation",
                 "id": str(conv.id),
                 "title": conv.title,
                 "created_at": conv.created_at.isoformat(),
-                "updated_at": conv.updated_at.isoformat()
+                "updated_at": conv.updated_at.isoformat(),
+                "message_count": message_count
             })
         
         # Build sub-folders list
         children = []
         for sub_folder in sub_folders:
-            children.append(await FolderService._build_folder_tree(sub_folder, folder_dict, all_conversations))
+            children.append(await FolderService._build_folder_tree(sub_folder, folder_dict, all_conversations, session))
         
         return {
             "type": "folder",

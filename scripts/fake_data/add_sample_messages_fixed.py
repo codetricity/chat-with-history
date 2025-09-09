@@ -368,6 +368,29 @@ async def add_sample_messages():
                         "created_at": base_time + timedelta(minutes=3)
                     }
                 ])
+            
+            else:
+                # Default messages for any conversation not specifically handled above
+                sample_messages.extend([
+                    {
+                        "conversation_id": conv_id,
+                        "role": "user",
+                        "content": f"I'd like to discuss {conv.title.lower()}. Can you provide some insights on this topic?",
+                        "raw_content": f"I'd like to discuss {conv.title.lower()}. Can you provide some insights on this topic?",
+                        "model": "gpt-4",
+                        "token_count": 25,
+                        "created_at": base_time + timedelta(minutes=1)
+                    },
+                    {
+                        "conversation_id": conv_id,
+                        "role": "assistant",
+                        "content": f"Certainly! Regarding {conv.title.lower()}, here are some key considerations:\n\n**Strategic Overview**\n- Market analysis and competitive landscape\n- Key opportunities and challenges\n- Implementation timeline and milestones\n- Resource requirements and budget considerations\n\n**Next Steps**\n- Detailed planning and strategy development\n- Stakeholder engagement and alignment\n- Risk assessment and mitigation strategies\n- Performance metrics and success criteria\n\nWould you like me to elaborate on any specific aspect of this topic?",
+                        "raw_content": f"Certainly! Regarding {conv.title.lower()}, here are some key considerations:\n\n**Strategic Overview**\n- Market analysis and competitive landscape\n- Key opportunities and challenges\n- Implementation timeline and milestones\n- Resource requirements and budget considerations\n\n**Next Steps**\n- Detailed planning and strategy development\n- Stakeholder engagement and alignment\n- Risk assessment and mitigation strategies\n- Performance metrics and success criteria\n\nWould you like me to elaborate on any specific aspect of this topic?",
+                        "model": "gpt-4",
+                        "token_count": 180,
+                        "created_at": base_time + timedelta(minutes=3)
+                    }
+                ])
         
         created_messages = []
         
