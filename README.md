@@ -55,9 +55,22 @@ Web Search
 
 ## Getting Started
 
+### Quick Start (Recommended)
+
+For a complete setup with sample data, see the [Quick Setup Guide](README_SETUP.md):
+
+```bash
+# Complete setup with fake data in one command
+uv run python oppsetup.py
+```
+
+This will create the database, add sample data, and set up everything you need to explore the application.
+
+### Manual Installation
+
 ### Prerequisites
 
-- Python 3.8+
+- Python 3.12+ (tested with Python 3.12.11)
 - uv package manager
 - OpenRouter API key (for AI chat functionality)
 - Tavily API key (for web search functionality)
@@ -80,13 +93,48 @@ uv sync
 
 1. Set up environment variables:
 
-Create a `.env` file in the project root with your API keys:
+Create a `.env` file in the project root with the following variables:
 
 ```bash
+# Database Configuration
+DATABASE_URL=sqlite+aiosqlite:///./test.db
+
+# Application Security
+SECRET_KEY=your_secure_secret_key_here_at_least_32_characters
+
+# Environment (development or production)
+ENVIRONMENT=development
+
+# API Keys for AI Features
 OPENROUTER_API_KEY=your_openrouter_api_key_here
 TAVILY_API_KEY=your_tavily_api_key_here
 OPENAI_API_KEY=your_openai_api_key_here
 ```
+
+**Environment Variable Details:**
+
+- **DATABASE_URL**: Database connection string. Defaults to SQLite for development. For production, use PostgreSQL: `postgresql+asyncpg://user:password@localhost/dbname`
+- **SECRET_KEY**: Application secret key for session management and JWT tokens. Must be at least 32 characters long. Generate a secure key for production.
+- **ENVIRONMENT**: Set to `development` for local development or `production` for deployment
+- **OPENROUTER_API_KEY**: Required for AI chat functionality. Get your key from [OpenRouter](https://openrouter.ai/)
+- **TAVILY_API_KEY**: Required for web search integration. Get your key from [Tavily](https://tavily.com/)
+- **OPENAI_API_KEY**: Required for hybrid search embeddings. Get your key from [OpenAI](https://platform.openai.com/)
+
+**Generate a secure SECRET_KEY:**
+
+```bash
+# Generate a secure 32-character secret key
+python -c "import secrets; print(secrets.token_urlsafe(32))"
+```
+
+**Validate your environment setup:**
+
+```bash
+# Check if all environment variables are properly configured
+uv run python scripts/check_env.py
+```
+
+This script will verify that all required environment variables are set and provide security recommendations.
 
 1. Run database migrations:
 
@@ -101,7 +149,7 @@ uv run alembic upgrade head
 1. Set up hybrid search (optional but recommended):
 
 ```bash
-# Chunk existing conversations for search
+# Chunk existing conversations for search (one-time setup)
 uv run python -c "
 from services.chunking_service import ChunkingService
 from services.embedding_service import EmbeddingService
@@ -111,7 +159,7 @@ async def setup_search():
     chunking_service = ChunkingService()
     embedding_service = EmbeddingService()
     
-    # Chunk all conversations
+    # Chunk all existing conversations (new messages are automatically chunked)
     total_chunks = await chunking_service.chunk_all_conversations()
     print(f'Created {total_chunks} conversation chunks')
     
@@ -125,6 +173,8 @@ asyncio.run(setup_search())
 "
 ```
 
+**Note**: New messages are automatically chunked when added to conversations, so this step only needs to be run once for existing conversations.
+
 1. Start the application:
 
 ```bash
@@ -132,6 +182,22 @@ uv run python main.py
 ```
 
 1. Open your browser and navigate to `http://localhost:8000`
+
+### Troubleshooting
+
+**Common Issues:**
+
+- **Missing API Keys**: Ensure all three API keys (OpenRouter, Tavily, OpenAI) are set in your `.env` file
+- **Database Connection Issues**: Check that `DATABASE_URL` is correctly formatted
+- **Secret Key Issues**: Ensure `SECRET_KEY` is at least 32 characters long and doesn't contain spaces
+- **Environment Validation**: Run `uv run python scripts/check_env.py` to diagnose configuration issues
+
+**For Production Deployment:**
+
+- Set `ENVIRONMENT=production` in your `.env` file
+- Use a PostgreSQL database: `DATABASE_URL=postgresql+asyncpg://user:password@localhost/dbname`
+- Generate a secure secret key and never use the default development key
+- Ensure all API keys are valid and have appropriate quotas
 
 ### Available Pages
 
