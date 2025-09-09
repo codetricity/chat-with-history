@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List, Optional
 from uuid import UUID
 import uuid
+import logging
 
 from db import get_session
 from models import (
@@ -19,6 +20,8 @@ from services.client_service import ClientService
 from services.content_template_service import ContentTemplateService
 from services.content_status_service import ContentStatusService
 from services.content_tag_service import ContentTagService
+from services.hybrid_search_service import HybridSearchService
+from services.embedding_service import EmbeddingService
 
 router = APIRouter(prefix="/api", tags=["marketing"])
 
@@ -27,6 +30,9 @@ client_service = ClientService()
 template_service = ContentTemplateService()
 status_service = ContentStatusService()
 tag_service = ContentTagService()
+
+# Set up logging
+logger = logging.getLogger(__name__)
 
 
 # =========================
@@ -549,6 +555,7 @@ async def search_conversations(
     status: Optional[str] = Query(None, description="Filter by status"),
     start_date: Optional[str] = Query(None, description="Filter by start date"),
     end_date: Optional[str] = Query(None, description="Filter by end date"),
+    search_method: str = Query("hybrid", description="Search method: hybrid, keyword, semantic, or basic"),
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=1000),
     session: Session = Depends(get_session)
@@ -608,8 +615,55 @@ async def search_conversations(
         if status:
             conditions.append(ContentStatus.status == status)
         
-        # Text search
-        if q:
+        # Text search - use hybrid search if query provided and method is not basic
+        if q and search_method != "basic":
+            try:
+                # Use hybrid search for content search
+                embedding_service = EmbeddingService()
+                hybrid_service = HybridSearchService(embedding_service)
+                
+                if search_method == "hybrid":
+                    search_results = await hybrid_service.hybrid_search(
+                        query=q,
+                        limit=limit * 2,  # Get more results to filter
+                        search_type="conversation"
+                    )
+                elif search_method == "keyword":
+                    search_results = await hybrid_service.keyword_search(
+                        query=q,
+                        limit=limit * 2,
+                        search_type="conversation"
+                    )
+                elif search_method == "semantic":
+                    search_results = await hybrid_service.semantic_search(
+                        query=q,
+                        limit=limit * 2,
+                        search_type="conversation"
+                    )
+                else:
+                    raise HTTPException(status_code=400, detail="Invalid search_method")
+                
+                # Extract conversation IDs from search results
+                conversation_ids = [result["conversation_id"] for result in search_results if "conversation_id" in result]
+                
+                if conversation_ids:
+                    conditions.append(Conversation.id.in_(conversation_ids))
+                else:
+                    # No results found, return empty list
+                    return []
+                    
+            except Exception as e:
+                # Fall back to basic search if hybrid search fails
+                logger.warning(f"Hybrid search failed, falling back to basic search: {e}")
+                search_conditions = [
+                    Conversation.title.contains(q),
+                    ConversationFolder.name.contains(q),
+                    Client.name.contains(q),
+                    Project.name.contains(q)
+                ]
+                conditions.append(or_(*search_conditions))
+        elif q:
+            # Basic search fallback
             search_conditions = [
                 Conversation.title.contains(q),
                 ConversationFolder.name.contains(q),
@@ -688,3 +742,162 @@ async def search_conversations(
         
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Search failed: {str(e)}")
+
+
+# =========================
+# Hybrid Search Endpoints
+# =========================
+
+@router.get("/search/hybrid")
+async def hybrid_search(
+    q: str = Query(..., description="Search query"),
+    search_type: str = Query("conversation", description="Search type: conversation or document"),
+    limit: int = Query(10, ge=1, le=100, description="Maximum number of results"),
+    bm25_weight: float = Query(0.35, ge=0.0, le=1.0, description="Weight for BM25 scores"),
+    cosine_weight: float = Query(0.65, ge=0.0, le=1.0, description="Weight for cosine similarity scores")
+):
+    """Perform hybrid search combining keyword and semantic search"""
+    try:
+        embedding_service = EmbeddingService()
+        hybrid_service = HybridSearchService(embedding_service)
+        
+        results = await hybrid_service.hybrid_search(
+            query=q,
+            limit=limit,
+            search_type=search_type,
+            bm25_weight=bm25_weight,
+            cosine_weight=cosine_weight
+        )
+        
+        return {
+            "query": q,
+            "search_type": search_type,
+            "results": results,
+            "total_results": len(results),
+            "weights": {
+                "bm25": bm25_weight,
+                "cosine": cosine_weight
+            }
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Hybrid search failed: {str(e)}")
+
+
+@router.get("/search/keyword")
+async def keyword_search(
+    q: str = Query(..., description="Search query"),
+    search_type: str = Query("conversation", description="Search type: conversation or document"),
+    limit: int = Query(10, ge=1, le=100, description="Maximum number of results")
+):
+    """Perform keyword search using FTS5 with BM25 scoring"""
+    try:
+        embedding_service = EmbeddingService()
+        hybrid_service = HybridSearchService(embedding_service)
+        
+        results = await hybrid_service.keyword_search(
+            query=q,
+            limit=limit,
+            search_type=search_type
+        )
+        
+        return {
+            "query": q,
+            "search_type": search_type,
+            "search_method": "keyword",
+            "results": results,
+            "total_results": len(results)
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Keyword search failed: {str(e)}")
+
+
+@router.get("/search/semantic")
+async def semantic_search(
+    q: str = Query(..., description="Search query"),
+    search_type: str = Query("conversation", description="Search type: conversation or document"),
+    limit: int = Query(10, ge=1, le=100, description="Maximum number of results")
+):
+    """Perform semantic search using FAISS with cosine similarity"""
+    try:
+        embedding_service = EmbeddingService()
+        hybrid_service = HybridSearchService(embedding_service)
+        
+        results = await hybrid_service.semantic_search(
+            query=q,
+            limit=limit,
+            search_type=search_type
+        )
+        
+        return {
+            "query": q,
+            "search_type": search_type,
+            "search_method": "semantic",
+            "results": results,
+            "total_results": len(results)
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Semantic search failed: {str(e)}")
+
+
+@router.get("/search/documents")
+async def search_documents(
+    q: str = Query(..., description="Search query"),
+    search_method: str = Query("hybrid", description="Search method: hybrid, keyword, or semantic"),
+    limit: int = Query(10, ge=1, le=100, description="Maximum number of results")
+):
+    """Search documents using the specified method"""
+    try:
+        embedding_service = EmbeddingService()
+        hybrid_service = HybridSearchService(embedding_service)
+        
+        if search_method == "hybrid":
+            results = await hybrid_service.hybrid_search(
+                query=q,
+                limit=limit,
+                search_type="document"
+            )
+        elif search_method == "keyword":
+            results = await hybrid_service.keyword_search(
+                query=q,
+                limit=limit,
+                search_type="document"
+            )
+        elif search_method == "semantic":
+            results = await hybrid_service.semantic_search(
+                query=q,
+                limit=limit,
+                search_type="document"
+            )
+        else:
+            raise HTTPException(status_code=400, detail="Invalid search_method. Must be 'hybrid', 'keyword', or 'semantic'")
+        
+        return {
+            "query": q,
+            "search_method": search_method,
+            "results": results,
+            "total_results": len(results)
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Document search failed: {str(e)}")
+
+
+@router.post("/search/rebuild-index")
+async def rebuild_search_index():
+    """Rebuild the FAISS search index from all embeddings"""
+    try:
+        embedding_service = EmbeddingService()
+        hybrid_service = HybridSearchService(embedding_service)
+        
+        await hybrid_service.build_faiss_index()
+        
+        return {
+            "message": "Search index rebuilt successfully",
+            "status": "success"
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Index rebuild failed: {str(e)}")

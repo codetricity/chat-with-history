@@ -26,3 +26,12 @@ async def conversation_browser(request: Request):
         "request": request,
         "title": "Conversation Browser - FastOpp"
     })
+
+
+@router.get("/search", response_class=HTMLResponse)
+async def search_page(request: Request):
+    """Dedicated search page with hybrid search capabilities"""
+    return templates.TemplateResponse("search.html", {
+        "request": request,
+        "title": "Search - FastOpp"
+    })
