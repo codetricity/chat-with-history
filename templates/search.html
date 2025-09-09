@@ -71,7 +71,6 @@
                                 <option value="hybrid">Hybrid (Recommended)</option>
                                 <option value="keyword">Keyword Only</option>
                                 <option value="semantic">Semantic Only</option>
-                                <option value="basic">Basic SQL</option>
                             </select>
                         </div>
 
@@ -112,6 +111,174 @@
                     <div class="text-sm text-gray-600 bg-gray-50 p-3 rounded-md" x-show="searchQuery.trim()">
                         <div x-text="getSearchMethodDescription()"></div>
                     </div>
+
+                    <!-- Educational Information -->
+                    <div class="mt-4">
+                        <button @click="showSearchInfo = !showSearchInfo" 
+                                class="flex items-center text-sm text-blue-600 hover:text-blue-800 font-medium">
+                            <i class="fas fa-info-circle mr-2"></i>
+                            <span x-text="showSearchInfo ? 'Hide Search Methods Info' : 'Learn About Search Methods'"></span>
+                            <i class="fas fa-chevron-down ml-2 transition-transform duration-200" 
+                               :class="{'rotate-180': showSearchInfo}"></i>
+                        </button>
+                        
+                        <!-- Expandable Educational Content -->
+                        <div x-show="showSearchInfo" 
+                             x-transition:enter="transition ease-out duration-200"
+                             x-transition:enter-start="opacity-0 transform scale-95"
+                             x-transition:enter-end="opacity-100 transform scale-100"
+                             x-transition:leave="transition ease-in duration-150"
+                             x-transition:leave-start="opacity-100 transform scale-100"
+                             x-transition:leave-end="opacity-0 transform scale-95"
+                             class="mt-4 bg-blue-50 border border-blue-200 rounded-lg p-6">
+                            
+                            <h3 class="text-lg font-semibold text-gray-900 mb-4">
+                                <i class="fas fa-graduation-cap text-blue-600 mr-2"></i>
+                                Understanding Search Methods
+                            </h3>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                <!-- Hybrid Search -->
+                                <div class="bg-white p-4 rounded-lg border border-blue-200">
+                                    <div class="flex items-center mb-3">
+                                        <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center mr-3">
+                                            <i class="fas fa-magic text-white text-sm"></i>
+                                        </div>
+                                        <h4 class="font-semibold text-gray-900">Hybrid Search</h4>
+                                    </div>
+                                    <p class="text-sm text-gray-700 mb-3">
+                                        <strong>Best of both worlds!</strong> Combines keyword matching with AI-powered semantic understanding.
+                                    </p>
+                                    <div class="text-xs text-gray-600 space-y-2">
+                                        <div class="flex items-start">
+                                            <i class="fas fa-check-circle text-green-500 mr-2 mt-0.5"></i>
+                                            <span>Finds exact keyword matches</span>
+                                        </div>
+                                        <div class="flex items-start">
+                                            <i class="fas fa-check-circle text-green-500 mr-2 mt-0.5"></i>
+                                            <span>Understands meaning and context</span>
+                                        </div>
+                                        <div class="flex items-start">
+                                            <i class="fas fa-check-circle text-green-500 mr-2 mt-0.5"></i>
+                                            <span>Handles synonyms and related concepts</span>
+                                        </div>
+                                        <div class="flex items-start">
+                                            <i class="fas fa-check-circle text-green-500 mr-2 mt-0.5"></i>
+                                            <span>Most comprehensive results</span>
+                                        </div>
+                                    </div>
+                                    <div class="mt-3 p-2 bg-blue-50 rounded text-xs">
+                                        <strong>Example:</strong> Searching "AI marketing" finds content about "artificial intelligence advertising" and "machine learning promotion"
+                                    </div>
+                                </div>
+
+                                <!-- Keyword Search -->
+                                <div class="bg-white p-4 rounded-lg border border-green-200">
+                                    <div class="flex items-center mb-3">
+                                        <div class="w-8 h-8 bg-gradient-to-r from-green-500 to-teal-500 rounded-full flex items-center justify-center mr-3">
+                                            <i class="fas fa-key text-white text-sm"></i>
+                                        </div>
+                                        <h4 class="font-semibold text-gray-900">Keyword Search</h4>
+                                    </div>
+                                    <p class="text-sm text-gray-700 mb-3">
+                                        <strong>Precise matching!</strong> Uses advanced text search algorithms to find exact words and phrases.
+                                    </p>
+                                    <div class="text-xs text-gray-600 space-y-2">
+                                        <div class="flex items-start">
+                                            <i class="fas fa-check-circle text-green-500 mr-2 mt-0.5"></i>
+                                            <span>Finds exact word matches</span>
+                                        </div>
+                                        <div class="flex items-start">
+                                            <i class="fas fa-check-circle text-green-500 mr-2 mt-0.5"></i>
+                                            <span>Handles phrase searches</span>
+                                        </div>
+                                        <div class="flex items-start">
+                                            <i class="fas fa-check-circle text-green-500 mr-2 mt-0.5"></i>
+                                            <span>Supports wildcards and operators</span>
+                                        </div>
+                                        <div class="flex items-start">
+                                            <i class="fas fa-check-circle text-green-500 mr-2 mt-0.5"></i>
+                                            <span>Fast and reliable</span>
+                                        </div>
+                                    </div>
+                                    <div class="mt-3 p-2 bg-green-50 rounded text-xs">
+                                        <strong>Example:</strong> Searching "social media" finds exact matches for "social media" but not "social networking"
+                                    </div>
+                                </div>
+
+                                <!-- Semantic Search -->
+                                <div class="bg-white p-4 rounded-lg border border-purple-200">
+                                    <div class="flex items-center mb-3">
+                                        <div class="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center mr-3">
+                                            <i class="fas fa-brain text-white text-sm"></i>
+                                        </div>
+                                        <h4 class="font-semibold text-gray-900">Semantic Search</h4>
+                                    </div>
+                                    <p class="text-sm text-gray-700 mb-3">
+                                        <strong>AI-powered understanding!</strong> Uses machine learning to understand meaning and find related concepts.
+                                    </p>
+                                    <div class="text-xs text-gray-600 space-y-2">
+                                        <div class="flex items-start">
+                                            <i class="fas fa-check-circle text-green-500 mr-2 mt-0.5"></i>
+                                            <span>Understands context and meaning</span>
+                                        </div>
+                                        <div class="flex items-start">
+                                            <i class="fas fa-check-circle text-green-500 mr-2 mt-0.5"></i>
+                                            <span>Finds conceptually similar content</span>
+                                        </div>
+                                        <div class="flex items-start">
+                                            <i class="fas fa-check-circle text-green-500 mr-2 mt-0.5"></i>
+                                            <span>Works with different languages</span>
+                                        </div>
+                                        <div class="flex items-start">
+                                            <i class="fas fa-check-circle text-green-500 mr-2 mt-0.5"></i>
+                                            <span>Great for exploratory searches</span>
+                                        </div>
+                                    </div>
+                                    <div class="mt-3 p-2 bg-purple-50 rounded text-xs">
+                                        <strong>Example:</strong> Searching "customer satisfaction" finds content about "client happiness" and "user experience"
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- When to Use Each Method -->
+                            <div class="mt-6 bg-gray-50 p-4 rounded-lg">
+                                <h4 class="font-semibold text-gray-900 mb-3">
+                                    <i class="fas fa-lightbulb text-yellow-500 mr-2"></i>
+                                    When to Use Each Method
+                                </h4>
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                                    <div>
+                                        <strong class="text-blue-600">Use Hybrid when:</strong>
+                                        <ul class="mt-1 text-gray-700 space-y-1">
+                                            <li>• You want the best results</li>
+                                            <li>• You're not sure which method to use</li>
+                                            <li>• You need both precision and recall</li>
+                                            <li>• You're doing complex searches</li>
+                                        </ul>
+                                    </div>
+                                    <div>
+                                        <strong class="text-green-600">Use Keyword when:</strong>
+                                        <ul class="mt-1 text-gray-700 space-y-1">
+                                            <li>• You know exact terms to search</li>
+                                            <li>• You need fast, precise results</li>
+                                            <li>• You're searching for specific phrases</li>
+                                            <li>• You want to avoid false positives</li>
+                                        </ul>
+                                    </div>
+                                    <div>
+                                        <strong class="text-purple-600">Use Semantic when:</strong>
+                                        <ul class="mt-1 text-gray-700 space-y-1">
+                                            <li>• You want to explore related topics</li>
+                                            <li>• You're not sure of exact terms</li>
+                                            <li>• You want to discover new content</li>
+                                            <li>• You're doing research or brainstorming</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -125,8 +292,7 @@
                             <span x-show="isLoading">Searching...</span>
                         </h2>
                         <p class="text-sm text-gray-600" x-show="searchQuery.trim() && !isLoading">
-                            <span x-text="`Searching for: '${searchQuery}'`"></span>
-                            <span x-show="searchMethod !== 'basic'" x-text="` using ${searchMethod} search`"></span>
+                            <span x-text="`Searching for: '${searchQuery}' using ${searchMethod} search`"></span>
                         </p>
                     </div>
                     
@@ -148,10 +314,10 @@
                             <div class="flex justify-between items-start mb-3">
                                 <div class="flex-1">
                                     <h3 class="text-lg font-semibold text-gray-900 mb-1">
-                                        <a :href="`/conversations/${result.conversation_id || result.document_id}`" 
-                                           class="hover:text-blue-600">
+                                        <button @click="viewConversation(result.conversation_id || result.document_id)" 
+                                                class="text-left hover:text-blue-600 cursor-pointer">
                                             <span x-text="result.title || result.conversation_title || 'Untitled'"></span>
-                                        </a>
+                                        </button>
                                     </h3>
                                     
                                     <!-- Metadata -->
@@ -179,13 +345,13 @@
                                 <div class="flex flex-col items-end space-y-1">
                                     <div x-show="result.hybrid_score" class="text-sm">
                                         <span class="text-gray-500">Relevance:</span>
-                                        <span class="font-medium text-blue-600" x-text="(result.hybrid_score * 100).toFixed(1) + '%'"></span>
+                                        <span class="font-medium text-blue-600" x-text="result.hybrid_score ? (result.hybrid_score * 100).toFixed(1) + '%' : 'N/A'"></span>
                                     </div>
                                     <div x-show="result.bm25_score" class="text-xs text-gray-400">
-                                        BM25: <span x-text="result.bm25_score.toFixed(3)"></span>
+                                        BM25: <span x-text="result.bm25_score ? result.bm25_score.toFixed(3) : 'N/A'"></span>
                                     </div>
                                     <div x-show="result.cosine_score" class="text-xs text-gray-400">
-                                        Cosine: <span x-text="result.cosine_score.toFixed(3)"></span>
+                                        Cosine: <span x-text="result.cosine_score ? result.cosine_score.toFixed(3) : 'N/A'"></span>
                                     </div>
                                 </div>
                             </div>
@@ -225,15 +391,8 @@
 
             <!-- Welcome State -->
             <div x-show="!searchQuery.trim() && searchResults.length === 0" class="text-center py-12">
-                <i class="fas fa-search text-gray-300 text-6xl mb-6"></i>
-                <h2 class="text-2xl font-bold text-gray-900 mb-4">Search Your Content</h2>
-                <p class="text-gray-600 mb-6 max-w-2xl mx-auto">
-                    Use our advanced hybrid search to find conversations, documents, and content across your marketing firm's knowledge base. 
-                    Search by keywords, concepts, or use our AI-powered semantic search.
-                </p>
-                
                 <!-- Search Examples -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl mx-auto">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl mx-auto mb-8">
                     <div class="bg-white p-4 rounded-lg shadow-sm border">
                         <h3 class="font-semibold text-gray-900 mb-2">
                             <i class="fas fa-key text-blue-600 mr-2"></i>
@@ -273,6 +432,13 @@
                         </div>
                     </div>
                 </div>
+
+                <i class="fas fa-search text-gray-300 text-6xl mb-6"></i>
+                <h2 class="text-2xl font-bold text-gray-900 mb-4">Search Your Content</h2>
+                <p class="text-gray-600 mb-6 max-w-2xl mx-auto">
+                    Use our advanced hybrid search to find conversations, documents, and content across your marketing firm's knowledge base. 
+                    Search by keywords, concepts, or use our AI-powered semantic search.
+                </p>
             </div>
         </main>
     </div>
@@ -287,6 +453,7 @@
                 searchResults: [],
                 isLoading: false,
                 searchStats: '',
+                showSearchInfo: false,
 
                 async performSearch() {
                     if (!this.searchQuery.trim()) {
@@ -346,12 +513,18 @@
                     this.searchStats = '';
                 },
 
+                viewConversation(conversationId) {
+                    // Redirect to the main chat page with the conversation ID
+                    console.log('Viewing conversation with ID:', conversationId);
+                    console.log('Redirecting to:', `/?conversation_id=${conversationId}`);
+                    window.location.href = `/?conversation_id=${conversationId}`;
+                },
+
                 getSearchMethodDescription() {
                     const descriptions = {
                         'hybrid': 'Combines keyword matching with AI-powered semantic understanding for the most comprehensive results.',
                         'keyword': 'Finds exact matches and phrases using advanced text search algorithms.',
-                        'semantic': 'Uses AI to understand meaning and find related concepts, even with different words.',
-                        'basic': 'Simple text matching in titles and metadata only.'
+                        'semantic': 'Uses AI to understand meaning and find related concepts, even with different words.'
                     };
                     return descriptions[this.searchMethod] || '';
                 }
