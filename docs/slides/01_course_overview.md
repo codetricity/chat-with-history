@@ -53,12 +53,13 @@ backgroundImage: url('https://marp.app/assets/hero-background.svg')
 
 # Course Structure
 
-## 4 Learning Modules
+## 5 Learning Modules
 
 1. **AI Chat UI** - Streaming responses, context management
 2. **Conversation Organization** - Business-focused folder systems
 3. **Vector Databases & Hybrid Search** - Semantic + keyword search
 4. **Deployment & Scaling** - Production-ready applications
+5. **Deployment Platforms** - Fly.io, Railway, DigitalOcean, and more
 
 ---
 
