@@ -1,0 +1,42 @@
+<!-- Root Level Conversations -->
+<div class="bg-white rounded-lg shadow-sm border">
+    <div class="px-6 py-4 border-b border-gray-200">
+        <h2 class="text-lg font-semibold text-gray-900">Root Conversations</h2>
+        <p class="text-sm text-gray-600">Conversations not organized into folders</p>
+    </div>
+    <div class="p-6">
+        <div id="root-conversations" 
+             class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+             x-data="{}"
+             x-init="
+                console.log('Initializing sortables...');
+                console.log('Current folders:', folders.length);
+                console.log('Current root conversations:', rootConversations.length);
+                
+                // Initialize sortable for root conversations
+                setTimeout(() => {
+                    if (typeof Sortable !== 'undefined') {
+                        const rootSortable = new Sortable(document.getElementById('root-conversations'), {
+                            group: 'conversations',
+                            animation: 150,
+                            ghostClass: 'sortable-ghost',
+                            chosenClass: 'sortable-chosen',
+                            onEnd: function(evt) {
+                                console.log('Root conversation moved:', evt);
+                                handleConversationMove(evt);
+                            }
+                        });
+                        console.log('Sortable instances created:', ['root-conversations']);
+                    }
+                }, 100);
+             ">
+            <template x-for="conversation in rootConversations" :key="conversation.id">
+                {% include 'components/conversation_card.html' %}
+            </template>
+            <div x-show="rootConversations.length === 0" 
+                 class="col-span-full text-center text-gray-500 py-8">
+                <p>No conversations at root level</p>
+            </div>
+        </div>
+    </div>
+</div>

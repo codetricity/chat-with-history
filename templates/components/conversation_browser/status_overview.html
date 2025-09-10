@@ -1,0 +1,28 @@
+<!-- Status Overview Cards -->
+<div class="bg-white rounded-lg shadow-sm border mb-6">
+    <div class="p-6">
+        <h2 class="text-lg font-semibold text-gray-900 mb-4">Content Status Overview</h2>
+        <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+            <div class="text-center p-3 bg-gray-50 rounded-lg">
+                <div class="text-2xl font-bold text-gray-600" x-text="statusCounts.draft || 0"></div>
+                <div class="text-sm text-gray-500">Draft</div>
+            </div>
+            <div class="text-center p-3 bg-yellow-50 rounded-lg">
+                <div class="text-2xl font-bold text-yellow-600" x-text="statusCounts.review || 0"></div>
+                <div class="text-sm text-gray-500">Review</div>
+            </div>
+            <div class="text-center p-3 bg-green-50 rounded-lg">
+                <div class="text-2xl font-bold text-green-600" x-text="statusCounts.approved || 0"></div>
+                <div class="text-sm text-gray-500">Approved</div>
+            </div>
+            <div class="text-center p-3 bg-red-50 rounded-lg">
+                <div class="text-2xl font-bold text-red-600" x-text="statusCounts.rejected || 0"></div>
+                <div class="text-sm text-gray-500">Rejected</div>
+            </div>
+            <div class="text-center p-3 bg-blue-50 rounded-lg">
+                <div class="text-2xl font-bold text-blue-600" x-text="statusCounts.published || 0"></div>
+                <div class="text-sm text-gray-500">Published</div>
+            </div>
+        </div>
+    </div>
+</div>
