@@ -1,0 +1,6 @@
+# Generated slide files
+*.pdf
+*.html
+
+# Keep the source markdown files
+!*.md
