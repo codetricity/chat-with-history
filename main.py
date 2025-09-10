@@ -8,6 +8,7 @@ import sys
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.responses import JSONResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
+from fastapi.staticfiles import StaticFiles
 from starlette.middleware.sessions import SessionMiddleware
 from dotenv import load_dotenv
 
@@ -39,6 +40,9 @@ setup_admin(app, SECRET_KEY)
 
 # Setup templates
 templates = Jinja2Templates(directory="templates")
+
+# Mount static files
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # Include routers
 app.include_router(auth_router)
