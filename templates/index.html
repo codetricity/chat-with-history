@@ -1,414 +1,123 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Chat - FastOpp</title>
-    <!-- Favicon removed - static route not configured -->
-    
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- DaisyUI CDN -->
-    <link href="https://cdn.jsdelivr.net/npm/daisyui@5.1.5/dist/full.min.css" rel="stylesheet" type="text/css" />
-    
-    <!-- Font Awesome CDN -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    
-    <!-- HTMX CDN -->
-    <script src="https://unpkg.com/htmx.org@2.0.6"></script>
-    
-    <!-- Alpine.js CDN -->
-    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    
-    <!-- Custom Tailwind Config -->
-    <script>
-        tailwind.config = {
-            daisyui: {
-                themes: ["light", "dark"],
-            },
-            theme: {
-                extend: {
-                    colors: {
-                        'ai-blue': '#3B82F6',
-                        'ai-purple': '#8B5CF6',
-                        'ai-gradient': 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
-                    }
-                }
-            }
-        }
-    </script>
-    
-    <!-- Markdown Styles -->
-    <style>
-        .chat-bubble pre {
-            background-color: #f3f4f6;
-            border: 1px solid #e5e7eb;
-            border-radius: 0.5rem;
-            padding: 1rem;
-            margin: 0.5rem 0;
-            overflow-x: auto;
-            font-family: 'Courier New', monospace;
-            font-size: 0.875rem;
-        }
-        
-        .chat-bubble code {
-            background-color: #f3f4f6;
-            padding: 0.25rem 0.5rem;
-            border-radius: 0.25rem;
-            font-family: 'Courier New', monospace;
-            font-size: 0.875rem;
-        }
-        
-        .chat-bubble pre code {
-            background-color: transparent;
-            padding: 0;
-        }
-        
-        .chat-bubble ul, .chat-bubble ol {
-            margin: 0.5rem 0;
-            padding-left: 1.5rem;
-        }
-        
-        .chat-bubble li {
-            margin: 0.25rem 0;
-        }
-        
-        .chat-bubble h1, .chat-bubble h2, .chat-bubble h3, 
-        .chat-bubble h4, .chat-bubble h5, .chat-bubble h6 {
-            margin: 1rem 0 0.5rem 0;
-            font-weight: 600;
-        }
-        
-        .chat-bubble h1 { font-size: 1.5rem; }
-        .chat-bubble h2 { font-size: 1.25rem; }
-        .chat-bubble h3 { font-size: 1.125rem; }
-        
-        .chat-bubble blockquote {
-            border-left: 4px solid #3b82f6;
-            padding-left: 1rem;
-            margin: 0.5rem 0;
-            font-style: italic;
-            color: #6b7280;
-        }
-        
-        .chat-bubble table {
-            border-collapse: collapse;
-            width: 100%;
-            margin: 0.5rem 0;
-        }
-        
-        .chat-bubble th, .chat-bubble td {
-            border: 1px solid #e5e7eb;
-            padding: 0.5rem;
-            text-align: left;
-        }
-        
-        .chat-bubble th {
-            background-color: #f9fafb;
-            font-weight: 600;
-        }
-        
-        .chat-bubble p {
-            margin: 0.5rem 0;
-        }
-        
-        .chat-bubble strong {
-            font-weight: 600;
-        }
-        
-        .chat-bubble em {
-            font-style: italic;
-        }
-        
-        /* Enhanced chat bubble styling */
-        .chat-bubble {
-            padding: 1rem 1.25rem !important;
-            border-radius: 1.25rem !important;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        }
-    </style>
-    
-    <!-- Alpine.js Data Function -->
-    <script>
-        function chatData() {
-            return {
-                messages: [],
-                inputMessage: '',
-                isLoading: false,
-                currentStreamingMessage: null,
-                conversationId: null,
-                conversations: [],
-                showConversations: false,
-                showLearningGoals: false,
-                formatMessage(content) {
-                    // Content is already HTML from server-side markdown processing
-                    return content;
-                },
-                sendMessage() {
-                    if (!this.inputMessage.trim()) return;
-                    
-                    const userMessage = this.inputMessage;
-                    this.messages.push({
-                        role: 'user',
-                        content: userMessage,
-                        timestamp: new Date().toLocaleTimeString()
-                    });
-                    
-                    this.inputMessage = '';
-                    this.isLoading = true;
-                    
-                    // Create a new assistant message for streaming
-                    this.currentStreamingMessage = {
-                        role: 'assistant',
-                        content: '',
-                        rawContent: '', // Store raw content for proper formatting
-                        timestamp: new Date().toLocaleTimeString()
-                    };
-                    this.messages.push(this.currentStreamingMessage);
-                    
-                    // Prepare request body with conversation context
-                    const requestBody = { message: userMessage };
-                    if (this.conversationId) {
-                        requestBody.conversation_id = this.conversationId;
-                    }
-                    
-                    // Use fetch with streaming for better compatibility
-                    fetch('/api/chat/stream', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify(requestBody)
-                    })
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error(`HTTP error! status: ${response.status}`);
-                        }
-                        
-                        const reader = response.body.getReader();
-                        const decoder = new TextDecoder();
-                        let buffer = '';
-                        let currentEvent = null;
-                        let currentData = '';
-                        
-                        // Capture the reference to currentStreamingMessage
-                        const streamingMessage = this.currentStreamingMessage;
-                        
-                        const readStream = () => {
-                            return reader.read().then(({ done, value }) => {
-                                if (done) {
-                                    this.isLoading = false;
-                                    this.currentStreamingMessage = null;
-                                    return;
-                                }
-                                
-                                buffer += decoder.decode(value, { stream: true });
-                                const lines = buffer.split('\n');
-                                
-                                // Keep the last line in buffer if it's incomplete
-                                buffer = lines.pop() || '';
-                                
-                                for (const line of lines) {
-                                    const trimmedLine = line.trim();
-                                    if (!trimmedLine) continue; // Skip empty lines
-                                    
-                                    if (trimmedLine.startsWith('event: ')) {
-                                        // Save the current event if we have data
-                                        if (currentEvent && currentData) {
-                                            processEvent(currentEvent, currentData);
-                                        }
-                                        currentEvent = trimmedLine.slice(7);
-                                        currentData = '';
-                                    } else if (trimmedLine.startsWith('data: ')) {
-                                        currentData += trimmedLine.slice(6);
-                                    }
-                                }
-                                
-                                // Process any remaining event
-                                if (currentEvent && currentData) {
-                                    processEvent(currentEvent, currentData);
-                                }
-                                
-                                return readStream();
-                            });
-                        }
-                        
-                        const processEvent = (eventType, dataStr) => {
-                            if (eventType === 'message') {
-                                try {
-                                    const data = JSON.parse(dataStr);
-                                    if (data && data.content && streamingMessage) {
-                                        // Server sends pre-formatted HTML content
-                                        streamingMessage.content = data.content;
-                                        streamingMessage.rawContent = data.raw_content || data.content;
-                                        
-                                        // Store conversation ID for future messages
-                                        if (data.conversation_id) {
-                                            this.conversationId = data.conversation_id;
-                                            // Reload conversations to show updated title
-                                            this.loadConversations();
-                                        }
-                                    }
-                                } catch (e) {
-                                    console.error('Error parsing SSE data:', e, 'Data:', dataStr);
-                                }
-                            } else if (eventType === 'complete') {
-                                this.isLoading = false;
-                                this.currentStreamingMessage = null;
-                            } else if (eventType === 'error') {
-                                if (streamingMessage) {
-                                    streamingMessage.content = 'Sorry, I encountered an error. Please try again.';
-                                }
-                                this.isLoading = false;
-                                this.currentStreamingMessage = null;
-                            }
-                        }
-                        
-                        return readStream();
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        this.currentStreamingMessage.content = 'Sorry, I encountered an error. Please try again.';
-                        this.isLoading = false;
-                        this.currentStreamingMessage = null;
-                    });
-                },
-                clearMessages() {
-                    this.messages = [];
-                    this.conversationId = null;
-                },
-                async loadConversations() {
-                    try {
-                        // Load conversations with folder information
-                        const response = await fetch('/api/folders/hierarchy');
-                        if (response.ok) {
-                            const data = await response.json();
-                            // Transform the new format to the old format for compatibility
-                            const hierarchy = [];
-                            if (data.root_conversations) {
-                                hierarchy.push(...data.root_conversations.map(conv => ({...conv, type: 'conversation'})));
-                            }
-                            if (data.folders) {
-                                hierarchy.push(...data.folders.map(folder => ({...folder, type: 'folder'})));
-                            }
-                            this.conversations = this.flattenConversations(hierarchy);
-                        } else {
-                            // Fallback to old method if hierarchy fails
-                            const response = await fetch('/api/chat/conversations');
-                            if (response.ok) {
-                                const data = await response.json();
-                                this.conversations = data.conversations || [];
-                            }
-                        }
-                        
-                        // Sort conversations by updated_at date (newest first)
-                        this.conversations.sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at));
-                    } catch (error) {
-                        console.error('Error loading conversations:', error);
-                    }
-                },
-                flattenConversations(hierarchy) {
-                    const conversations = [];
-                    for (const item of hierarchy) {
-                        if (item.type === 'conversation') {
-                            conversations.push({
-                                ...item,
-                                folder_name: null,
-                                folder_id: null
-                            });
-                        } else if (item.type === 'folder') {
-                            // Add conversations from this folder
-                            for (const conv of item.conversations) {
-                                conversations.push({
-                                    ...conv,
-                                    folder_name: item.name,
-                                    folder_id: item.id
-                                });
-                            }
-                            // Recursively add conversations from sub-folders
-                            conversations.push(...this.flattenConversations(item.children));
-                        }
-                    }
-                    return conversations;
-                },
-                async loadConversation(conversationId) {
-                    try {
-                        console.log('Attempting to load conversation:', conversationId);
-                        const response = await fetch(`/api/chat/conversations/${conversationId}`);
-                        console.log('Response status:', response.status);
-                        
-                        if (response.ok) {
-                            const data = await response.json();
-                            console.log('Conversation data loaded:', data);
-                            this.conversationId = conversationId;
-                            this.messages = data.messages.map(msg => ({
-                                role: msg.role,
-                                content: msg.content,
-                                timestamp: new Date(msg.created_at).toLocaleTimeString()
-                            }));
-                            this.showConversations = false;
-                            console.log('Messages loaded:', this.messages.length);
-                        } else {
-                            console.error('Failed to load conversation:', response.status, await response.text());
-                        }
-                    } catch (error) {
-                        console.error('Error loading conversation:', error);
-                    }
-                },
-                async newConversation() {
-                    this.messages = [];
-                    this.conversationId = null;
-                    this.showConversations = false;
-                },
-                async archiveConversation(conversationId) {
-                    try {
-                        const response = await fetch(`/api/chat/conversations/${conversationId}`, {
-                            method: 'DELETE'
-                        });
-                        if (response.ok) {
-                            await this.loadConversations();
-                            if (this.conversationId === conversationId) {
-                                this.newConversation();
-                            }
-                        }
-                    } catch (error) {
-                        console.error('Error archiving conversation:', error);
-                    }
-                },
-                init() {
-                    // Load conversations on page load
-                    this.loadConversations();
-                    
-                    // Check for conversation_id in URL parameters
-                    const urlParams = new URLSearchParams(window.location.search);
-                    const conversationId = urlParams.get('conversation_id');
-                    if (conversationId) {
-                        console.log('Loading conversation from URL:', conversationId);
-                        this.loadConversation(conversationId);
-                    }
-                },
+{% extends "base.html" %}
 
-                openChatLearningGoals() {
-                    // Open chat learning goals in a popup window
-                    const popup = window.open(
-                        '/chat-learning-goals',
-                        'chat-learning-goals',
-                        'width=1200,height=800,scrollbars=yes,resizable=yes,menubar=no,toolbar=no,location=no,status=no'
-                    );
-                    
-                    // Focus the popup window
-                    if (popup) {
-                        popup.focus();
-                    }
+{% block title %}AI Chat - FastOpp{% endblock %}
+
+{% block page_styles %}
+<!-- DaisyUI CDN -->
+<link href="https://cdn.jsdelivr.net/npm/daisyui@5.1.5/dist/full.min.css" rel="stylesheet" type="text/css" />
+
+<!-- Custom Tailwind Config for AI Chat -->
+<script>
+    tailwind.config = {
+        daisyui: {
+            themes: ["light", "dark"],
+        },
+        theme: {
+            extend: {
+                colors: {
+                    'ai-blue': '#3B82F6',
+                    'ai-purple': '#8B5CF6',
+                    'ai-gradient': 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
                 }
             }
         }
-    </script>
-</head>
-<body class="bg-gray-50">
-    <!-- Main Application -->
-    <div x-data="chatData()">
+    }
+</script>
+
+<!-- Markdown Styles -->
+<style>
+    .chat-bubble pre {
+        background-color: #f3f4f6;
+        border: 1px solid #e5e7eb;
+        border-radius: 0.5rem;
+        padding: 1rem;
+        margin: 0.5rem 0;
+        overflow-x: auto;
+        font-family: 'Courier New', monospace;
+        font-size: 0.875rem;
+    }
+    
+    .chat-bubble code {
+        background-color: #f3f4f6;
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.25rem;
+        font-family: 'Courier New', monospace;
+        font-size: 0.875rem;
+    }
+    
+    .chat-bubble pre code {
+        background-color: transparent;
+        padding: 0;
+    }
+    
+    .chat-bubble ul, .chat-bubble ol {
+        margin: 0.5rem 0;
+        padding-left: 1.5rem;
+    }
+    
+    .chat-bubble li {
+        margin: 0.25rem 0;
+    }
+    
+    .chat-bubble h1, .chat-bubble h2, .chat-bubble h3, 
+    .chat-bubble h4, .chat-bubble h5, .chat-bubble h6 {
+        margin: 1rem 0 0.5rem 0;
+        font-weight: 600;
+    }
+    
+    .chat-bubble h1 { font-size: 1.5rem; }
+    .chat-bubble h2 { font-size: 1.25rem; }
+    .chat-bubble h3 { font-size: 1.125rem; }
+    
+    .chat-bubble blockquote {
+        border-left: 4px solid #3b82f6;
+        padding-left: 1rem;
+        margin: 0.5rem 0;
+        font-style: italic;
+        color: #6b7280;
+    }
+    
+    .chat-bubble table {
+        border-collapse: collapse;
+        width: 100%;
+        margin: 0.5rem 0;
+    }
+    
+    .chat-bubble th, .chat-bubble td {
+        border: 1px solid #e5e7eb;
+        padding: 0.5rem;
+        text-align: left;
+    }
+    
+    .chat-bubble th {
+        background-color: #f9fafb;
+        font-weight: 600;
+    }
+    
+    .chat-bubble p {
+        margin: 0.5rem 0;
+    }
+    
+    .chat-bubble strong {
+        font-weight: 600;
+    }
+    
+    .chat-bubble em {
+        font-style: italic;
+    }
+    
+    /* Enhanced chat bubble styling */
+    .chat-bubble {
+        padding: 1rem 1.25rem !important;
+        border-radius: 1.25rem !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Main Application -->
+<div x-data="chatData()">
         <!-- Header -->
         {% set page_title="AI Chat" %}
         {% set show_conversations_button=True %}
@@ -650,6 +359,283 @@
         </div>
     </section>
     </div> <!-- End of main Alpine.js component -->
+{% endblock %}
 
-</body>
-</html>
+{% block page_scripts %}
+<!-- Alpine.js Data Function -->
+<script>
+    function chatData() {
+        return {
+            messages: [],
+            inputMessage: '',
+            isLoading: false,
+            currentStreamingMessage: null,
+            conversationId: null,
+            conversations: [],
+            showConversations: false,
+            showLearningGoals: false,
+            formatMessage(content) {
+                // Content is already HTML from server-side markdown processing
+                return content;
+            },
+            sendMessage() {
+                if (!this.inputMessage.trim()) return;
+                
+                const userMessage = this.inputMessage;
+                this.messages.push({
+                    role: 'user',
+                    content: userMessage,
+                    timestamp: new Date().toLocaleTimeString()
+                });
+                
+                this.inputMessage = '';
+                this.isLoading = true;
+                
+                // Create a new assistant message for streaming
+                this.currentStreamingMessage = {
+                    role: 'assistant',
+                    content: '',
+                    rawContent: '', // Store raw content for proper formatting
+                    timestamp: new Date().toLocaleTimeString()
+                };
+                this.messages.push(this.currentStreamingMessage);
+                
+                // Prepare request body with conversation context
+                const requestBody = { message: userMessage };
+                if (this.conversationId) {
+                    requestBody.conversation_id = this.conversationId;
+                }
+                
+                // Use fetch with streaming for better compatibility
+                fetch('/api/chat/stream', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestBody)
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    
+                    const reader = response.body.getReader();
+                    const decoder = new TextDecoder();
+                    let buffer = '';
+                    let currentEvent = null;
+                    let currentData = '';
+                    
+                    // Capture the reference to currentStreamingMessage
+                    const streamingMessage = this.currentStreamingMessage;
+                    
+                    const readStream = () => {
+                        return reader.read().then(({ done, value }) => {
+                            if (done) {
+                                this.isLoading = false;
+                                this.currentStreamingMessage = null;
+                                return;
+                            }
+                            
+                            buffer += decoder.decode(value, { stream: true });
+                            const lines = buffer.split('\n');
+                            
+                            // Keep the last line in buffer if it's incomplete
+                            buffer = lines.pop() || '';
+                            
+                            for (const line of lines) {
+                                const trimmedLine = line.trim();
+                                if (!trimmedLine) continue; // Skip empty lines
+                                
+                                if (trimmedLine.startsWith('event: ')) {
+                                    // Save the current event if we have data
+                                    if (currentEvent && currentData) {
+                                        processEvent(currentEvent, currentData);
+                                    }
+                                    currentEvent = trimmedLine.slice(7);
+                                    currentData = '';
+                                } else if (trimmedLine.startsWith('data: ')) {
+                                    currentData += trimmedLine.slice(6);
+                                }
+                            }
+                            
+                            // Process any remaining event
+                            if (currentEvent && currentData) {
+                                processEvent(currentEvent, currentData);
+                            }
+                            
+                            return readStream();
+                        });
+                    }
+                    
+                    const processEvent = (eventType, dataStr) => {
+                        if (eventType === 'message') {
+                            try {
+                                const data = JSON.parse(dataStr);
+                                if (data && data.content && streamingMessage) {
+                                    // Server sends pre-formatted HTML content
+                                    streamingMessage.content = data.content;
+                                    streamingMessage.rawContent = data.raw_content || data.content;
+                                    
+                                    // Store conversation ID for future messages
+                                    if (data.conversation_id) {
+                                        this.conversationId = data.conversation_id;
+                                        // Reload conversations to show updated title
+                                        this.loadConversations();
+                                    }
+                                }
+                            } catch (e) {
+                                console.error('Error parsing SSE data:', e, 'Data:', dataStr);
+                            }
+                        } else if (eventType === 'complete') {
+                            this.isLoading = false;
+                            this.currentStreamingMessage = null;
+                        } else if (eventType === 'error') {
+                            if (streamingMessage) {
+                                streamingMessage.content = 'Sorry, I encountered an error. Please try again.';
+                            }
+                            this.isLoading = false;
+                            this.currentStreamingMessage = null;
+                        }
+                    }
+                    
+                    return readStream();
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    this.currentStreamingMessage.content = 'Sorry, I encountered an error. Please try again.';
+                    this.isLoading = false;
+                    this.currentStreamingMessage = null;
+                });
+            },
+            clearMessages() {
+                this.messages = [];
+                this.conversationId = null;
+            },
+            async loadConversations() {
+                try {
+                    // Load conversations with folder information
+                    const response = await fetch('/api/folders/hierarchy');
+                    if (response.ok) {
+                        const data = await response.json();
+                        // Transform the new format to the old format for compatibility
+                        const hierarchy = [];
+                        if (data.root_conversations) {
+                            hierarchy.push(...data.root_conversations.map(conv => ({...conv, type: 'conversation'})));
+                        }
+                        if (data.folders) {
+                            hierarchy.push(...data.folders.map(folder => ({...folder, type: 'folder'})));
+                        }
+                        this.conversations = this.flattenConversations(hierarchy);
+                    } else {
+                        // Fallback to old method if hierarchy fails
+                        const response = await fetch('/api/chat/conversations');
+                        if (response.ok) {
+                            const data = await response.json();
+                            this.conversations = data.conversations || [];
+                        }
+                    }
+                    
+                    // Sort conversations by updated_at date (newest first)
+                    this.conversations.sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at));
+                } catch (error) {
+                    console.error('Error loading conversations:', error);
+                }
+            },
+            flattenConversations(hierarchy) {
+                const conversations = [];
+                for (const item of hierarchy) {
+                    if (item.type === 'conversation') {
+                        conversations.push({
+                            ...item,
+                            folder_name: null,
+                            folder_id: null
+                        });
+                    } else if (item.type === 'folder') {
+                        // Add conversations from this folder
+                        for (const conv of item.conversations) {
+                            conversations.push({
+                                ...conv,
+                                folder_name: item.name,
+                                folder_id: item.id
+                            });
+                        }
+                        // Recursively add conversations from sub-folders
+                        conversations.push(...this.flattenConversations(item.children));
+                    }
+                }
+                return conversations;
+            },
+            async loadConversation(conversationId) {
+                try {
+                    console.log('Attempting to load conversation:', conversationId);
+                    const response = await fetch(`/api/chat/conversations/${conversationId}`);
+                    console.log('Response status:', response.status);
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        console.log('Conversation data loaded:', data);
+                        this.conversationId = conversationId;
+                        this.messages = data.messages.map(msg => ({
+                            role: msg.role,
+                            content: msg.content,
+                            timestamp: new Date(msg.created_at).toLocaleTimeString()
+                        }));
+                        this.showConversations = false;
+                        console.log('Messages loaded:', this.messages.length);
+                    } else {
+                        console.error('Failed to load conversation:', response.status, await response.text());
+                    }
+                } catch (error) {
+                    console.error('Error loading conversation:', error);
+                }
+            },
+            async newConversation() {
+                this.messages = [];
+                this.conversationId = null;
+                this.showConversations = false;
+            },
+            async archiveConversation(conversationId) {
+                try {
+                    const response = await fetch(`/api/chat/conversations/${conversationId}`, {
+                        method: 'DELETE'
+                    });
+                    if (response.ok) {
+                        await this.loadConversations();
+                        if (this.conversationId === conversationId) {
+                            this.newConversation();
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error archiving conversation:', error);
+                }
+            },
+            init() {
+                // Load conversations on page load
+                this.loadConversations();
+                
+                // Check for conversation_id in URL parameters
+                const urlParams = new URLSearchParams(window.location.search);
+                const conversationId = urlParams.get('conversation_id');
+                if (conversationId) {
+                    console.log('Loading conversation from URL:', conversationId);
+                    this.loadConversation(conversationId);
+                }
+            },
+
+            openChatLearningGoals() {
+                // Open chat learning goals in a popup window
+                const popup = window.open(
+                    '/chat-learning-goals',
+                    'chat-learning-goals',
+                    'width=1200,height=800,scrollbars=yes,resizable=yes,menubar=no,toolbar=no,location=no,status=no'
+                );
+                
+                // Focus the popup window
+                if (popup) {
+                    popup.focus();
+                }
+            }
+        }
+    }
+</script>
+{% endblock %}

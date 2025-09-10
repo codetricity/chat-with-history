@@ -1,15 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Search - Marketing Firm Admin</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-</head>
-<body class="bg-gray-50">
-    <div x-data="searchApp()" class="min-h-screen">
+{% extends "base.html" %}
+
+{% block title %}Search - Marketing Firm Admin{% endblock %}
+
+{% block content %}
+<div x-data="searchApp()" class="min-h-screen">
         <!-- Header -->
         {% set page_title="Search" %}
         {% set page_badge="Hybrid Search" %}
@@ -444,107 +438,104 @@
         </main>
     </div>
 
-    <script>
-        function searchApp() {
-            return {
-                searchQuery: '',
-                searchMethod: 'hybrid',
-                searchType: 'conversation',
-                resultsLimit: 25,
-                searchResults: [],
-                isLoading: false,
-                searchStats: '',
-                showSearchInfo: false,
+</div>
+{% endblock %}
 
-                async performSearch() {
-                    if (!this.searchQuery.trim()) {
-                        this.searchResults = [];
-                        this.searchStats = '';
-                        return;
-                    }
-
-                    this.isLoading = true;
-                    this.searchStats = '';
-
-                    try {
-                        let endpoint = '';
-                        const params = new URLSearchParams({
-                            q: this.searchQuery,
-                            limit: this.resultsLimit
-                        });
-
-                        if (this.searchType === 'both') {
-                            // For both, we'll search conversations and documents separately
-                            endpoint = `/api/search/${this.searchMethod}`;
-                            params.append('search_type', 'conversation');
-                        } else if (this.searchType === 'document') {
-                            endpoint = `/api/search/documents`;
-                            params.append('search_method', this.searchMethod);
-                        } else {
-                            endpoint = `/api/search/${this.searchMethod}`;
-                            params.append('search_type', this.searchType);
-                        }
-
-                        const response = await fetch(`${endpoint}?${params}`);
-                        
-                        if (response.ok) {
-                            const data = await response.json();
-                            this.searchResults = data.results || [];
-                            
-                            // Update search stats
-                            const method = data.search_method || this.searchMethod;
-                            const total = data.total_results || this.searchResults.length;
-                            this.searchStats = `${total} results using ${method} search`;
-                            
-                        } else {
-                            console.error('Search failed:', response.statusText);
-                            this.searchResults = [];
-                        }
-                    } catch (error) {
-                        console.error('Search error:', error);
-                        this.searchResults = [];
-                    } finally {
-                        this.isLoading = false;
-                    }
-                },
-
-                clearSearch() {
-                    this.searchQuery = '';
+{% block page_scripts %}
+<script>
+    function searchApp() {
+        return {
+            searchQuery: '',
+            searchMethod: 'hybrid',
+            searchType: 'conversation',
+            resultsLimit: 25,
+            searchResults: [],
+            isLoading: false,
+            searchStats: '',
+            
+            async performSearch() {
+                if (!this.searchQuery.trim()) {
                     this.searchResults = [];
                     this.searchStats = '';
-                },
+                    return;
+                }
 
-                viewConversation(conversationId) {
-                    // Redirect to the main chat page with the conversation ID
-                    console.log('Viewing conversation with ID:', conversationId);
-                    console.log('Redirecting to:', `/?conversation_id=${conversationId}`);
-                    window.location.href = `/?conversation_id=${conversationId}`;
-                },
+                this.isLoading = true;
+                
+                try {
+                    const params = new URLSearchParams({
+                        q: this.searchQuery,
+                        limit: this.resultsLimit
+                    });
 
-                getSearchMethodDescription() {
-                    const descriptions = {
-                        'hybrid': 'Combines keyword matching with AI-powered semantic understanding for the most comprehensive results.',
-                        'keyword': 'Finds exact matches and phrases using advanced text search algorithms.',
-                        'semantic': 'Uses AI to understand meaning and find related concepts, even with different words.'
-                    };
-                    return descriptions[this.searchMethod] || '';
-                },
-
-                openLearningGoals() {
-                    // Open learning goals in a popup window
-                    const popup = window.open(
-                        '/learning-goals',
-                        'learning-goals',
-                        'width=1200,height=800,scrollbars=yes,resizable=yes,menubar=no,toolbar=no,location=no,status=no'
-                    );
-                    
-                    // Focus the popup window
-                    if (popup) {
-                        popup.focus();
+                    if (this.searchType === 'both') {
+                        // For 'both', we'll search conversations only for now
+                        endpoint = `/api/search/${this.searchMethod}`;
+                        params.append('search_type', 'conversation');
+                    } else if (this.searchType === 'document') {
+                        endpoint = `/api/search/documents`;
+                        params.append('search_method', this.searchMethod);
+                    } else {
+                        endpoint = `/api/search/${this.searchMethod}`;
+                        params.append('search_type', this.searchType);
                     }
+
+                    const response = await fetch(`${endpoint}?${params}`);
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        this.searchResults = data.results || [];
+                        const total = data.total || this.searchResults.length;
+                        const method = this.searchMethod.charAt(0).toUpperCase() + this.searchMethod.slice(1);
+                        this.searchStats = `${total} results using ${method} search`;
+                        
+                    } else {
+                        console.error('Search failed:', response.statusText);
+                        this.searchResults = [];
+                    }
+                } catch (error) {
+                    console.error('Search error:', error);
+                    this.searchResults = [];
+                } finally {
+                    this.isLoading = false;
+                }
+            },
+
+            clearSearch() {
+                this.searchQuery = '';
+                this.searchResults = [];
+                this.searchStats = '';
+            },
+
+            viewConversation(conversationId) {
+                // Redirect to the main chat page with the conversation loaded
+                console.log('Redirecting to:', `/?conversation_id=${conversationId}`);
+                window.location.href = `/?conversation_id=${conversationId}`;
+            },
+
+            getSearchMethodDescription() {
+                const descriptions = {
+                    'hybrid': 'Combines keyword and semantic search for the most comprehensive results.',
+                    'keyword': 'Finds exact matches and phrases using advanced text search algorithms.',
+                    'semantic': 'Uses AI to understand meaning and find related concepts, even with different words.'
+                };
+                return descriptions[this.searchMethod] || '';
+            },
+
+            openLearningGoals() {
+                // Open learning goals in a popup window
+                const popup = window.open(
+                    '/search-learning-goals',
+                    'search-learning-goals',
+                    'width=1200,height=800,scrollbars=yes,resizable=yes,menubar=no,toolbar=no,location=no,status=no'
+                );
+                
+                // Focus the popup window
+                if (popup) {
+                    popup.focus();
                 }
             }
         }
-    </script>
-</body>
-</html>
+    }
+</script>
+{% endblock %}

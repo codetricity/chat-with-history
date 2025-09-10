@@ -1,25 +1,24 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Protected Content - FastOpp Base Assets</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        'ai-blue': '#3B82F6',
-                        'ai-purple': '#8B5CF6'
-                    }
+{% extends "base.html" %}
+
+{% block title %}Protected Content - FastOpp Base Assets{% endblock %}
+
+{% block page_styles %}
+<script>
+    tailwind.config = {
+        theme: {
+            extend: {
+                colors: {
+                    'ai-blue': '#3B82F6',
+                    'ai-purple': '#8B5CF6'
                 }
             }
         }
-    </script>
-</head>
-<body class="bg-gray-50 min-h-screen">
-    <div class="min-h-screen flex flex-col">
+    }
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex flex-col">
         <!-- Header -->
         <header class="bg-white shadow-sm border-b">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -114,5 +113,5 @@
             </div>
         </main>
     </div>
-</body>
-</html>
+</div>
+{% endblock %}
