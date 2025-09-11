@@ -200,53 +200,69 @@ function conversationBrowser() {
 
         async loadConversations() {
             try {
-                // Build query parameters for filtering
-                const params = new URLSearchParams();
-                
-                if (this.filters.clientId) {
-                    params.append('client_id', this.filters.clientId);
-                }
-                if (this.filters.projectId) {
-                    params.append('project_id', this.filters.projectId);
-                }
-                if (this.filters.contentType) {
-                    params.append('content_type', this.filters.contentType);
-                }
-                if (this.filters.status) {
-                    params.append('status', this.filters.status);
-                }
-                if (this.filters.startDate) {
-                    params.append('start_date', this.filters.startDate);
-                }
-                if (this.filters.endDate) {
-                    params.append('end_date', this.filters.endDate);
-                }
-                
-                // Use the search API to get conversations with all the metadata
-                const response = await fetch(`/api/search/conversations?${params.toString()}`);
-                if (response.ok) {
-                    const conversations = await response.json();
+                // Check if any filters are active
+                if (this.hasActiveFilters()) {
+                    // Use search API when filters are active
+                    const params = new URLSearchParams();
                     
-                    // Map the search results to our conversation format
-                    this.rootConversations = conversations.map(conv => ({
-                        id: conv.id,
-                        title: conv.title,
-                        created_at: conv.created_at,
-                        updated_at: conv.updated_at,
-                        message_count: conv.message_count || 0, // Use actual message count from API
-                        client_id: conv.client_id,
-                        client_name: conv.client_name,
-                        project_id: conv.project_id,
-                        project_name: conv.project_name,
-                        content_type: conv.content_type,
-                        status: conv.status,
-                        folder_name: conv.folder_name
-                    }));
+                    if (this.filters.clientId) {
+                        params.append('client_id', this.filters.clientId);
+                    }
+                    if (this.filters.projectId) {
+                        params.append('project_id', this.filters.projectId);
+                    }
+                    if (this.filters.contentType) {
+                        params.append('content_type', this.filters.contentType);
+                    }
+                    if (this.filters.status) {
+                        params.append('status', this.filters.status);
+                    }
+                    if (this.filters.startDate) {
+                        params.append('start_date', this.filters.startDate);
+                    }
+                    if (this.filters.endDate) {
+                        params.append('end_date', this.filters.endDate);
+                    }
                     
-                    console.log('Loaded conversations:', this.rootConversations.length);
-                    console.log('Conversation statuses:', this.rootConversations.map(c => ({ title: c.title, status: c.status })));
+                    // Use the search API to get conversations with all the metadata
+                    const response = await fetch(`/api/search/conversations?${params.toString()}`);
+                    if (response.ok) {
+                        const conversations = await response.json();
+                        
+                        // Map the search results to our conversation format
+                        this.rootConversations = conversations.map(conv => ({
+                            id: conv.id,
+                            title: conv.title,
+                            created_at: conv.created_at,
+                            updated_at: conv.updated_at,
+                            message_count: conv.message_count || 0,
+                            client_id: conv.client_id,
+                            client_name: conv.client_name,
+                            project_id: conv.project_id,
+                            project_name: conv.project_name,
+                            content_type: conv.content_type,
+                            status: conv.status,
+                            folder_name: conv.folder_name
+                        }));
+                        
+                        console.log('Loaded filtered conversations:', this.rootConversations.length);
+                    } else {
+                        console.error('Failed to load conversations');
+                    }
                 } else {
-                    console.error('Failed to load conversations');
+                    // Use folder hierarchy API when no filters are active
+                    const response = await fetch('/api/folders/hierarchy');
+                    if (response.ok) {
+                        const data = await response.json();
+                        
+                        // Update folders and root conversations from hierarchy
+                        this.folders = data.folders || [];
+                        this.rootConversations = data.root_conversations || [];
+                        
+                        console.log('Loaded folder hierarchy - folders:', this.folders.length, 'root conversations:', this.rootConversations.length);
+                    } else {
+                        console.error('Failed to load folder hierarchy');
+                    }
                 }
             } catch (error) {
                 console.error('Error loading conversations:', error);
