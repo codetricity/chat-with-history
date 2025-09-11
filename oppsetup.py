@@ -22,7 +22,6 @@ try:
     from scripts.fake_data.add_content_status_data import add_content_status_data
     from scripts.setup_hybrid_search import setup_hybrid_search
     from scripts.check_users import check_users
-    from scripts.test_auth import test_auth
 except ImportError as e:
     print(f"❌ Import error: {e}")
     print("Make sure all script files are in the scripts/ directory")
@@ -92,13 +91,18 @@ async def run_complete_setup():
         await setup_conversation_data()
         print("✅ Conversation data added")
         
-        # Step 7: Setup hybrid search infrastructure
-        print("\n🔍 Step 7: Setting up hybrid search infrastructure...")
+        # Step 7: Add content status data
+        print("\n📊 Step 7: Adding content status data...")
+        await add_content_status_data()
+        print("✅ Content status data added")
+        
+        # Step 8: Setup hybrid search infrastructure
+        print("\n🔍 Step 8: Setting up hybrid search infrastructure...")
         await setup_hybrid_search()
         print("✅ Hybrid search infrastructure ready")
         
-        # Step 8: Verify setup
-        print("\n🔍 Step 8: Verifying setup...")
+        # Step 9: Verify setup
+        print("\n🔍 Step 9: Verifying setup...")
         await check_users()
         print("✅ Setup verification complete")
         
@@ -113,6 +117,7 @@ async def run_complete_setup():
         print("  - 8 content templates (Blog Post, Social Media, etc.)")
         print("  - 8 conversation folders with 3 sub-folders")
         print("  - 12 sample conversations with realistic messages")
+        print("  - Content status data for conversation filtering")
         print("  - FTS5 virtual tables for full-text search")
         print("  - Content chunks and embeddings for hybrid search")
         print("  - FAISS index for semantic search")
@@ -171,13 +176,18 @@ async def run_reset_setup():
         await setup_conversation_data()
         print("✅ Conversation data added")
         
-        # Step 7: Setup hybrid search infrastructure
-        print("\n🔍 Step 7: Setting up hybrid search infrastructure...")
+        # Step 7: Add content status data
+        print("\n📊 Step 7: Adding content status data...")
+        await add_content_status_data()
+        print("✅ Content status data added")
+        
+        # Step 8: Setup hybrid search infrastructure
+        print("\n🔍 Step 8: Setting up hybrid search infrastructure...")
         await setup_hybrid_search()
         print("✅ Hybrid search infrastructure ready")
         
-        # Step 8: Verify setup
-        print("\n🔍 Step 8: Verifying setup...")
+        # Step 9: Verify setup
+        print("\n🔍 Step 9: Verifying setup...")
         await check_users()
         print("✅ Setup verification complete")
         
@@ -192,6 +202,7 @@ async def run_reset_setup():
         print("  - 8 content templates (Blog Post, Social Media, etc.)")
         print("  - 8 conversation folders with 3 sub-folders")
         print("  - 12 sample conversations with realistic messages")
+        print("  - Content status data for conversation filtering")
         print("  - FTS5 virtual tables for full-text search")
         print("  - Content chunks and embeddings for hybrid search")
         print("  - FAISS index for semantic search")
@@ -289,6 +300,7 @@ WHAT'S INCLUDED IN INIT SETUP:
     - 8 content templates
     - 8 conversation folders with 3 sub-folders
     - 12 sample conversations with realistic messages
+    - Content status data for conversation filtering
 
 WHAT'S INCLUDED IN MINIMAL SETUP:
     - Database initialization

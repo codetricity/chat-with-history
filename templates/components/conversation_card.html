@@ -26,7 +26,7 @@
                       x-text="conversation.status || 'draft'"></span>
                 <span x-show="conversation.content_type" 
                       class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800"
-                      x-text="conversation.content_type.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())"></span>
+                      x-text="safeStringFormat(conversation.content_type)"></span>
             </div>
             
             <div class="flex items-center space-x-4 text-xs text-gray-500 mt-1">

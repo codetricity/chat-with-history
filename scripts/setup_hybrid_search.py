@@ -28,9 +28,41 @@ async def create_fts5_tables():
     """Create FTS5 virtual tables for full-text search"""
     logger.info("Creating FTS5 virtual tables...")
     
-    db_path = "test.db"
+    # Use the same database path as the main application
+    from db import DATABASE_URL
+    
+    # Extract the database path from the DATABASE_URL
+    if DATABASE_URL.startswith("sqlite+aiosqlite:///"):
+        db_path = DATABASE_URL.replace("sqlite+aiosqlite:///", "")
+        # Handle relative paths
+        if db_path.startswith("./"):
+            db_path = db_path[2:]
+        # Ensure absolute path for Fly volumes
+        if not os.path.isabs(db_path):
+            db_path = os.path.abspath(db_path)
+    else:
+        # Fallback to test.db for non-SQLite databases
+        db_path = "test.db"
+    
+    logger.info(f"Using database path: {db_path}")
+    logger.info(f"Database file exists: {os.path.exists(db_path)}")
     
     async with aiosqlite.connect(db_path) as db:
+        # Check if required tables exist first
+        cursor = await db.execute("""
+            SELECT name FROM sqlite_master 
+            WHERE type='table' AND name IN ('chunks', 'document_chunks')
+        """)
+        existing_tables = await cursor.fetchall()
+        existing_table_names = [row[0] for row in existing_tables]
+        
+        if 'chunks' not in existing_table_names:
+            logger.error("❌ Required table 'chunks' does not exist. Please run database migrations first.")
+            raise Exception("Required table 'chunks' does not exist")
+        
+        if 'document_chunks' not in existing_table_names:
+            logger.warning("⚠️  Table 'document_chunks' does not exist. Skipping document chunk FTS setup.")
+            return
         # Enable FTS5 extension
         await db.execute("PRAGMA compile_options;")
         
@@ -44,14 +76,15 @@ async def create_fts5_tables():
             );
         """)
         
-        # Create FTS5 virtual table for document chunks
-        await db.execute("""
-            CREATE VIRTUAL TABLE IF NOT EXISTS document_chunks_fts USING fts5(
-                content,
-                content='document_chunks',
-                content_rowid='rowid'
-            );
-        """)
+        # Create FTS5 virtual table for document chunks (only if table exists)
+        if 'document_chunks' in existing_table_names:
+            await db.execute("""
+                CREATE VIRTUAL TABLE IF NOT EXISTS document_chunks_fts USING fts5(
+                    content,
+                    content='document_chunks',
+                    content_rowid='rowid'
+                );
+            """)
         
         # Create triggers to keep FTS5 tables in sync
         await db.execute("""
@@ -77,29 +110,30 @@ async def create_fts5_tables():
             END;
         """)
         
-        # Similar triggers for document chunks
-        await db.execute("""
-            CREATE TRIGGER IF NOT EXISTS document_chunks_ai AFTER INSERT ON document_chunks BEGIN
-                INSERT INTO document_chunks_fts(rowid, content) 
-                VALUES (new.rowid, new.content);
-            END;
-        """)
-        
-        await db.execute("""
-            CREATE TRIGGER IF NOT EXISTS document_chunks_ad AFTER DELETE ON document_chunks BEGIN
-                INSERT INTO document_chunks_fts(document_chunks_fts, rowid, content) 
-                VALUES('delete', old.rowid, old.content);
-            END;
-        """)
-        
-        await db.execute("""
-            CREATE TRIGGER IF NOT EXISTS document_chunks_au AFTER UPDATE ON document_chunks BEGIN
-                INSERT INTO document_chunks_fts(document_chunks_fts, rowid, content) 
-                VALUES('delete', old.rowid, old.content);
-                INSERT INTO document_chunks_fts(rowid, content) 
-                VALUES (new.rowid, new.content);
-            END;
-        """)
+        # Similar triggers for document chunks (only if table exists)
+        if 'document_chunks' in existing_table_names:
+            await db.execute("""
+                CREATE TRIGGER IF NOT EXISTS document_chunks_ai AFTER INSERT ON document_chunks BEGIN
+                    INSERT INTO document_chunks_fts(rowid, content) 
+                    VALUES (new.rowid, new.content);
+                END;
+            """)
+            
+            await db.execute("""
+                CREATE TRIGGER IF NOT EXISTS document_chunks_ad AFTER DELETE ON document_chunks BEGIN
+                    INSERT INTO document_chunks_fts(document_chunks_fts, rowid, content) 
+                    VALUES('delete', old.rowid, old.content);
+                END;
+            """)
+            
+            await db.execute("""
+                CREATE TRIGGER IF NOT EXISTS document_chunks_au AFTER UPDATE ON document_chunks BEGIN
+                    INSERT INTO document_chunks_fts(document_chunks_fts, rowid, content) 
+                    VALUES('delete', old.rowid, old.content);
+                    INSERT INTO document_chunks_fts(rowid, content) 
+                    VALUES (new.rowid, new.content);
+                END;
+            """)
         
         await db.commit()
         logger.info("✅ FTS5 virtual tables and triggers created successfully")
@@ -306,13 +340,13 @@ async def setup_hybrid_search():
         
         logger.info("\n" + "=" * 60)
         logger.info("🎉 Hybrid search infrastructure setup complete!")
-        logger.info(f"\n📊 Summary:")
-        logger.info(f"  - FTS5 virtual tables created")
+        logger.info("\n📊 Summary:")
+        logger.info("  - FTS5 virtual tables created")
         logger.info(f"  - {conv_chunks} conversation chunks created")
         logger.info(f"  - {doc_chunks} document chunks created")
-        logger.info(f"  - Embeddings generated for all chunks")
-        logger.info(f"  - FAISS index built and ready")
-        logger.info(f"\n🔍 Hybrid search is now ready to use!")
+        logger.info("  - Embeddings generated for all chunks")
+        logger.info("  - FAISS index built and ready")
+        logger.info("\n🔍 Hybrid search is now ready to use!")
         
     except Exception as e:
         logger.error(f"\n❌ Setup failed: {e}")

@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Content Management Hub{% endblock %}</title>
     
-    <!-- Tailwind CSS CDN (Development only - for production, install as PostCSS plugin) -->
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     
     <!-- Font Awesome CDN -->
@@ -35,16 +35,28 @@
             }
         }
         
-        // Suppress Tailwind CDN production warning in development
+        // Suppress Tailwind CDN production warning
         if (typeof console !== 'undefined' && console.warn) {
             const originalWarn = console.warn;
             console.warn = function(...args) {
-                if (args[0] && args[0].includes && args[0].includes('cdn.tailwindcss.com should not be used in production')) {
+                const message = args[0];
+                if (typeof message === 'string' && message.includes('cdn.tailwindcss.com should not be used in production')) {
                     return; // Suppress this specific warning
                 }
                 originalWarn.apply(console, args);
             };
         }
+        
+        // Helper function for safe string operations
+        window.safeStringReplace = function(str, search, replace) {
+            if (!str || typeof str !== 'string') return '';
+            return str.replace(search, replace);
+        };
+        
+        window.safeStringFormat = function(str) {
+            if (!str || typeof str !== 'string') return '';
+            return str.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
+        };
     </script>
     
     <style>
@@ -91,6 +103,7 @@
         .status-rejected { @apply bg-red-100 text-red-800; }
         .status-published { @apply bg-blue-100 text-blue-800; }
     </style>
+    
     
     {% block page_styles %}{% endblock %}
 </head>

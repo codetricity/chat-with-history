@@ -25,6 +25,7 @@ swap_size_mb = 1024
 [env]
   ENVIRONMENT = "production"
   UPLOAD_DIR = "/data/uploads"
+  DATABASE_URL = "sqlite+aiosqlite:///./data/test.db"
 
 [[mounts]]
   source = "data"
