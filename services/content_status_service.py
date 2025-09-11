@@ -6,6 +6,7 @@ from typing import List, Optional, Dict, Any
 from datetime import datetime, timezone
 from sqlmodel import select, Session
 from models import ContentStatus, Conversation, Project, User, ContentStatusCreate, ContentStatusUpdate
+from db import AsyncSessionLocal
 
 
 class ContentStatusService:
@@ -101,20 +102,25 @@ class ContentStatusService:
             return content_status
 
     @staticmethod
-    async def get_content_status(conversation_id: uuid.UUID) -> Optional[ContentStatus]:
+    async def get_content_status(conversation_id: uuid.UUID, session: Optional[Session] = None) -> Optional[ContentStatus]:
         """Get content status for a conversation"""
-        async with AsyncSessionLocal() as session:
+        if session:
             query = select(ContentStatus).where(ContentStatus.conversation_id == conversation_id)
             result = await session.execute(query)
             return result.scalar_one_or_none()
+        else:
+            async with AsyncSessionLocal() as new_session:
+                query = select(ContentStatus).where(ContentStatus.conversation_id == conversation_id)
+                result = await new_session.execute(query)
+                return result.scalar_one_or_none()
 
     @staticmethod
-    async def update_status(conversation_id: uuid.UUID, status: str,
+    async def update_status_by_conversation(conversation_id: uuid.UUID, status: str,
                           review_notes: Optional[str] = None,
                           assigned_to: Optional[uuid.UUID] = None) -> bool:
-        """Update content status"""
+        """Update content status by conversation ID"""
         async with AsyncSessionLocal() as session:
-            content_status = await ContentStatusService.get_content_status(conversation_id)
+            content_status = await ContentStatusService.get_content_status(conversation_id, session)
             if not content_status:
                 return False
             

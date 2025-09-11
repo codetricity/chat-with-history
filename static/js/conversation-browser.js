@@ -40,6 +40,7 @@ function conversationBrowser() {
         rootConversations: [],
         clients: [],
         projects: [],
+        users: [],
         contentTemplates: [],
         statusCounts: {
             draft: 0,
@@ -55,6 +56,18 @@ function conversationBrowser() {
         showCreateProjectModal: false,
         showContentTemplatesModal: false,
         showStatusUpdateModal: false,
+        showContentStatusModal: false,
+        editingContentStatus: {
+            id: null,
+            conversation_id: null,
+            project_id: '',
+            status: 'draft',
+            content_type: 'blog_post',
+            assigned_to: '',
+            review_notes: '',
+            due_date: '',
+            published_at: ''
+        },
         filters: {
             clientId: '',
             projectId: '',
@@ -178,6 +191,7 @@ function conversationBrowser() {
                     this.rootConversations = data.root_conversations || [];
                     console.log('Loaded folders:', this.folders.length);
                     console.log('Loaded root conversations:', this.rootConversations.length);
+                    console.log('Sample conversation data:', this.rootConversations[0]);
                 }
             } catch (error) {
                 console.error('Error loading folders:', error);
@@ -275,13 +289,28 @@ function conversationBrowser() {
                     this.contentTemplates = await templatesResponse.json();
                 }
 
+                // Load users
+                const usersResponse = await fetch('/api/users');
+                if (usersResponse.ok) {
+                    this.users = await usersResponse.json();
+                }
+
                 // Load status counts
+                await this.loadStatusCounts();
+            } catch (error) {
+                console.error('Error loading marketing data:', error);
+            }
+        },
+
+        async loadStatusCounts() {
+            try {
                 const statusResponse = await fetch('/api/content-status/summary');
                 if (statusResponse.ok) {
                     this.statusCounts = await statusResponse.json();
+                    console.log('Status counts updated:', this.statusCounts);
                 }
             } catch (error) {
-                console.error('Error loading marketing data:', error);
+                console.error('Error loading status counts:', error);
             }
         },
 
@@ -409,6 +438,90 @@ function conversationBrowser() {
                 project_id: folder.project_id || ''
             };
             this.showEditFolderModal = true;
+        },
+
+        editContentStatus(conversation) {
+            console.log('Editing content status for conversation:', conversation);
+            // Get existing content status for this conversation
+            const existingStatus = conversation.content_status || {};
+            console.log('Existing content status:', existingStatus);
+            
+            this.editingContentStatus = {
+                id: existingStatus.id || null,
+                conversation_id: conversation.id,
+                project_id: existingStatus.project_id || conversation.project_id || '',
+                status: existingStatus.status || conversation.status || 'draft',
+                content_type: existingStatus.content_type || conversation.content_type || 'blog_post',
+                assigned_to: existingStatus.assigned_to || '',
+                review_notes: existingStatus.review_notes || '',
+                due_date: existingStatus.due_date ? new Date(existingStatus.due_date).toISOString().slice(0, 16) : '',
+                published_at: existingStatus.published_at || ''
+            };
+            console.log('Editing content status data:', this.editingContentStatus);
+            this.showContentStatusModal = true;
+        },
+
+        async updateContentStatus() {
+            try {
+                const statusData = {
+                    conversation_id: this.editingContentStatus.conversation_id,
+                    project_id: this.editingContentStatus.project_id || null,
+                    status: this.editingContentStatus.status,
+                    content_type: this.editingContentStatus.content_type,
+                    assigned_to: this.editingContentStatus.assigned_to || null,
+                    review_notes: this.editingContentStatus.review_notes || null,
+                    due_date: this.editingContentStatus.due_date ? new Date(this.editingContentStatus.due_date).toISOString() : null,
+                    published_at: this.editingContentStatus.published_at ? new Date(this.editingContentStatus.published_at).toISOString() : null
+                };
+
+                let response;
+                if (this.editingContentStatus.id) {
+                    // Update existing content status
+                    response = await fetch(`/api/content-status/${this.editingContentStatus.id}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(statusData)
+                    });
+                } else {
+                    // Create new content status
+                    response = await fetch('/api/content-status', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(statusData)
+                    });
+                }
+
+                if (!response.ok) {
+                    throw new Error('Failed to update content status');
+                }
+
+                console.log('Content status updated successfully');
+                this.showContentStatusModal = false;
+                this.editingContentStatus = {
+                    id: null,
+                    conversation_id: null,
+                    project_id: '',
+                    status: 'draft',
+                    content_type: 'blog_post',
+                    assigned_to: '',
+                    review_notes: '',
+                    due_date: '',
+                    published_at: ''
+                };
+                
+                // Refresh status counts and conversation data
+                await Promise.all([
+                    this.loadStatusCounts(),
+                    this.loadFolders()
+                ]);
+            } catch (error) {
+                this.error = 'Failed to update content status';
+                console.error('Error updating content status:', error);
+            }
         },
 
         getStatusClass(status) {
