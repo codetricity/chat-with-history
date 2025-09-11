@@ -140,19 +140,19 @@ class HybridSearchService:
                     
                     if search_type == "conversation":
                         result.update({
-                            "conversation_title": row[2],
-                            "folder_name": row[3],
-                            "chunk_type": row[4],
-                            "conversation_id": str(row[5]),
-                            "chunk_index": row[6]
+                            "chunk_type": row[2],
+                            "conversation_id": str(row[3]),
+                            "chunk_index": row[4],
+                            "conversation_title": row[5],
+                            "folder_name": row[6]
                         })
                     else:
                         result.update({
-                            "document_title": row[2],
-                            "folder_name": row[3],
-                            "file_type": row[4],
-                            "document_id": str(row[5]),
-                            "chunk_index": row[6]
+                            "document_id": str(row[2]),
+                            "chunk_index": row[3],
+                            "document_title": row[4],
+                            "folder_name": row[5],
+                            "file_type": row[6]
                         })
                     
                     results.append(result)

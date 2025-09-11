@@ -687,8 +687,12 @@ async def search_conversations(
                 else:
                     raise HTTPException(status_code=400, detail="Invalid search_method")
                 
-                # Extract conversation IDs from search results
-                conversation_ids = [result["conversation_id"] for result in search_results if "conversation_id" in result]
+                # Extract conversation IDs from search results and deduplicate
+                conversation_ids = list(set([
+                    result["conversation_id"] 
+                    for result in search_results 
+                    if "conversation_id" in result
+                ]))
                 
                 if conversation_ids:
                     conditions.append(Conversation.id.in_(conversation_ids))
@@ -813,13 +817,54 @@ async def hybrid_search(
         embedding_service = EmbeddingService()
         hybrid_service = HybridSearchService(embedding_service)
         
-        results = await hybrid_service.hybrid_search(
+        # Get more results to account for deduplication
+        chunk_results = await hybrid_service.hybrid_search(
             query=q,
-            limit=limit,
+            limit=limit * 3,  # Get more chunks to account for deduplication
             search_type=search_type,
             bm25_weight=bm25_weight,
             cosine_weight=cosine_weight
         )
+        
+        if search_type == "conversation":
+            # Deduplicate by conversation and return conversation-level data
+            conversation_scores = {}
+            conversation_chunks = {}
+            
+            for chunk in chunk_results:
+                conv_id = chunk.get("conversation_id")
+                if not conv_id:
+                    continue
+                    
+                # Keep the highest scoring chunk for each conversation
+                if conv_id not in conversation_scores or chunk.get("hybrid_score", 0) > conversation_scores[conv_id]:
+                    conversation_scores[conv_id] = chunk.get("hybrid_score", 0)
+                    conversation_chunks[conv_id] = chunk
+            
+            # Convert to conversation-level results
+            results = []
+            for conv_id, chunk in conversation_chunks.items():
+                # Calculate relevance percentage (0-100%)
+                relevance_percent = min(100, max(0, (chunk.get("hybrid_score", 0) * 100)))
+                
+                result = {
+                    "conversation_id": conv_id,
+                    "title": chunk.get("conversation_title", "Unknown"),
+                    "content": chunk.get("content", ""),
+                    "folder_name": chunk.get("folder_name", "Root"),
+                    "relevance_percent": round(relevance_percent, 1),
+                    "cosine_score": round(chunk.get("cosine_score", 0), 3),
+                    "bm25_score": round(chunk.get("bm25_score", 0), 3),
+                    "hybrid_score": round(chunk.get("hybrid_score", 0), 3)
+                }
+                results.append(result)
+            
+            # Sort by hybrid score and limit results
+            results.sort(key=lambda x: x["hybrid_score"], reverse=True)
+            results = results[:limit]
+        else:
+            # For documents, return as-is (no deduplication needed)
+            results = chunk_results
         
         return {
             "query": q,
@@ -847,11 +892,50 @@ async def keyword_search(
         embedding_service = EmbeddingService()
         hybrid_service = HybridSearchService(embedding_service)
         
-        results = await hybrid_service.keyword_search(
+        # Get more results to account for deduplication
+        chunk_results = await hybrid_service.keyword_search(
             query=q,
-            limit=limit,
+            limit=limit * 3,  # Get more chunks to account for deduplication
             search_type=search_type
         )
+        
+        if search_type == "conversation":
+            # Deduplicate by conversation and return conversation-level data
+            conversation_scores = {}
+            conversation_chunks = {}
+            
+            for chunk in chunk_results:
+                conv_id = chunk.get("conversation_id")
+                if not conv_id:
+                    continue
+                    
+                # Keep the highest scoring chunk for each conversation
+                if conv_id not in conversation_scores or chunk.get("bm25_score", 0) > conversation_scores[conv_id]:
+                    conversation_scores[conv_id] = chunk.get("bm25_score", 0)
+                    conversation_chunks[conv_id] = chunk
+            
+            # Convert to conversation-level results
+            results = []
+            for conv_id, chunk in conversation_chunks.items():
+                # Calculate relevance percentage (0-100%)
+                relevance_percent = min(100, max(0, (chunk.get("bm25_score", 0) * 100)))
+                
+                result = {
+                    "conversation_id": conv_id,
+                    "title": chunk.get("conversation_title", "Unknown"),
+                    "content": chunk.get("content", ""),
+                    "folder_name": chunk.get("folder_name", "Root"),
+                    "relevance_percent": round(relevance_percent, 1),
+                    "bm25_score": round(chunk.get("bm25_score", 0), 3)
+                }
+                results.append(result)
+            
+            # Sort by BM25 score and limit results
+            results.sort(key=lambda x: x["bm25_score"], reverse=True)
+            results = results[:limit]
+        else:
+            # For documents, return as-is (no deduplication needed)
+            results = chunk_results
         
         return {
             "query": q,
@@ -876,11 +960,50 @@ async def semantic_search(
         embedding_service = EmbeddingService()
         hybrid_service = HybridSearchService(embedding_service)
         
-        results = await hybrid_service.semantic_search(
+        # Get more results to account for deduplication
+        chunk_results = await hybrid_service.semantic_search(
             query=q,
-            limit=limit,
+            limit=limit * 3,  # Get more chunks to account for deduplication
             search_type=search_type
         )
+        
+        if search_type == "conversation":
+            # Deduplicate by conversation and return conversation-level data
+            conversation_scores = {}
+            conversation_chunks = {}
+            
+            for chunk in chunk_results:
+                conv_id = chunk.get("conversation_id")
+                if not conv_id:
+                    continue
+                    
+                # Keep the highest scoring chunk for each conversation
+                if conv_id not in conversation_scores or chunk.get("cosine_score", 0) > conversation_scores[conv_id]:
+                    conversation_scores[conv_id] = chunk.get("cosine_score", 0)
+                    conversation_chunks[conv_id] = chunk
+            
+            # Convert to conversation-level results
+            results = []
+            for conv_id, chunk in conversation_chunks.items():
+                # Calculate relevance percentage (0-100%)
+                relevance_percent = min(100, max(0, (chunk.get("cosine_score", 0) * 100)))
+                
+                result = {
+                    "conversation_id": conv_id,
+                    "title": chunk.get("conversation_title", "Unknown"),
+                    "content": chunk.get("content", ""),
+                    "folder_name": chunk.get("folder_name", "Root"),
+                    "relevance_percent": round(relevance_percent, 1),
+                    "cosine_score": round(chunk.get("cosine_score", 0), 3)
+                }
+                results.append(result)
+            
+            # Sort by cosine score and limit results
+            results.sort(key=lambda x: x["cosine_score"], reverse=True)
+            results = results[:limit]
+        else:
+            # For documents, return as-is (no deduplication needed)
+            results = chunk_results
         
         return {
             "query": q,
