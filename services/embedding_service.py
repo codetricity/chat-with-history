@@ -17,9 +17,12 @@ class EmbeddingService:
     
     def __init__(self):
         # Use OpenAI API for embeddings
-        self.client = AsyncOpenAI(
-            api_key=os.getenv("OPENAI_API_KEY")
-        )
+        api_key = os.getenv("OPENAI_API_KEY")
+        if not api_key:
+            logger.warning("OPENAI_API_KEY not found in environment variables")
+            self.client = None
+        else:
+            self.client = AsyncOpenAI(api_key=api_key)
         self.model_name = "text-embedding-3-small"  # 1536 dimensions
         self.embedding_dimension = 1536
     
@@ -33,6 +36,10 @@ class EmbeddingService:
         Returns:
             List of float values representing the embedding
         """
+        if not self.client:
+            logger.error("OpenAI client not initialized - OPENAI_API_KEY not configured")
+            raise Exception("OpenAI API key not configured")
+        
         try:
             response = await self.client.embeddings.create(
                 model=self.model_name,

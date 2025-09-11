@@ -70,79 +70,99 @@ class HybridSearchService:
         Returns:
             List of search results with BM25 scores
         """
-        db_path = "test.db"
+        from db import DATABASE_URL
+        import os
+        
+        # Extract database path from DATABASE_URL
+        if DATABASE_URL.startswith("sqlite+aiosqlite:///"):
+            db_path = DATABASE_URL.replace("sqlite+aiosqlite:///", "")
+            if db_path.startswith("./"):
+                db_path = db_path[2:]
+            if not os.path.isabs(db_path):
+                db_path = os.path.abspath(db_path)
+        else:
+            db_path = "test.db"
+        
         results = []
         
-        async with aiosqlite.connect(db_path) as db:
-            if search_type == "conversation":
-                # Search conversation chunks
-                cursor = await db.execute("""
-                    SELECT 
-                        c.id as chunk_id,
-                        c.content,
-                        c.chunk_type,
-                        c.conversation_id,
-                        c.chunk_index,
-                        conv.title as conversation_title,
-                        f.name as folder_name,
-                        bm25(chunks_fts) as bm25_score
-                    FROM chunks_fts
-                    JOIN chunks c ON chunks_fts.rowid = c.rowid
-                    LEFT JOIN conversations conv ON c.conversation_id = conv.id
-                    LEFT JOIN conversation_folders f ON conv.folder_id = f.id
-                    WHERE chunks_fts MATCH ?
-                    ORDER BY bm25_score DESC
-                    LIMIT ?
-                """, (query, limit))
-            else:
-                # Search document chunks
-                cursor = await db.execute("""
-                    SELECT 
-                        dc.id as chunk_id,
-                        dc.content,
-                        dc.document_id,
-                        dc.chunk_index,
-                        d.title as document_title,
-                        f.name as folder_name,
-                        d.file_type,
-                        bm25(document_chunks_fts) as bm25_score
-                    FROM document_chunks_fts
-                    JOIN document_chunks dc ON document_chunks_fts.rowid = dc.rowid
-                    LEFT JOIN documents d ON dc.document_id = d.id
-                    LEFT JOIN conversation_folders f ON d.folder_id = f.id
-                    WHERE document_chunks_fts MATCH ?
-                    ORDER BY bm25_score DESC
-                    LIMIT ?
-                """, (query, limit))
-            
-            rows = await cursor.fetchall()
-            
-            for row in rows:
-                result = {
-                    "chunk_id": str(row[0]),
-                    "content": row[1],
-                    "bm25_score": row[-1],  # Last column is BM25 score
-                    "search_type": search_type
-                }
-                
+        try:
+            async with aiosqlite.connect(db_path) as db:
                 if search_type == "conversation":
-                    result.update({
-                        "conversation_title": row[2],
-                        "folder_name": row[3],
-                        "chunk_type": row[4],
-                        "conversation_id": str(row[5]),
-                        "chunk_index": row[6]
-                    })
+                    # Search conversation chunks
+                    cursor = await db.execute("""
+                        SELECT 
+                            c.id as chunk_id,
+                            c.content,
+                            c.chunk_type,
+                            c.conversation_id,
+                            c.chunk_index,
+                            conv.title as conversation_title,
+                            f.name as folder_name,
+                            bm25(chunks_fts) as bm25_score
+                        FROM chunks_fts
+                        JOIN chunks c ON chunks_fts.rowid = c.rowid
+                        LEFT JOIN conversations conv ON c.conversation_id = conv.id
+                        LEFT JOIN conversation_folders f ON conv.folder_id = f.id
+                        WHERE chunks_fts MATCH ?
+                        ORDER BY bm25_score DESC
+                        LIMIT ?
+                    """, (query, limit))
                 else:
-                    result.update({
-                        "document_title": row[2],
-                        "folder_name": row[3],
-                        "file_type": row[4],
-                        "document_id": str(row[5]),
-                        "chunk_index": row[6]
-                    })
+                    # Search document chunks
+                    cursor = await db.execute("""
+                        SELECT 
+                            dc.id as chunk_id,
+                            dc.content,
+                            dc.document_id,
+                            dc.chunk_index,
+                            d.title as document_title,
+                            f.name as folder_name,
+                            d.file_type,
+                            bm25(document_chunks_fts) as bm25_score
+                        FROM document_chunks_fts
+                        JOIN document_chunks dc ON document_chunks_fts.rowid = dc.rowid
+                        LEFT JOIN documents d ON dc.document_id = d.id
+                        LEFT JOIN conversation_folders f ON d.folder_id = f.id
+                        WHERE document_chunks_fts MATCH ?
+                        ORDER BY bm25_score DESC
+                        LIMIT ?
+                    """, (query, limit))
                 
-                results.append(result)
+                rows = await cursor.fetchall()
+                
+                for row in rows:
+                    result = {
+                        "chunk_id": str(row[0]),
+                        "content": row[1],
+                        "bm25_score": row[-1],  # Last column is BM25 score
+                        "search_type": search_type
+                    }
+                    
+                    if search_type == "conversation":
+                        result.update({
+                            "conversation_title": row[2],
+                            "folder_name": row[3],
+                            "chunk_type": row[4],
+                            "conversation_id": str(row[5]),
+                            "chunk_index": row[6]
+                        })
+                    else:
+                        result.update({
+                            "document_title": row[2],
+                            "folder_name": row[3],
+                            "file_type": row[4],
+                            "document_id": str(row[5]),
+                            "chunk_index": row[6]
+                        })
+                    
+                    results.append(result)
+        except Exception as e:
+            if "no such table: chunks_fts" in str(e) or "no such table: document_chunks_fts" in str(e):
+                logger.warning("FTS5 tables not available, returning empty results for keyword search")
+                return []
+            else:
+                logger.error(f"Error in keyword search: {e}")
+                return []
         
         return results
     
@@ -163,39 +183,45 @@ class HybridSearchService:
         Returns:
             List of search results with cosine similarity scores
         """
-        if not self.faiss_index:
-            await self.build_faiss_index()
-        
-        if not self.faiss_index:
-            return []
-        
-        # Generate embedding for query
-        query_embedding = await self.embedding_service.generate_embedding(query)
-        query_vector = np.array([query_embedding], dtype=np.float32)
-        faiss.normalize_L2(query_vector)
-        
-        # Search FAISS index
-        scores, indices = self.faiss_index.search(query_vector, limit)
-        
-        results = []
-        for score, index in zip(scores[0], indices[0]):
-            if index == -1:  # No more results
-                break
-                
-            chunk_id = self.index_to_chunk_id.get(index)
-            if not chunk_id:
-                continue
+        try:
+            if not self.faiss_index:
+                await self.build_faiss_index()
             
-            # Get chunk details from database
-            chunk_details = await self._get_chunk_details(chunk_id, search_type)
-            if chunk_details:
-                chunk_details.update({
-                    "cosine_score": float(score),
-                    "search_type": search_type
-                })
-                results.append(chunk_details)
-        
-        return results
+            if not self.faiss_index:
+                logger.warning("FAISS index not available, returning empty results")
+                return []
+            
+            # Generate embedding for query
+            query_embedding = await self.embedding_service.generate_embedding(query)
+            query_vector = np.array([query_embedding], dtype=np.float32)
+            faiss.normalize_L2(query_vector)
+            
+            # Search FAISS index
+            scores, indices = self.faiss_index.search(query_vector, limit)
+            
+            results = []
+            for score, index in zip(scores[0], indices[0]):
+                if index == -1:  # No more results
+                    break
+                    
+                chunk_id = self.index_to_chunk_id.get(index)
+                if not chunk_id:
+                    continue
+                
+                # Get chunk details from database
+                chunk_details = await self._get_chunk_details(chunk_id, search_type)
+                if chunk_details:
+                    chunk_details.update({
+                        "cosine_score": float(score),
+                        "search_type": search_type
+                    })
+                    results.append(chunk_details)
+            
+            return results
+        except Exception as e:
+            logger.error(f"Error in semantic search: {e}")
+            # Return empty results if semantic search fails
+            return []
     
     async def hybrid_search(
         self, 
@@ -218,9 +244,14 @@ class HybridSearchService:
         Returns:
             List of search results with hybrid scores
         """
-        # Get results from both search methods
-        bm25_results = await self.keyword_search(query, limit * 2, search_type)
-        semantic_results = await self.semantic_search(query, limit * 2, search_type)
+        try:
+            # Get results from both search methods
+            bm25_results = await self.keyword_search(query, limit * 2, search_type)
+            semantic_results = await self.semantic_search(query, limit * 2, search_type)
+        except Exception as e:
+            logger.error(f"Error in hybrid search: {e}")
+            # Return empty results if search fails
+            return []
         
         # Create score dictionaries for easy lookup
         bm25_scores = {result["chunk_id"]: result["bm25_score"] for result in bm25_results}
