@@ -19,7 +19,7 @@ try:
     from scripts.fake_data.add_sample_clients_projects import add_sample_data as add_clients_projects
     from scripts.fake_data.add_sample_content_templates import add_sample_templates
     from scripts.fake_data.setup_conversation_data import setup_conversation_data
-from scripts.fake_data.add_content_status_data import add_content_status_data
+    from scripts.fake_data.add_content_status_data import add_content_status_data
     from scripts.setup_hybrid_search import setup_hybrid_search
     from scripts.check_users import check_users
     from scripts.test_auth import test_auth
