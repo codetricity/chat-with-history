@@ -6,17 +6,37 @@ from typing import List, Optional, Dict, Any
 from datetime import datetime, timezone
 from sqlmodel import select, Session
 from models import ContentStatus, Conversation, Project, User, ContentStatusCreate, ContentStatusUpdate
+from db import AsyncSessionLocal
 
 
 class ContentStatusService:
     @staticmethod
     async def create_status(session: Session, status_data: ContentStatusCreate) -> ContentStatus:
-        """Create a new content status entry"""
-        content_status = ContentStatus(**status_data.dict())
-        session.add(content_status)
-        await session.commit()
-        await session.refresh(content_status)
-        return content_status
+        """Create a new content status entry or update existing one"""
+        # Check if a ContentStatus already exists for this conversation
+        existing_status = await session.execute(
+            select(ContentStatus).where(ContentStatus.conversation_id == status_data.conversation_id)
+        )
+        existing_status = existing_status.scalar_one_or_none()
+        
+        if existing_status:
+            # Update existing status instead of creating a new one
+            update_data = status_data.dict(exclude_unset=True)
+            for key, value in update_data.items():
+                if hasattr(existing_status, key):
+                    setattr(existing_status, key, value)
+            
+            session.add(existing_status)
+            await session.commit()
+            await session.refresh(existing_status)
+            return existing_status
+        else:
+            # Create new status
+            content_status = ContentStatus(**status_data.dict())
+            session.add(content_status)
+            await session.commit()
+            await session.refresh(content_status)
+            return content_status
 
     @staticmethod
     async def get_statuses(session: Session, conversation_id: Optional[uuid.UUID] = None,
@@ -101,20 +121,25 @@ class ContentStatusService:
             return content_status
 
     @staticmethod
-    async def get_content_status(conversation_id: uuid.UUID) -> Optional[ContentStatus]:
+    async def get_content_status(conversation_id: uuid.UUID, session: Optional[Session] = None) -> Optional[ContentStatus]:
         """Get content status for a conversation"""
-        async with AsyncSessionLocal() as session:
+        if session:
             query = select(ContentStatus).where(ContentStatus.conversation_id == conversation_id)
             result = await session.execute(query)
             return result.scalar_one_or_none()
+        else:
+            async with AsyncSessionLocal() as new_session:
+                query = select(ContentStatus).where(ContentStatus.conversation_id == conversation_id)
+                result = await new_session.execute(query)
+                return result.scalar_one_or_none()
 
     @staticmethod
-    async def update_status(conversation_id: uuid.UUID, status: str,
+    async def update_status_by_conversation(conversation_id: uuid.UUID, status: str,
                           review_notes: Optional[str] = None,
                           assigned_to: Optional[uuid.UUID] = None) -> bool:
-        """Update content status"""
+        """Update content status by conversation ID"""
         async with AsyncSessionLocal() as session:
-            content_status = await ContentStatusService.get_content_status(conversation_id)
+            content_status = await ContentStatusService.get_content_status(conversation_id, session)
             if not content_status:
                 return False
             

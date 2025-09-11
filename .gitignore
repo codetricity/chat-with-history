@@ -28,6 +28,7 @@ static/uploads/*
 !static/uploads/.gitkeep
 !static/uploads/sample_photos/**
 
+
 # Alembic migration files
 # Ignore migration files but keep the versions directory structure
 alembic/versions/*.py

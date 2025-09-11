@@ -215,8 +215,17 @@ class FolderService:
                     "client_name": content_status_data[2].name if content_status_data and content_status_data[2] else None,
                     "project_id": str(content_status_data[1].id) if content_status_data and content_status_data[1] else None,
                     "project_name": content_status_data[1].name if content_status_data and content_status_data[1] else None,
-                    "status": content_status_data[0].status if content_status_data and content_status_data[0] else None,
-                    "content_type": content_status_data[0].content_type if content_status_data and content_status_data[0] else None
+                    "status": content_status_data[0].status if content_status_data and content_status_data[0] else "draft",
+                    "content_type": content_status_data[0].content_type if content_status_data and content_status_data[0] else None,
+                    "content_status": {
+                        "id": str(content_status_data[0].id) if content_status_data and content_status_data[0] else None,
+                        "status": content_status_data[0].status if content_status_data and content_status_data[0] else "draft",
+                        "content_type": content_status_data[0].content_type if content_status_data and content_status_data[0] else None,
+                        "assigned_to": str(content_status_data[0].assigned_to) if content_status_data and content_status_data[0] and content_status_data[0].assigned_to else None,
+                        "review_notes": content_status_data[0].review_notes if content_status_data and content_status_data[0] else None,
+                        "due_date": content_status_data[0].due_date.isoformat() if content_status_data and content_status_data[0] and content_status_data[0].due_date else None,
+                        "published_at": content_status_data[0].published_at.isoformat() if content_status_data and content_status_data[0] and content_status_data[0].published_at else None
+                    } if content_status_data and content_status_data[0] else None
                 })
             
             # Add root folders and their children
@@ -268,8 +277,17 @@ class FolderService:
                 "client_name": content_status_data[2].name if content_status_data and content_status_data[2] else None,
                 "project_id": str(content_status_data[1].id) if content_status_data and content_status_data[1] else None,
                 "project_name": content_status_data[1].name if content_status_data and content_status_data[1] else None,
-                "status": content_status_data[0].status if content_status_data and content_status_data[0] else None,
-                "content_type": content_status_data[0].content_type if content_status_data and content_status_data[0] else None
+                "status": content_status_data[0].status if content_status_data and content_status_data[0] else "draft",
+                "content_type": content_status_data[0].content_type if content_status_data and content_status_data[0] else None,
+                "content_status": {
+                    "id": str(content_status_data[0].id) if content_status_data and content_status_data[0] else None,
+                    "status": content_status_data[0].status if content_status_data and content_status_data[0] else "draft",
+                    "content_type": content_status_data[0].content_type if content_status_data and content_status_data[0] else None,
+                    "assigned_to": str(content_status_data[0].assigned_to) if content_status_data and content_status_data[0] and content_status_data[0].assigned_to else None,
+                    "review_notes": content_status_data[0].review_notes if content_status_data and content_status_data[0] else None,
+                    "due_date": content_status_data[0].due_date.isoformat() if content_status_data and content_status_data[0] and content_status_data[0].due_date else None,
+                    "published_at": content_status_data[0].published_at.isoformat() if content_status_data and content_status_data[0] and content_status_data[0].published_at else None
+                } if content_status_data and content_status_data[0] else None
             })
         
         # Build sub-folders list

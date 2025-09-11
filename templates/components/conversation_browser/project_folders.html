@@ -89,7 +89,7 @@
                                                               x-text="conversation.status || 'draft'"></span>
                                                         <span x-show="conversation.content_type" 
                                                               class="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800"
-                                                              x-text="conversation.content_type.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())"></span>
+                                                              x-text="safeStringFormat(conversation.content_type)"></span>
                                                         <span class="text-xs text-gray-500" 
                                                               x-text="new Date(conversation.updated_at).toLocaleDateString()"></span>
                                                     </div>

@@ -436,7 +436,8 @@ async def get_folder_hierarchy_marketing(session: AsyncSession = Depends(get_ses
     """Get the complete folder hierarchy with conversations"""
     try:
         from sqlmodel import select
-        from models import ConversationFolder, User, Conversation
+        from models import ConversationFolder, User, Conversation, ContentStatus, Project, Client, Message
+        from sqlalchemy import func
         
         # Get all folders with their users
         folders_result = await session.execute(
@@ -446,10 +447,13 @@ async def get_folder_hierarchy_marketing(session: AsyncSession = Depends(get_ses
             .order_by(ConversationFolder.name)
         )
         
-        # Get all conversations with their folders
+        # Get all conversations with their folders, content status, projects, and clients
         conversations_result = await session.execute(
-            select(Conversation, ConversationFolder)
+            select(Conversation, ConversationFolder, ContentStatus, Project, Client)
             .join(ConversationFolder, Conversation.folder_id == ConversationFolder.id, isouter=True)
+            .join(ContentStatus, Conversation.id == ContentStatus.conversation_id, isouter=True)
+            .join(Project, ContentStatus.project_id == Project.id, isouter=True)
+            .join(Client, Project.client_id == Client.id, isouter=True)
             .where(Conversation.is_active)
             .order_by(Conversation.updated_at.desc())
         )
@@ -483,7 +487,7 @@ async def get_folder_hierarchy_marketing(session: AsyncSession = Depends(get_ses
                 root_folders.append(folder_data)
         
         # Add conversations to folders
-        for conversation, folder in conversations_result:
+        for conversation, folder, content_status, project, client in conversations_result:
             # Get message count for this conversation
             message_count_result = await session.execute(
                 select(func.count(Message.id))
@@ -496,7 +500,25 @@ async def get_folder_hierarchy_marketing(session: AsyncSession = Depends(get_ses
                 "title": conversation.title,
                 "created_at": conversation.created_at.isoformat(),
                 "updated_at": conversation.updated_at.isoformat(),
-                "message_count": message_count
+                "message_count": message_count,
+                "status": content_status.status if content_status else "draft",
+                "content_type": content_status.content_type if content_status else None,
+                "project_id": str(project.id) if project else None,
+                "project_name": project.name if project else None,
+                "client_id": str(client.id) if client else None,
+                "client_name": client.name if client else None,
+                "content_status": {
+                    "id": str(content_status.id) if content_status else None,
+                    "status": content_status.status if content_status else "draft",
+                    "content_type": content_status.content_type if content_status else None,
+                    "assigned_to": (str(content_status.assigned_to) 
+                                   if content_status and content_status.assigned_to else None),
+                    "review_notes": content_status.review_notes if content_status else None,
+                    "due_date": (content_status.due_date.isoformat() 
+                               if content_status and content_status.due_date else None),
+                    "published_at": (content_status.published_at.isoformat() 
+                                   if content_status and content_status.published_at else None)
+                } if content_status else None
             }
             
             if folder:
@@ -578,7 +600,11 @@ async def search_conversations(
         query = select(Conversation).distinct()
         
         # Join with ContentStatus for project and status filtering
-        query = query.outerjoin(ContentStatus, Conversation.id == ContentStatus.conversation_id)
+        # Use inner join when filtering by status to only get conversations with that status
+        if status:
+            query = query.join(ContentStatus, Conversation.id == ContentStatus.conversation_id)
+        else:
+            query = query.outerjoin(ContentStatus, Conversation.id == ContentStatus.conversation_id)
         
         # Join with Project for client filtering
         query = query.outerjoin(Project, ContentStatus.project_id == Project.id)

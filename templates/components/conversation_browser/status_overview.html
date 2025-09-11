@@ -3,26 +3,47 @@
     <div class="p-6">
         <h2 class="text-lg font-semibold text-gray-900 mb-4">Content Status Overview</h2>
         <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
-            <div class="text-center p-3 bg-gray-50 rounded-lg">
+            <div class="text-center p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors duration-200"
+                 :class="filters.status === 'draft' ? 'ring-2 ring-gray-400 bg-gray-100' : ''"
+                 @click="filterByStatus('draft')">
                 <div class="text-2xl font-bold text-gray-600" x-text="statusCounts.draft || 0"></div>
                 <div class="text-sm text-gray-500">Draft</div>
             </div>
-            <div class="text-center p-3 bg-yellow-50 rounded-lg">
+            <div class="text-center p-3 bg-yellow-50 rounded-lg cursor-pointer hover:bg-yellow-100 transition-colors duration-200"
+                 :class="filters.status === 'review' ? 'ring-2 ring-yellow-400 bg-yellow-100' : ''"
+                 @click="filterByStatus('review')">
                 <div class="text-2xl font-bold text-yellow-600" x-text="statusCounts.review || 0"></div>
                 <div class="text-sm text-gray-500">Review</div>
             </div>
-            <div class="text-center p-3 bg-green-50 rounded-lg">
+            <div class="text-center p-3 bg-green-50 rounded-lg cursor-pointer hover:bg-green-100 transition-colors duration-200"
+                 :class="filters.status === 'approved' ? 'ring-2 ring-green-400 bg-green-100' : ''"
+                 @click="filterByStatus('approved')">
                 <div class="text-2xl font-bold text-green-600" x-text="statusCounts.approved || 0"></div>
                 <div class="text-sm text-gray-500">Approved</div>
             </div>
-            <div class="text-center p-3 bg-red-50 rounded-lg">
+            <div class="text-center p-3 bg-red-50 rounded-lg cursor-pointer hover:bg-red-100 transition-colors duration-200"
+                 :class="filters.status === 'rejected' ? 'ring-2 ring-red-400 bg-red-100' : ''"
+                 @click="filterByStatus('rejected')">
                 <div class="text-2xl font-bold text-red-600" x-text="statusCounts.rejected || 0"></div>
                 <div class="text-sm text-gray-500">Rejected</div>
             </div>
-            <div class="text-center p-3 bg-blue-50 rounded-lg">
+            <div class="text-center p-3 bg-blue-50 rounded-lg cursor-pointer hover:bg-blue-100 transition-colors duration-200"
+                 :class="filters.status === 'published' ? 'ring-2 ring-blue-400 bg-blue-100' : ''"
+                 @click="filterByStatus('published')">
                 <div class="text-2xl font-bold text-blue-600" x-text="statusCounts.published || 0"></div>
                 <div class="text-sm text-gray-500">Published</div>
             </div>
+        </div>
+        
+        <!-- Clear Filter Button -->
+        <div x-show="filters.status" class="mt-4 text-center">
+            <button @click="clearStatusFilter()" 
+                    class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+                Clear Status Filter
+            </button>
         </div>
     </div>
 </div>

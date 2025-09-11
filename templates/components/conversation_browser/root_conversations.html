@@ -35,7 +35,16 @@
             </template>
             <div x-show="rootConversations.length === 0" 
                  class="col-span-full text-center text-gray-500 py-8">
-                <p>No conversations at root level</p>
+                <div x-show="!hasActiveFilters()">
+                    <p>No conversations at root level</p>
+                </div>
+                <div x-show="hasActiveFilters()">
+                    <p>No conversations match your current filters</p>
+                    <button @click="clearConversationFilters()" 
+                            class="mt-2 text-blue-600 hover:text-blue-800 underline">
+                        Clear all filters
+                    </button>
+                </div>
             </div>
         </div>
     </div>

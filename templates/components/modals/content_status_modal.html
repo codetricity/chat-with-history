@@ -1,0 +1,104 @@
+<!-- Content Status Edit Modal -->
+<div x-show="showContentStatusModal" 
+     x-transition:enter="transition ease-out duration-200"
+     x-transition:enter-start="opacity-0"
+     x-transition:enter-end="opacity-100"
+     x-transition:leave="transition ease-in duration-150"
+     x-transition:leave-start="opacity-100"
+     x-transition:leave-end="opacity-0"
+     class="fixed inset-0 z-50 overflow-y-auto">
+    <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" 
+             @click="showContentStatusModal = false"></div>
+        
+        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+            <form @submit.prevent="updateContentStatus()">
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Edit Content Status</h3>
+                    <div class="space-y-4">
+                        <!-- Status -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Status</label>
+                            <select x-model="editingContentStatus.status"
+                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                                <option value="draft">Draft</option>
+                                <option value="review">Review</option>
+                                <option value="approved">Approved</option>
+                                <option value="rejected">Rejected</option>
+                                <option value="published">Published</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Content Type -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Content Type</label>
+                            <select x-model="editingContentStatus.content_type"
+                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                                <option value="blog_post">Blog Post</option>
+                                <option value="social_media">Social Media</option>
+                                <option value="email_campaign">Email Campaign</option>
+                                <option value="ad_copy">Ad Copy</option>
+                                <option value="press_release">Press Release</option>
+                                <option value="case_study">Case Study</option>
+                                <option value="whitepaper">Whitepaper</option>
+                                <option value="newsletter">Newsletter</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Project Assignment -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Project (Optional)</label>
+                            <select x-model="editingContentStatus.project_id"
+                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                                <option value="">No specific project</option>
+                                <template x-for="project in projects" :key="project.id">
+                                    <option :value="project.id" x-text="project.name"></option>
+                                </template>
+                            </select>
+                        </div>
+                        
+                        <!-- Assigned To -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Assigned To (Optional)</label>
+                            <select x-model="editingContentStatus.assigned_to"
+                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                                <option value="">Unassigned</option>
+                                <template x-for="user in users" :key="user.id">
+                                    <option :value="user.id" x-text="user.email"></option>
+                                </template>
+                            </select>
+                        </div>
+                        
+                        <!-- Due Date -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Due Date (Optional)</label>
+                            <input type="datetime-local" 
+                                   x-model="editingContentStatus.due_date"
+                                   class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                        </div>
+                        
+                        <!-- Review Notes -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Review Notes (Optional)</label>
+                            <textarea x-model="editingContentStatus.review_notes"
+                                      class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                      rows="3"
+                                      placeholder="Enter review notes or comments"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                    <button type="submit"
+                            class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm">
+                        Update Status
+                    </button>
+                    <button type="button"
+                            @click="showContentStatusModal = false"
+                            class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                        Cancel
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

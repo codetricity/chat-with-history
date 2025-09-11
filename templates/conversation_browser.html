@@ -45,11 +45,15 @@
             <!-- Filtered Results Message -->
             {% include "components/conversation_browser/filtered_results_message.html" %}
 
-            <!-- Project-Based Folders -->
-            {% include "components/conversation_browser/project_folders.html" %}
+            <!-- Project-Based Folders (hidden when filters are active) -->
+            <div x-show="!hasActiveFilters()">
+                {% include "components/conversation_browser/project_folders.html" %}
+            </div>
 
-            <!-- General Folders -->
-            {% include "components/conversation_browser/general_folders.html" %}
+            <!-- General Folders (hidden when filters are active) -->
+            <div x-show="!hasActiveFilters()">
+                {% include "components/conversation_browser/general_folders.html" %}
+            </div>
         </div>
     </main>
 
@@ -57,9 +61,7 @@
     {% include 'components/modals/client_modal.html' %}
     {% include 'components/modals/project_modal.html' %}
     {% include 'components/modals/folder_modal.html' %}
-    
-    <!-- Additional modals would go here -->
-    {# {% include 'components/modals/status_modal.html' %} #}
+    {% include 'components/modals/content_status_modal.html' %}
 </div>
 {% endblock %}
 

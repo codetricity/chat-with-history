@@ -49,14 +49,19 @@ AsyncSessionLocal = async_sessionmaker(
 
 # SQLModel will handle the base class
 
+
 async def create_tables():
     """Create all tables in the database"""
     from sqlmodel import SQLModel
     # Import all models to register them
-    import models
+    import models  # noqa: F401
+    
+    print(f"Creating tables with DATABASE_URL: {DATABASE_URL}")
+    print(f"Available tables in metadata: {list(SQLModel.metadata.tables.keys())}")
     
     async with async_engine.begin() as conn:
         await conn.run_sync(SQLModel.metadata.create_all)
+        print("Tables created successfully")
 
 
 async def get_session():
