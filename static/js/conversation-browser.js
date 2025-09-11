@@ -244,6 +244,7 @@ function conversationBrowser() {
                     }));
                     
                     console.log('Loaded conversations:', this.rootConversations.length);
+                    console.log('Conversation statuses:', this.rootConversations.map(c => ({ title: c.title, status: c.status })));
                 } else {
                     console.error('Failed to load conversations');
                 }
@@ -308,6 +309,7 @@ function conversationBrowser() {
                 if (statusResponse.ok) {
                     this.statusCounts = await statusResponse.json();
                     console.log('Status counts updated:', this.statusCounts);
+                    console.log('Review count:', this.statusCounts.review);
                 }
             } catch (error) {
                 console.error('Error loading status counts:', error);
@@ -516,7 +518,8 @@ function conversationBrowser() {
                 // Refresh status counts and conversation data
                 await Promise.all([
                     this.loadStatusCounts(),
-                    this.loadFolders()
+                    this.loadFolders(),
+                    this.loadConversations()
                 ]);
             } catch (error) {
                 this.error = 'Failed to update content status';
@@ -533,6 +536,31 @@ function conversationBrowser() {
                 'published': 'status-published'
             };
             return statusClasses[status] || 'status-draft';
+        },
+
+        filterByStatus(status) {
+            console.log('Filtering by status:', status);
+            this.filters.status = status;
+            this.applyConversationFilters();
+        },
+
+        clearStatusFilter() {
+            console.log('Clearing status filter');
+            this.filters.status = '';
+            this.applyConversationFilters();
+        },
+
+        hasActiveFilters() {
+            return this.filters.clientId || 
+                   this.filters.projectId || 
+                   this.filters.contentType || 
+                   this.filters.status || 
+                   this.filters.startDate || 
+                   this.filters.endDate;
+        },
+
+        getFilteredConversationCount() {
+            return this.rootConversations.length;
         },
 
         getConversationFilterLabel(key, value) {

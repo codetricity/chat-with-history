@@ -45,11 +45,15 @@
             <!-- Filtered Results Message -->
             {% include "components/conversation_browser/filtered_results_message.html" %}
 
-            <!-- Project-Based Folders -->
-            {% include "components/conversation_browser/project_folders.html" %}
+            <!-- Project-Based Folders (hidden when filters are active) -->
+            <div x-show="!hasActiveFilters()">
+                {% include "components/conversation_browser/project_folders.html" %}
+            </div>
 
-            <!-- General Folders -->
-            {% include "components/conversation_browser/general_folders.html" %}
+            <!-- General Folders (hidden when filters are active) -->
+            <div x-show="!hasActiveFilters()">
+                {% include "components/conversation_browser/general_folders.html" %}
+            </div>
         </div>
     </main>
 

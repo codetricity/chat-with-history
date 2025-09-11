@@ -600,7 +600,11 @@ async def search_conversations(
         query = select(Conversation).distinct()
         
         # Join with ContentStatus for project and status filtering
-        query = query.outerjoin(ContentStatus, Conversation.id == ContentStatus.conversation_id)
+        # Use inner join when filtering by status to only get conversations with that status
+        if status:
+            query = query.join(ContentStatus, Conversation.id == ContentStatus.conversation_id)
+        else:
+            query = query.outerjoin(ContentStatus, Conversation.id == ContentStatus.conversation_id)
         
         # Join with Project for client filtering
         query = query.outerjoin(Project, ContentStatus.project_id == Project.id)

@@ -12,12 +12,31 @@ from db import AsyncSessionLocal
 class ContentStatusService:
     @staticmethod
     async def create_status(session: Session, status_data: ContentStatusCreate) -> ContentStatus:
-        """Create a new content status entry"""
-        content_status = ContentStatus(**status_data.dict())
-        session.add(content_status)
-        await session.commit()
-        await session.refresh(content_status)
-        return content_status
+        """Create a new content status entry or update existing one"""
+        # Check if a ContentStatus already exists for this conversation
+        existing_status = await session.execute(
+            select(ContentStatus).where(ContentStatus.conversation_id == status_data.conversation_id)
+        )
+        existing_status = existing_status.scalar_one_or_none()
+        
+        if existing_status:
+            # Update existing status instead of creating a new one
+            update_data = status_data.dict(exclude_unset=True)
+            for key, value in update_data.items():
+                if hasattr(existing_status, key):
+                    setattr(existing_status, key, value)
+            
+            session.add(existing_status)
+            await session.commit()
+            await session.refresh(existing_status)
+            return existing_status
+        else:
+            # Create new status
+            content_status = ContentStatus(**status_data.dict())
+            session.add(content_status)
+            await session.commit()
+            await session.refresh(content_status)
+            return content_status
 
     @staticmethod
     async def get_statuses(session: Session, conversation_id: Optional[uuid.UUID] = None,
