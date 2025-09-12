@@ -13,8 +13,10 @@ swap_size_mb = 1024
   internal_port = 8000
   force_https = true
   auto_stop_machines = 'stop'
-  auto_start_machines = true
-  min_machines_running = 1
+  # set to true for deployment
+  auto_start_machines = false
+  # set to 1 if you want to keep a machine running for the app
+  min_machines_running = 0
   processes = ['app']
 
 [[vm]]
