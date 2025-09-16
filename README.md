@@ -10,6 +10,8 @@ FastOpp is an open source stack with FastAPI, SQLAlchemy, SQLModel and SQLAlchem
 [Live Demonstration Site](https://fastfolder.fly.dev/)
 The live site may be sleeping. It may take up to a minute to wake up.
 
+[documentation for this project](https://codetricity.github.io/chat-with-history/)
+
 ![sidebar](docs/images/readme/sidebar.webp)
 
 ![sqladmin](docs/images/readme/sqladmin.webp)
