@@ -441,7 +441,7 @@ The application features a sophisticated hybrid search system that combines keyw
 - **Knowledge Management**: Organize and retrieve information by meaning, not just keywords
 - **Contextual Search**: Find content that's semantically related even with different terminology
 
-![hybrid search](docs/images/readme/websearch.png)
+![hybrid search](docs/images/readme/hybrid_search.png)
 
 ### Modern UI/UX
 
