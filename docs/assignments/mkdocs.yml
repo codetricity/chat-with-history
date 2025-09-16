@@ -1,0 +1,142 @@
+site_name: FastOpp UI Development Assignments
+site_description: A comprehensive guide to building modern UI interfaces for FastOpp using various frameworks
+site_author: FastOpp Team
+site_url: https://fastopp.com/docs
+
+# Repository
+repo_name: fastopp/ui-assignments
+repo_url: https://github.com/fastopp/ui-assignments
+edit_uri: edit/main/docs/
+
+# Configuration
+theme:
+  name: material
+  palette:
+    # Palette toggle for automatic mode
+    - media: "(prefers-color-scheme)"
+      toggle:
+        icon: material/brightness-auto
+        name: Switch to light mode
+
+    # Palette toggle for light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+
+    # Palette toggle for dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to system preference
+
+  features:
+    - announce.dismiss
+    - content.action.edit
+    - content.action.view
+    - content.code.annotate
+    - content.code.copy
+    - content.code.select
+    - content.tabs.link
+    - content.tooltips
+    - header.autohide
+    - navigation.expand
+    - navigation.footer
+    - navigation.indexes
+    - navigation.instant
+    - navigation.instant.prefetch
+    - navigation.instant.progress
+    - navigation.prune
+    - navigation.sections
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.top
+    - search.highlight
+    - search.share
+    - search.suggest
+    - toc.follow
+    - toc.integrate
+
+  icon:
+    repo: fontawesome/brands/github
+    edit: material/pencil
+    view: material/eye
+
+# Plugins
+plugins:
+  - search
+
+# Markdown extensions
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+      combine_header_slug: true
+      slugify: !!python/object/apply:pymdownx.slugs.slugify
+        kwds:
+          case: lower
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - attr_list
+  - md_in_html
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.critic
+  - pymdownx.caret
+  - pymdownx.keys
+  - pymdownx.mark
+  - pymdownx.smartsymbols
+  - pymdownx.superfences
+  - pymdownx.tilde
+  - pymdownx.critic
+  - footnotes
+  - pymdownx.details
+  - pymdownx.snippets
+  - tables
+
+# Page tree
+nav:
+  - Home: index.md
+  - Getting Started:
+    - Overview: 01_ui_development_overview.md
+  - UI Development Tracks:
+    - React Modern UI: 02_react_modern_ui.md
+    - Flutter Web App: 03_flutter_web_app.md
+    - Vue.js Dashboard: 04_vue_js_dashboard.md
+    - Mobile-First Design: 05_mobile_first_design.md
+    - Collaborative Workspace: 06_collaborative_workspace.md
+  - Advanced Topics:
+    - Data Processing: 07_data_processing_overview.md
+    - Fake Data Generation: 08_fake_data_generation.md
+    - Social Media Integration: 09_social_media_integration.md
+    - Search Algorithms: 10_advanced_search_algorithms.md
+    - Database Exploration: 11_database_exploration.md
+    - ML Pipeline: 12_ml_pipeline.md
+
+# Extra
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/fastopp
+    - icon: fontawesome/brands/twitter
+      link: https://twitter.com/fastopp
+  version:
+    provider: mike

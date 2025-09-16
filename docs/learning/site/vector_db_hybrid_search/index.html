@@ -1,0 +1,1643 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Learning materials for the conversation management system">
+      
+      
+      
+        <link rel="canonical" href="https://example.com/learning/vector_db_hybrid_search/">
+      
+      
+        <link rel="prev" href="../conversation_organization/">
+      
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.20">
+    
+    
+      
+        <title>Vector DB & Hybrid Search - Learning Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.e53b48f4.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#vector-databases-hybrid-search-a-learning-guide" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Learning Documentation" class="md-header__button md-logo" aria-label="Learning Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Learning Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Vector DB & Hybrid Search
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Learning Documentation" class="md-nav__button md-logo" aria-label="Learning Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Learning Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ai_chat_ui/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    AI Chat UI
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../conversation_organization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Conversation Organization
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Vector DB & Hybrid Search
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    Vector DB & Hybrid Search
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      🎯 Overview
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-is-hybrid-search" class="md-nav__link">
+    <span class="md-ellipsis">
+      🧠 What is Hybrid Search?
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#understanding-the-components" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔍 Understanding the Components
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🔍 Understanding the Components">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-embeddings-converting-text-to-numbers" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Embeddings: Converting Text to Numbers
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-faiss-vector-database" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. FAISS: Vector Database
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-fts5-full-text-search" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. FTS5: Full-Text Search
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#understanding-weight-modification" class="md-nav__link">
+    <span class="md-ellipsis">
+      ⚖️ Understanding Weight Modification
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="⚖️ Understanding Weight Modification">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#scenario-1-more-keyword-focus" class="md-nav__link">
+    <span class="md-ellipsis">
+      Scenario 1: More Keyword Focus
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#scenario-2-more-semantic-focus" class="md-nav__link">
+    <span class="md-ellipsis">
+      Scenario 2: More Semantic Focus
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#scenario-3-balanced-search" class="md-nav__link">
+    <span class="md-ellipsis">
+      Scenario 3: Balanced Search
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#learning-path" class="md-nav__link">
+    <span class="md-ellipsis">
+      🛠️ Learning Path
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🛠️ Learning Path">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#phase-1-understanding-the-basics" class="md-nav__link">
+    <span class="md-ellipsis">
+      Phase 1: Understanding the Basics
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-2-experimenting-with-weights" class="md-nav__link">
+    <span class="md-ellipsis">
+      Phase 2: Experimenting with Weights
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-3-extending-the-system" class="md-nav__link">
+    <span class="md-ellipsis">
+      Phase 3: Extending the System
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-4-advanced-features" class="md-nav__link">
+    <span class="md-ellipsis">
+      Phase 4: Advanced Features
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#architecture-deep-dive" class="md-nav__link">
+    <span class="md-ellipsis">
+      ��️ Architecture Deep Dive
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="��️ Architecture Deep Dive">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#data-flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      Data Flow
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#key-files-to-study" class="md-nav__link">
+    <span class="md-ellipsis">
+      Key Files to Study
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#extending-for-real-world-use" class="md-nav__link">
+    <span class="md-ellipsis">
+      �� Extending for Real-World Use
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="�� Extending for Real-World Use">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#adding-new-content-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      Adding New Content Types
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#custom-scoring-algorithms" class="md-nav__link">
+    <span class="md-ellipsis">
+      Custom Scoring Algorithms
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#performance-optimization" class="md-nav__link">
+    <span class="md-ellipsis">
+      Performance Optimization
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#monitoring-and-analytics" class="md-nav__link">
+    <span class="md-ellipsis">
+      📊 Monitoring and Analytics
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="📊 Monitoring and Analytics">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#search-metrics-to-track" class="md-nav__link">
+    <span class="md-ellipsis">
+      Search Metrics to Track
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#implementation-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      Implementation Example
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting-common-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔧 Troubleshooting Common Issues
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🔧 Troubleshooting Common Issues">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#issue-1-no-search-results" class="md-nav__link">
+    <span class="md-ellipsis">
+      Issue 1: No Search Results
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#issue-2-poor-search-quality" class="md-nav__link">
+    <span class="md-ellipsis">
+      Issue 2: Poor Search Quality
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#issue-3-slow-performance" class="md-nav__link">
+    <span class="md-ellipsis">
+      Issue 3: Slow Performance
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#further-learning-resources" class="md-nav__link">
+    <span class="md-ellipsis">
+      📚 Further Learning Resources
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#next-steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      🎯 Next Steps
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#corporate-database-use-case-10000-customer-analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      �� Corporate Database Use Case: 10,000 Customer Analysis
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="�� Corporate Database Use Case: 10,000 Customer Analysis">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#why-this-architecture-works-for-customer-analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      Why This Architecture Works for Customer Analysis
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#implementation-for-customer-analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      Implementation for Customer Analysis
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Implementation for Customer Analysis">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-customer-data-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Customer Data Structure
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-search-use-cases" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Search Use Cases
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-cross-selling-opportunities" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Cross-Selling Opportunities
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-enhanced-features-for-sales" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Enhanced Features for Sales
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#performance-at-scale" class="md-nav__link">
+    <span class="md-ellipsis">
+      Performance at Scale
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#business-value" class="md-nav__link">
+    <span class="md-ellipsis">
+      Business Value
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      🎯 Overview
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-is-hybrid-search" class="md-nav__link">
+    <span class="md-ellipsis">
+      🧠 What is Hybrid Search?
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#understanding-the-components" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔍 Understanding the Components
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🔍 Understanding the Components">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-embeddings-converting-text-to-numbers" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Embeddings: Converting Text to Numbers
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-faiss-vector-database" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. FAISS: Vector Database
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-fts5-full-text-search" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. FTS5: Full-Text Search
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#understanding-weight-modification" class="md-nav__link">
+    <span class="md-ellipsis">
+      ⚖️ Understanding Weight Modification
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="⚖️ Understanding Weight Modification">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#scenario-1-more-keyword-focus" class="md-nav__link">
+    <span class="md-ellipsis">
+      Scenario 1: More Keyword Focus
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#scenario-2-more-semantic-focus" class="md-nav__link">
+    <span class="md-ellipsis">
+      Scenario 2: More Semantic Focus
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#scenario-3-balanced-search" class="md-nav__link">
+    <span class="md-ellipsis">
+      Scenario 3: Balanced Search
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#learning-path" class="md-nav__link">
+    <span class="md-ellipsis">
+      🛠️ Learning Path
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🛠️ Learning Path">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#phase-1-understanding-the-basics" class="md-nav__link">
+    <span class="md-ellipsis">
+      Phase 1: Understanding the Basics
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-2-experimenting-with-weights" class="md-nav__link">
+    <span class="md-ellipsis">
+      Phase 2: Experimenting with Weights
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-3-extending-the-system" class="md-nav__link">
+    <span class="md-ellipsis">
+      Phase 3: Extending the System
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-4-advanced-features" class="md-nav__link">
+    <span class="md-ellipsis">
+      Phase 4: Advanced Features
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#architecture-deep-dive" class="md-nav__link">
+    <span class="md-ellipsis">
+      ��️ Architecture Deep Dive
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="��️ Architecture Deep Dive">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#data-flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      Data Flow
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#key-files-to-study" class="md-nav__link">
+    <span class="md-ellipsis">
+      Key Files to Study
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#extending-for-real-world-use" class="md-nav__link">
+    <span class="md-ellipsis">
+      �� Extending for Real-World Use
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="�� Extending for Real-World Use">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#adding-new-content-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      Adding New Content Types
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#custom-scoring-algorithms" class="md-nav__link">
+    <span class="md-ellipsis">
+      Custom Scoring Algorithms
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#performance-optimization" class="md-nav__link">
+    <span class="md-ellipsis">
+      Performance Optimization
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#monitoring-and-analytics" class="md-nav__link">
+    <span class="md-ellipsis">
+      📊 Monitoring and Analytics
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="📊 Monitoring and Analytics">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#search-metrics-to-track" class="md-nav__link">
+    <span class="md-ellipsis">
+      Search Metrics to Track
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#implementation-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      Implementation Example
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting-common-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔧 Troubleshooting Common Issues
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🔧 Troubleshooting Common Issues">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#issue-1-no-search-results" class="md-nav__link">
+    <span class="md-ellipsis">
+      Issue 1: No Search Results
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#issue-2-poor-search-quality" class="md-nav__link">
+    <span class="md-ellipsis">
+      Issue 2: Poor Search Quality
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#issue-3-slow-performance" class="md-nav__link">
+    <span class="md-ellipsis">
+      Issue 3: Slow Performance
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#further-learning-resources" class="md-nav__link">
+    <span class="md-ellipsis">
+      📚 Further Learning Resources
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#next-steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      🎯 Next Steps
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#corporate-database-use-case-10000-customer-analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      �� Corporate Database Use Case: 10,000 Customer Analysis
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="�� Corporate Database Use Case: 10,000 Customer Analysis">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#why-this-architecture-works-for-customer-analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      Why This Architecture Works for Customer Analysis
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#implementation-for-customer-analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      Implementation for Customer Analysis
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Implementation for Customer Analysis">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-customer-data-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Customer Data Structure
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-search-use-cases" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Search Use Cases
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-cross-selling-opportunities" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Cross-Selling Opportunities
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-enhanced-features-for-sales" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Enhanced Features for Sales
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#performance-at-scale" class="md-nav__link">
+    <span class="md-ellipsis">
+      Performance at Scale
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#business-value" class="md-nav__link">
+    <span class="md-ellipsis">
+      Business Value
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="vector-databases-hybrid-search-a-learning-guide">Vector Databases &amp; Hybrid Search: A Learning Guide</h1>
+<h2 id="overview">🎯 Overview</h2>
+<p>This guide explains how our <strong>FastAPI-based FastOpp application</strong> implements hybrid search using vector databases, embeddings, and traditional text search. You'll learn about FAISS, embeddings, FTS5, and how to extend the system for real-world applications.</p>
+<p><strong>FastOpp</strong> is an open source learning tool for AI applications with pre-built UI and admin components to help students spend more time on core AI learning concepts instead of configuring the full FastAPI stack from scratch with authentication and UI components. Learn more at <a href="https://github.com/Oppkey/fastopp">https://github.com/Oppkey/fastopp</a>.</p>
+<h2 id="what-is-hybrid-search">🧠 What is Hybrid Search?</h2>
+<p>Hybrid search combines <strong>two different search approaches</strong> to get the best of both worlds:</p>
+<ol>
+<li><strong>Keyword Search (FTS5 + BM25)</strong>: Finds exact matches and phrases</li>
+<li><strong>Semantic Search (FAISS + Embeddings)</strong>: Understands meaning and context</li>
+</ol>
+<p><strong>Why Hybrid?</strong> Sometimes you want exact matches ("social media strategy"), sometimes you want related concepts ("marketing approach" → finds "brand strategy").</p>
+<h2 id="understanding-the-components">🔍 Understanding the Components</h2>
+<h3 id="1-embeddings-converting-text-to-numbers">1. Embeddings: Converting Text to Numbers</h3>
+<p><strong>What are embeddings?</strong>
+- Embeddings convert text into a list of numbers (vectors)
+- Similar text gets similar numbers
+- Our app uses OpenAI's <code>text-embedding-3-small</code> model (1536 dimensions)</p>
+<p><strong>Example:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># Text: &quot;marketing strategy&quot;</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="c1"># Embedding: [0.1, -0.3, 0.8, 0.2, ...] (1536 numbers)</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="c1"># Text: &quot;brand approach&quot; </span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="c1"># Embedding: [0.2, -0.2, 0.7, 0.3, ...] (similar numbers = similar meaning)</span>
+</code></pre></div></p>
+<p><strong>How it works in our app:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># services/embedding_service.py</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">generate_embedding</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>    <span class="n">response</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">embeddings</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>        <span class="n">model</span><span class="o">=</span><span class="s2">&quot;text-embedding-3-small&quot;</span><span class="p">,</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>        <span class="nb">input</span><span class="o">=</span><span class="n">text</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>    <span class="p">)</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>    <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">embedding</span>  <span class="c1"># Returns 1536 numbers</span>
+</code></pre></div></p>
+<h3 id="2-faiss-vector-database">2. FAISS: Vector Database</h3>
+<p><strong>What is FAISS?</strong>
+- Facebook AI Similarity Search
+- Stores and searches through vectors efficiently
+- Finds similar vectors quickly (cosine similarity)</p>
+<p><strong>Why FAISS over alternatives?</strong></p>
+<p>The vector database can be replaced with other solutions depending on your infrastructure preferences and requirements:</p>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>FAISS</th>
+<th>ChromaDB</th>
+<th>Pinecone</th>
+<th>PostgreSQL + pgvector</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Setup</strong></td>
+<td>Simple, local</td>
+<td>Easy, local/cloud</td>
+<td>Cloud service</td>
+<td>Moderate, local/cloud</td>
+</tr>
+<tr>
+<td><strong>Cost</strong></td>
+<td>Free</td>
+<td>Free/paid</td>
+<td>Paid</td>
+<td>Free/paid</td>
+</tr>
+<tr>
+<td><strong>Performance</strong></td>
+<td>Very fast</td>
+<td>Good</td>
+<td>Good</td>
+<td>Good</td>
+</tr>
+<tr>
+<td><strong>Scalability</strong></td>
+<td>Self-managed</td>
+<td>Self-managed</td>
+<td>Managed</td>
+<td>Self-managed</td>
+</tr>
+<tr>
+<td><strong>Learning Value</strong></td>
+<td>High (understand internals)</td>
+<td>Medium</td>
+<td>Low (black box)</td>
+<td>High (SQL knowledge)</td>
+</tr>
+<tr>
+<td><strong>Integration</strong></td>
+<td>Python library</td>
+<td>Python library</td>
+<td>API-based</td>
+<td>Native SQL</td>
+</tr>
+<tr>
+<td><strong>Persistence</strong></td>
+<td>File-based</td>
+<td>File/cloud</td>
+<td>Cloud</td>
+<td>Database</td>
+</tr>
+<tr>
+<td><strong>ACID Compliance</strong></td>
+<td>No</td>
+<td>No</td>
+<td>No</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+<p><strong>How to Change the Vector Database:</strong></p>
+<p>The vector database implementation is abstracted in our <code>HybridSearchService</code> class, making it straightforward to swap implementations:</p>
+<ol>
+<li><strong>Create a new vector database adapter</strong> (e.g., <code>PostgreSQLVectorAdapter</code>)</li>
+<li><strong>Implement the same interface</strong> as the current FAISS implementation</li>
+<li><strong>Update the service initialization</strong> to use the new adapter</li>
+<li><strong>Migrate existing vector data</strong> to the new database</li>
+</ol>
+<p><strong>Example: Switching to PostgreSQL + pgvector</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># New adapter class</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="k">class</span><span class="w"> </span><span class="nc">PostgreSQLVectorAdapter</span><span class="p">:</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">connection_string</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">conn</span> <span class="o">=</span> <span class="n">psycopg2</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">connection_string</span><span class="p">)</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">add_vectors</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vectors</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span> <span class="n">ids</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]):</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>        <span class="c1"># Insert vectors into PostgreSQL with pgvector</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>        <span class="k">pass</span>
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">search</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query_vector</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">):</span>
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>        <span class="c1"># Use pgvector&#39;s similarity search</span>
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>        <span class="k">pass</span>
+<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>
+<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a><span class="c1"># Update HybridSearchService</span>
+<a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a><span class="k">class</span><span class="w"> </span><span class="nc">HybridSearchService</span><span class="p">:</span>
+<a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vector_db_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;faiss&quot;</span><span class="p">):</span>
+<a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a>        <span class="k">if</span> <span class="n">vector_db_type</span> <span class="o">==</span> <span class="s2">&quot;postgresql&quot;</span><span class="p">:</span>
+<a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a>            <span class="bp">self</span><span class="o">.</span><span class="n">vector_db</span> <span class="o">=</span> <span class="n">PostgreSQLVectorAdapter</span><span class="p">(</span><span class="n">DATABASE_URL</span><span class="p">)</span>
+<a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a>        <span class="k">else</span><span class="p">:</span>
+<a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a>            <span class="bp">self</span><span class="o">.</span><span class="n">vector_db</span> <span class="o">=</span> <span class="n">FAISSAdapter</span><span class="p">()</span>  <span class="c1"># Current implementation</span>
+</code></pre></div>
+<p><strong>FAISS in our app:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># services/hybrid_search_service.py</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="k">class</span><span class="w"> </span><span class="nc">HybridSearchService</span><span class="p">:</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">faiss_index</span> <span class="o">=</span> <span class="n">faiss</span><span class="o">.</span><span class="n">IndexFlatIP</span><span class="p">(</span><span class="mi">1536</span><span class="p">)</span>  <span class="c1"># Inner product index</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">embedding_dimension</span> <span class="o">=</span> <span class="mi">1536</span>
+</code></pre></div></p>
+<h3 id="3-fts5-full-text-search">3. FTS5: Full-Text Search</h3>
+<p><strong>What is FTS5?</strong>
+- SQLite's Full-Text Search extension
+- Searches through text content efficiently
+- Uses BM25 ranking algorithm</p>
+<p><strong>FTS5 in our app:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1">-- Virtual table for searchable content</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="k">CREATE</span><span class="w"> </span><span class="n">VIRTUAL</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">chunks_fts</span><span class="w"> </span><span class="k">USING</span><span class="w"> </span><span class="n">fts5</span><span class="p">(</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">    </span><span class="n">content</span><span class="p">,</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">    </span><span class="n">chunk_type</span><span class="p">,</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">    </span><span class="n">content</span><span class="o">=</span><span class="s1">&#39;chunks&#39;</span><span class="p">,</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">    </span><span class="n">content_rowid</span><span class="o">=</span><span class="s1">&#39;rowid&#39;</span>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="p">);</span>
+</code></pre></div></p>
+<h2 id="understanding-weight-modification">⚖️ Understanding Weight Modification</h2>
+<p><strong>The Hybrid Score Formula:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="n">hybrid_score</span> <span class="o">=</span> <span class="p">(</span><span class="n">bm25_weight</span> <span class="err">×</span> <span class="n">BM25_score</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">cosine_weight</span> <span class="err">×</span> <span class="n">cosine_similarity_score</span><span class="p">)</span>
+</code></pre></div></p>
+<p><strong>Default Weights:</strong>
+- <code>bm25_weight = 0.35</code> (35% keyword search)
+- <code>cosine_weight = 0.65</code> (65% semantic search)</p>
+<p><strong>How to Modify Weights:</strong></p>
+<h3 id="scenario-1-more-keyword-focus">Scenario 1: More Keyword Focus</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="c1"># For exact term matching (legal documents, code)</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="n">bm25_weight</span> <span class="o">=</span> <span class="mf">0.7</span>    <span class="c1"># 70% keyword</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="n">cosine_weight</span> <span class="o">=</span> <span class="mf">0.3</span>  <span class="c1"># 30% semantic</span>
+</code></pre></div>
+<h3 id="scenario-2-more-semantic-focus">Scenario 2: More Semantic Focus</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="c1"># For creative content (marketing, research)</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="n">bm25_weight</span> <span class="o">=</span> <span class="mf">0.2</span>    <span class="c1"># 20% keyword  </span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="n">cosine_weight</span> <span class="o">=</span> <span class="mf">0.8</span>  <span class="c1"># 80% semantic</span>
+</code></pre></div>
+<h3 id="scenario-3-balanced-search">Scenario 3: Balanced Search</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="c1"># For general content</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="n">bm25_weight</span> <span class="o">=</span> <span class="mf">0.5</span>    <span class="c1"># 50% keyword</span>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="n">cosine_weight</span> <span class="o">=</span> <span class="mf">0.5</span>  <span class="c1"># 50% semantic</span>
+</code></pre></div>
+<p><strong>Testing Different Weights:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="c1"># API call with custom weights</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>GET<span class="w"> </span>/search/hybrid?q<span class="o">=</span>marketing<span class="p">&amp;</span><span class="nv">bm25_weight</span><span class="o">=</span><span class="m">0</span>.2<span class="p">&amp;</span><span class="nv">cosine_weight</span><span class="o">=</span><span class="m">0</span>.8
+</code></pre></div></p>
+<h2 id="learning-path">🛠️ Learning Path</h2>
+<h3 id="phase-1-understanding-the-basics">Phase 1: Understanding the Basics</h3>
+<ol>
+<li><strong>Study the embedding service</strong> (<code>services/embedding_service.py</code>)</li>
+<li><strong>Examine chunk creation</strong> (<code>services/chunking_service.py</code>)</li>
+<li><strong>Test different search methods</strong> via the UI at <code>/search</code></li>
+</ol>
+<h3 id="phase-2-experimenting-with-weights">Phase 2: Experimenting with Weights</h3>
+<ol>
+<li><strong>Modify weights</strong> in the search UI</li>
+<li><strong>Compare results</strong> between keyword, semantic, and hybrid</li>
+<li><strong>Test with different content types</strong></li>
+</ol>
+<h3 id="phase-3-extending-the-system">Phase 3: Extending the System</h3>
+<ol>
+<li><strong>Add new content types</strong> (PDFs, images)</li>
+<li><strong>Implement custom scoring</strong> algorithms</li>
+<li><strong>Add search filters</strong> and faceted search</li>
+</ol>
+<h3 id="phase-4-advanced-features">Phase 4: Advanced Features</h3>
+<ol>
+<li><strong>Add search suggestions</strong> and autocomplete</li>
+<li><strong>Implement search analytics</strong> and user behavior tracking</li>
+<li><strong>Add real-time search</strong> updates</li>
+</ol>
+<h2 id="architecture-deep-dive">��️ Architecture Deep Dive</h2>
+<h3 id="data-flow">Data Flow</h3>
+<ol>
+<li>User types search query</li>
+<li>Query gets embedded (text → numbers)</li>
+<li>FAISS finds similar vectors</li>
+<li>FTS5 finds keyword matches</li>
+<li>Results get combined with weights</li>
+<li>Final ranked results returned</li>
+</ol>
+<h3 id="key-files-to-study">Key Files to Study</h3>
+<ul>
+<li><code>services/hybrid_search_service.py</code> - Core hybrid search logic</li>
+<li><code>services/embedding_service.py</code> - OpenAI integration</li>
+<li><code>services/chunking_service.py</code> - Content processing</li>
+<li><code>routes/marketing.py</code> - Search API endpoints</li>
+<li><code>templates/search.html</code> - Frontend interface</li>
+</ul>
+<h2 id="extending-for-real-world-use">�� Extending for Real-World Use</h2>
+<h3 id="adding-new-content-types">Adding New Content Types</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="c1"># Example: Add PDF support</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="k">class</span><span class="w"> </span><span class="nc">PDFChunkingService</span><span class="p">:</span>
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">chunk_pdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pdf_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Chunk</span><span class="p">]:</span>
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>        <span class="c1"># Extract text from PDF</span>
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>        <span class="c1"># Split into chunks</span>
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>        <span class="c1"># Generate embeddings</span>
+<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>        <span class="k">pass</span>
+</code></pre></div>
+<h3 id="custom-scoring-algorithms">Custom Scoring Algorithms</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="c1"># Example: Boost recent content</span>
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="k">def</span><span class="w"> </span><span class="nf">custom_score</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chunk</span><span class="p">,</span> <span class="n">base_score</span><span class="p">):</span>
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>    <span class="n">recency_boost</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calculate_recency_boost</span><span class="p">(</span><span class="n">chunk</span><span class="o">.</span><span class="n">created_at</span><span class="p">)</span>
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>    <span class="k">return</span> <span class="n">base_score</span> <span class="o">*</span> <span class="n">recency_boost</span>
+</code></pre></div>
+<h3 id="performance-optimization">Performance Optimization</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="c1"># Example: Caching frequent searches</span>
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="nd">@lru_cache</span><span class="p">(</span><span class="n">maxsize</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="k">def</span><span class="w"> </span><span class="nf">cached_embedding</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_embedding</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+</code></pre></div>
+<h2 id="monitoring-and-analytics">📊 Monitoring and Analytics</h2>
+<h3 id="search-metrics-to-track">Search Metrics to Track</h3>
+<ul>
+<li><strong>Query performance</strong> (response time)</li>
+<li><strong>Result relevance</strong> (click-through rates)</li>
+<li><strong>Popular queries</strong> and search patterns</li>
+<li><strong>Search method effectiveness</strong> (hybrid vs keyword vs semantic)</li>
+</ul>
+<h3 id="implementation-example">Implementation Example</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="c1"># Add to search endpoints</span>
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">track_search</span><span class="p">(</span><span class="n">query</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">method</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">results_count</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>    <span class="c1"># Log search metrics</span>
+<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a>    <span class="c1"># Update analytics database</span>
+<a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a>    <span class="k">pass</span>
+</code></pre></div>
+<h2 id="troubleshooting-common-issues">🔧 Troubleshooting Common Issues</h2>
+<h3 id="issue-1-no-search-results">Issue 1: No Search Results</h3>
+<ul>
+<li><strong>Check</strong>: Are chunks being created?</li>
+<li><strong>Check</strong>: Are embeddings being generated?</li>
+<li><strong>Check</strong>: Is FAISS index built?</li>
+</ul>
+<h3 id="issue-2-poor-search-quality">Issue 2: Poor Search Quality</h3>
+<ul>
+<li><strong>Try</strong>: Adjusting weights</li>
+<li><strong>Try</strong>: Different chunk sizes</li>
+<li><strong>Try</strong>: Different embedding models</li>
+</ul>
+<h3 id="issue-3-slow-performance">Issue 3: Slow Performance</h3>
+<ul>
+<li><strong>Check</strong>: FAISS index size</li>
+<li><strong>Check</strong>: Database query performance</li>
+<li><strong>Consider</strong>: Adding caching</li>
+</ul>
+<h2 id="further-learning-resources">📚 Further Learning Resources</h2>
+<ul>
+<li><strong>FAISS Documentation</strong>: https://faiss.ai/</li>
+<li><strong>OpenAI Embeddings Guide</strong>: https://platform.openai.com/docs/guides/embeddings</li>
+<li><strong>SQLite FTS5</strong>: https://www.sqlite.org/fts5.html</li>
+<li><strong>Vector Search Best Practices</strong>: https://weaviate.io/blog/vector-search-best-practices</li>
+</ul>
+<h2 id="next-steps">🎯 Next Steps</h2>
+<ol>
+<li><strong>Experiment</strong> with the search interface</li>
+<li><strong>Modify weights</strong> and see how results change</li>
+<li><strong>Add your own content</strong> and test search quality</li>
+<li><strong>Extend the system</strong> with new features</li>
+<li><strong>Deploy</strong> to a real environment</li>
+</ol>
+<p>Remember: The best way to learn is by doing! Start with small modifications and gradually build more complex features.</p>
+<hr />
+<h2 id="corporate-database-use-case-10000-customer-analysis">�� Corporate Database Use Case: 10,000 Customer Analysis</h2>
+<p>This architecture is perfect for analyzing a corporate database of 10,000 customers/stakeholders for cross-selling opportunities. Here's how:</p>
+<h3 id="why-this-architecture-works-for-customer-analysis"><strong>Why This Architecture Works for Customer Analysis</strong></h3>
+<ol>
+<li><strong>Semantic Understanding</strong>: Find customers with similar interests even if they used different words</li>
+<li><strong>Hybrid Search</strong>: Combine exact matches (company names, industries) with semantic matches (similar business needs)</li>
+<li><strong>Scalable</strong>: FAISS handles 10,000+ records efficiently</li>
+<li><strong>Real-time</strong>: Update customer profiles and immediately searchable</li>
+</ol>
+<h3 id="implementation-for-customer-analysis"><strong>Implementation for Customer Analysis</strong></h3>
+<h4 id="1-customer-data-structure"><strong>1. Customer Data Structure</strong></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">CustomerProfile</span><span class="p">:</span>
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>    <span class="n">company_name</span><span class="p">:</span> <span class="nb">str</span>
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>    <span class="n">industry</span><span class="p">:</span> <span class="nb">str</span>
+<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>    <span class="n">business_needs</span><span class="p">:</span> <span class="nb">str</span>  <span class="c1"># Rich text description</span>
+<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>    <span class="n">current_products</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+<a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a>    <span class="n">pain_points</span><span class="p">:</span> <span class="nb">str</span>
+<a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a>    <span class="n">company_size</span><span class="p">:</span> <span class="nb">str</span>
+<a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a>    <span class="n">location</span><span class="p">:</span> <span class="nb">str</span>
+<a id="__codelineno-14-9" name="__codelineno-14-9" href="#__codelineno-14-9"></a>    <span class="n">engagement_level</span><span class="p">:</span> <span class="nb">str</span>  <span class="c1"># webinar, whitepaper, trial, etc.</span>
+</code></pre></div>
+<h4 id="2-search-use-cases"><strong>2. Search Use Cases</strong></h4>
+<ul>
+<li><strong>"Find companies like Acme Corp"</strong> → Semantic search finds similar business profiles</li>
+<li><strong>"Manufacturing companies needing automation"</strong> → Hybrid search finds exact + related matches</li>
+<li><strong>"SaaS companies with 50-200 employees"</strong> → Filtered semantic search</li>
+</ul>
+<h4 id="3-cross-selling-opportunities"><strong>3. Cross-Selling Opportunities</strong></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="c1"># Example search queries for sales teams:</span>
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="n">queries</span> <span class="o">=</span> <span class="p">[</span>
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>    <span class="s2">&quot;companies using our CRM who might need marketing automation&quot;</span><span class="p">,</span>
+<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a>    <span class="s2">&quot;enterprise clients who haven&#39;t tried our analytics product&quot;</span><span class="p">,</span>
+<a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a>    <span class="s2">&quot;SMB customers ready for enterprise features&quot;</span><span class="p">,</span>
+<a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a>    <span class="s2">&quot;companies in healthcare needing compliance tools&quot;</span>
+<a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a><span class="p">]</span>
+</code></pre></div>
+<h4 id="4-enhanced-features-for-sales"><strong>4. Enhanced Features for Sales</strong></h4>
+<ul>
+<li><strong>Customer Similarity</strong>: "Show me 10 companies most similar to [current customer]"</li>
+<li><strong>Gap Analysis</strong>: "What products do similar companies use that this customer doesn't?"</li>
+<li><strong>Engagement Scoring</strong>: Boost customers with high engagement in search results</li>
+<li><strong>Timing Analysis</strong>: Find customers who engaged 6+ months ago but haven't converted</li>
+</ul>
+<h3 id="performance-at-scale"><strong>Performance at Scale</strong></h3>
+<ul>
+<li><strong>10,000 customers</strong>: FAISS handles this easily (can scale to millions)</li>
+<li><strong>Real-time updates</strong>: New customer data immediately searchable</li>
+<li><strong>Fast queries</strong>: Sub-second response times even with complex searches</li>
+</ul>
+<h3 id="business-value"><strong>Business Value</strong></h3>
+<ul>
+<li><strong>Increase Revenue</strong>: Find cross-selling opportunities automatically</li>
+<li><strong>Improve Targeting</strong>: Better customer segmentation and personalization</li>
+<li><strong>Save Time</strong>: Sales teams find relevant prospects instantly</li>
+<li><strong>Data-Driven</strong>: Use actual customer behavior and needs, not just demographics</li>
+</ul>
+<p>This architecture transforms your customer database from a static list into an intelligent, searchable knowledge base that actively helps identify sales opportunities.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.973d3a69.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.f55a23d4.min.js"></script>
+      
+    
+  </body>
+</html>
