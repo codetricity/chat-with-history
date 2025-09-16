@@ -1,6 +1,10 @@
-# FastOpp Chat Application with Conversation Management
+# FastOpp Example for Students: AI Chat with Conversation Management
 
-Chat application built with [FastOpp](https://github.com/Oppkey/fastopp), featuring intelligent conversation management, automatic title generation, and persistent chat history.
+Chat application built with [FastOpp](https://github.com/Oppkey/fastopp) for students learning
+how to develop AI workflows for businesses.
+This example shows intelligent conversation management, automatic title generation, persistent chat history,
+hybrid search using a vector database combined with an SQL database with full-text search.
+
 FastOpp is an open source stack with FastAPI, SQLAlchemy, SQLModel and SQLAlchemy Admin.
 
 [Live Demonstration Site](https://fastfolder.fly.dev/)
