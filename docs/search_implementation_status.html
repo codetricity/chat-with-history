@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>search_implementation_status</title>
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { color: #008000; } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { color: #008000; font-weight: bold; } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" />
+</head>
+<body>
+<h1 id="search-implementation-status-next-steps">Search Implementation
+Status &amp; Next Steps</h1>
+<h2 id="current-status-overview">📋 Current Status Overview</h2>
+<p>The FastAPI admin application has a <strong>sophisticated search
+infrastructure</strong> implemented but <strong>not actively
+used</strong> by the search interface. This document outlines the
+current state, the gap between implementation and usage, and the roadmap
+to fully activate the hybrid search capabilities.</p>
+<h2 id="goal-of-hybrid-search">🎯 Goal of Hybrid Search</h2>
+<p>The hybrid search system is designed to provide <strong>comprehensive
+content discovery</strong> for a marketing firm’s conversation and
+document management system by combining:</p>
+<h3 id="keyword-search-fts5-bm25"><strong>1. Keyword Search (FTS5 +
+BM25)</strong></h3>
+<ul>
+<li><strong>Purpose</strong>: Precise keyword matching and exact term
+search</li>
+<li><strong>Technology</strong>: SQLite’s FTS5 extension with BM25
+ranking algorithm</li>
+<li><strong>Use Case</strong>: Finding conversations/documents
+containing specific terms, phrases, or exact matches</li>
+<li><strong>Example</strong>: Search for “social media strategy” finds
+exact mentions</li>
+</ul>
+<h3 id="semantic-search-faiss-openai-embeddings"><strong>2. Semantic
+Search (FAISS + OpenAI Embeddings)</strong></h3>
+<ul>
+<li><strong>Purpose</strong>: Understanding meaning and context beyond
+exact keywords</li>
+<li><strong>Technology</strong>: FAISS vector similarity search with
+OpenAI embeddings (1536 dimensions)</li>
+<li><strong>Use Case</strong>: Finding relevant content even when
+different words are used</li>
+<li><strong>Example</strong>: Search for “marketing approach” finds
+content about “brand strategy” or “promotional tactics”</li>
+</ul>
+<h3 id="hybrid-scoring"><strong>3. Hybrid Scoring</strong></h3>
+<ul>
+<li><strong>Purpose</strong>: Combine both approaches for optimal
+results</li>
+<li><strong>Formula</strong>:
+<code>hybrid_score = (0.35 × BM25_score) + (0.65 × cosine_similarity_score)</code></li>
+<li><strong>Benefit</strong>: Gets both precise keyword matches AND
+semantically relevant content</li>
+</ul>
+<h2 id="current-implementation-status">🏗️ Current Implementation
+Status</h2>
+<h3 id="whats-implemented-but-not-used">✅ <strong>What’s Implemented
+(But Not Used)</strong></h3>
+<h4 id="core-services"><strong>1. Core Services</strong></h4>
+<ul>
+<li><strong><code>HybridSearchService</code></strong> - Complete
+implementation with FAISS + FTS5 integration</li>
+<li><strong><code>EmbeddingService</code></strong> - OpenAI API
+integration for generating embeddings</li>
+<li><strong><code>ChunkingService</code></strong> - Content chunking for
+granular search capabilities</li>
+</ul>
+<h4 id="database-models"><strong>2. Database Models</strong></h4>
+<ul>
+<li><strong><code>Chunk</code></strong> - Conversation content chunks
+for searchable pieces</li>
+<li><strong><code>ChunkEmbedding</code></strong> - Vector embeddings
+stored as BLOB data</li>
+<li><strong><code>DocumentChunk</code></strong> - Document content
+chunks</li>
+<li><strong><code>DocumentChunkEmbedding</code></strong> - Document
+vector embeddings</li>
+</ul>
+<h4 id="dependencies"><strong>3. Dependencies</strong></h4>
+<ul>
+<li><strong><code>faiss-cpu&gt;=1.12.0</code></strong> - Vector
+similarity search library</li>
+<li><strong><code>numpy&gt;=2.3.2</code></strong> - Numerical operations
+for embeddings</li>
+<li><strong><code>openai&gt;=1.106.1</code></strong> - Embedding
+generation API</li>
+</ul>
+<h4 id="architecture-design"><strong>4. Architecture
+Design</strong></h4>
+<ul>
+<li><strong>SQLite as single source of truth</strong> with both FTS5 and
+FAISS</li>
+<li><strong>In-memory FAISS index</strong> rebuildable from SQLite
+data</li>
+<li><strong>Hybrid scoring system</strong> with configurable
+weights</li>
+</ul>
+<h3 id="whats-actually-used-basic-implementation">❌ <strong>What’s
+Actually Used (Basic Implementation)</strong></h3>
+<h4 id="frontend-search-interface"><strong>1. Frontend Search
+Interface</strong></h4>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Current implementation - basic text input</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="op">&lt;</span>input type<span class="op">=</span><span class="st">&quot;text&quot;</span> </span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>       x<span class="op">-</span>model<span class="op">=</span><span class="st">&quot;searchQuery&quot;</span> </span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>       @input<span class="op">.</span><span class="at">debounce</span><span class="op">.</span><span class="dv">300</span><span class="er">ms</span><span class="op">=</span><span class="st">&quot;searchConversations()&quot;</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>       placeholder<span class="op">=</span><span class="st">&quot;Search conversations...&quot;</span><span class="op">&gt;</span></span></code></pre></div>
+<h4 id="backend-search-endpoint"><strong>2. Backend Search
+Endpoint</strong></h4>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Current implementation - basic SQL LIKE queries</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> q:</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    search_conditions <span class="op">=</span> [</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>        Conversation.title.contains(q),      <span class="co"># Basic SQL LIKE</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>        ConversationFolder.name.contains(q), <span class="co"># Basic SQL LIKE  </span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>        Client.name.contains(q),             <span class="co"># Basic SQL LIKE</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>        Project.name.contains(q)             <span class="co"># Basic SQL LIKE</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    ]</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    conditions.append(or_(<span class="op">*</span>search_conditions))</span></code></pre></div>
+<h4 id="search-scope"><strong>3. Search Scope</strong></h4>
+<ul>
+<li><strong>Only searches</strong>: Conversation titles, folder names,
+client names, project names</li>
+<li><strong>Does NOT search</strong>: Conversation content, message
+text, document content</li>
+<li><strong>No semantic understanding</strong>: Cannot find related
+concepts or synonyms</li>
+</ul>
+<h2 id="the-gap-analysis">🔍 The Gap Analysis</h2>
+<h3 id="infrastructure-vs.-usage-gap"><strong>Infrastructure vs. Usage
+Gap</strong></h3>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Status</th>
+<th>Usage</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>HybridSearchService</td>
+<td>✅ Implemented</td>
+<td>❌ Not used</td>
+</tr>
+<tr>
+<td>FAISS Integration</td>
+<td>✅ Implemented</td>
+<td>❌ Not used</td>
+</tr>
+<tr>
+<td>FTS5 Virtual Tables</td>
+<td>✅ Designed</td>
+<td>❌ Not created</td>
+</tr>
+<tr>
+<td>Embedding Generation</td>
+<td>✅ Implemented</td>
+<td>❌ Not used</td>
+</tr>
+<tr>
+<td>Content Chunking</td>
+<td>✅ Implemented</td>
+<td>❌ Not used</td>
+</tr>
+<tr>
+<td>Basic SQL Search</td>
+<td>✅ Implemented</td>
+<td>✅ Currently used</td>
+</tr>
+</tbody>
+</table>
+<h3 id="missing-components"><strong>Missing Components</strong></h3>
+<ol type="1">
+<li><strong>FTS5 Virtual Tables</strong>: <code>chunks_fts</code> and
+<code>document_chunks_fts</code> are referenced but not created</li>
+<li><strong>Content Processing</strong>: No automatic chunking of
+conversations/documents</li>
+<li><strong>Embedding Generation</strong>: No automatic embedding
+creation for searchable content</li>
+<li><strong>API Integration</strong>: Search endpoints don’t use
+HybridSearchService</li>
+<li><strong>Frontend Integration</strong>: UI doesn’t expose advanced
+search capabilities</li>
+</ol>
+<h2 id="next-steps-roadmap">🚀 Next Steps Roadmap</h2>
+<h3 id="phase-1-database-setup-priority-high"><strong>Phase 1: Database
+Setup (Priority: High)</strong></h3>
+<h4 id="create-fts5-virtual-tables"><strong>1.1 Create FTS5 Virtual
+Tables</strong></h4>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode sql"><code class="sourceCode sql"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co">-- Create FTS5 virtual tables for full-text search</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> VIRTUAL <span class="kw">TABLE</span> chunks_fts <span class="kw">USING</span> fts5(</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    content,</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    chunk_type,</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    content<span class="op">=</span><span class="st">&#39;chunks&#39;</span>,</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    content_rowid<span class="op">=</span><span class="st">&#39;rowid&#39;</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>);</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> VIRTUAL <span class="kw">TABLE</span> document_chunks_fts <span class="kw">USING</span> fts5(</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    content,</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    content<span class="op">=</span><span class="st">&#39;document_chunks&#39;</span>, </span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    content_rowid<span class="op">=</span><span class="st">&#39;rowid&#39;</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>);</span></code></pre></div>
+<h4 id="database-migration"><strong>1.2 Database Migration</strong></h4>
+<ul>
+<li>Create Alembic migration for FTS5 tables</li>
+<li>Add triggers to keep FTS5 tables in sync with main tables</li>
+<li>Test FTS5 functionality with sample data</li>
+</ul>
+<h3 id="phase-2-content-processing-priority-high"><strong>Phase 2:
+Content Processing (Priority: High)</strong></h3>
+<h4 id="implement-content-chunking"><strong>2.1 Implement Content
+Chunking</strong></h4>
+<ul>
+<li><strong>Conversation Chunking</strong>: Break conversations into
+searchable chunks</li>
+<li><strong>Document Chunking</strong>: Process uploaded documents into
+chunks</li>
+<li><strong>Automatic Processing</strong>: Chunk content when
+conversations/documents are created/updated</li>
+</ul>
+<h4 id="embedding-generation"><strong>2.2 Embedding
+Generation</strong></h4>
+<ul>
+<li><strong>Automatic Embeddings</strong>: Generate embeddings for all
+chunks</li>
+<li><strong>Batch Processing</strong>: Process existing content to
+create embeddings</li>
+<li><strong>Update Triggers</strong>: Generate embeddings when content
+changes</li>
+</ul>
+<h3 id="phase-3-api-integration-priority-medium"><strong>Phase 3: API
+Integration (Priority: Medium)</strong></h3>
+<h4 id="update-search-endpoints"><strong>3.1 Update Search
+Endpoints</strong></h4>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Replace basic SQL search with hybrid search</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> services.hybrid_search_service <span class="im">import</span> HybridSearchService</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> services.embedding_service <span class="im">import</span> EmbeddingService</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="cf">async</span> <span class="kw">def</span> search_conversations_hybrid(q: <span class="bu">str</span>):</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    embedding_service <span class="op">=</span> EmbeddingService()</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    hybrid_service <span class="op">=</span> HybridSearchService(embedding_service)</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Use hybrid search instead of basic SQL</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    results <span class="op">=</span> <span class="cf">await</span> hybrid_service.hybrid_search(</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>        query<span class="op">=</span>q,</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>        limit<span class="op">=</span><span class="dv">20</span>,</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>        search_type<span class="op">=</span><span class="st">&quot;conversation&quot;</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> results</span></code></pre></div>
+<h4 id="add-new-search-endpoints"><strong>3.2 Add New Search
+Endpoints</strong></h4>
+<ul>
+<li><strong><code>/api/search/hybrid</code></strong> - Full hybrid
+search with both keyword and semantic</li>
+<li><strong><code>/api/search/keyword</code></strong> - Keyword-only
+search using FTS5</li>
+<li><strong><code>/api/search/semantic</code></strong> - Semantic-only
+search using FAISS</li>
+<li><strong><code>/api/search/documents</code></strong> -
+Document-specific search</li>
+</ul>
+<h3 id="phase-4-frontend-enhancement-priority-medium"><strong>Phase 4:
+Frontend Enhancement (Priority: Medium)</strong></h3>
+<h4 id="advanced-search-interface"><strong>4.1 Advanced Search
+Interface</strong></h4>
+<ul>
+<li><strong>Search Type Selection</strong>: Choose between keyword,
+semantic, or hybrid</li>
+<li><strong>Search Scope</strong>: Search conversations, documents, or
+both</li>
+<li><strong>Result Ranking</strong>: Show relevance scores and search
+type used</li>
+<li><strong>Search Suggestions</strong>: Auto-complete based on existing
+content</li>
+</ul>
+<h4 id="search-results-enhancement"><strong>4.2 Search Results
+Enhancement</strong></h4>
+<ul>
+<li><strong>Relevance Scoring</strong>: Display hybrid scores and search
+method</li>
+<li><strong>Content Previews</strong>: Show matching content
+snippets</li>
+<li><strong>Context Highlighting</strong>: Highlight matching terms in
+results</li>
+<li><strong>Search Analytics</strong>: Track search patterns and popular
+queries</li>
+</ul>
+<h3 id="phase-5-performance-optimization-priority-low"><strong>Phase 5:
+Performance &amp; Optimization (Priority: Low)</strong></h3>
+<h4 id="faiss-index-management"><strong>5.1 FAISS Index
+Management</strong></h4>
+<ul>
+<li><strong>Index Persistence</strong>: Save FAISS index to disk for
+faster startup</li>
+<li><strong>Incremental Updates</strong>: Update index when content
+changes</li>
+<li><strong>Memory Management</strong>: Optimize memory usage for large
+datasets</li>
+</ul>
+<h4 id="search-performance"><strong>5.2 Search Performance</strong></h4>
+<ul>
+<li><strong>Caching</strong>: Cache frequent search results</li>
+<li><strong>Async Processing</strong>: Background embedding
+generation</li>
+<li><strong>Search Analytics</strong>: Monitor search performance and
+usage</li>
+</ul>
+<h2 id="expected-benefits">📊 Expected Benefits</h2>
+<h3 id="for-users"><strong>For Users</strong></h3>
+<ul>
+<li><strong>Better Search Results</strong>: Find content even with
+different wording</li>
+<li><strong>Comprehensive Coverage</strong>: Search both exact terms and
+related concepts</li>
+<li><strong>Relevance Ranking</strong>: Most relevant results appear
+first</li>
+<li><strong>Content Discovery</strong>: Find related conversations and
+documents</li>
+</ul>
+<h3 id="for-the-marketing-firm"><strong>For the Marketing
+Firm</strong></h3>
+<ul>
+<li><strong>Knowledge Management</strong>: Better organization and
+retrieval of client work</li>
+<li><strong>Content Reuse</strong>: Find existing content for new
+projects</li>
+<li><strong>Client Insights</strong>: Discover patterns across client
+conversations</li>
+<li><strong>Efficiency</strong>: Faster content discovery and project
+management</li>
+</ul>
+<h2 id="technical-considerations">🔧 Technical Considerations</h2>
+<h3 id="performance"><strong>Performance</strong></h3>
+<ul>
+<li><strong>FAISS Index Size</strong>: Monitor memory usage as content
+grows</li>
+<li><strong>Embedding Costs</strong>: Track OpenAI API usage and
+costs</li>
+<li><strong>Search Latency</strong>: Optimize for sub-second search
+responses</li>
+</ul>
+<h3 id="scalability"><strong>Scalability</strong></h3>
+<ul>
+<li><strong>Database Growth</strong>: Plan for increasing content
+volume</li>
+<li><strong>Index Rebuilding</strong>: Handle FAISS index updates
+efficiently</li>
+<li><strong>Concurrent Searches</strong>: Support multiple simultaneous
+searches</li>
+</ul>
+<h3 id="maintenance"><strong>Maintenance</strong></h3>
+<ul>
+<li><strong>Content Sync</strong>: Keep FTS5 tables synchronized with
+main tables</li>
+<li><strong>Embedding Updates</strong>: Handle content changes and
+embedding regeneration</li>
+<li><strong>Error Handling</strong>: Robust error handling for API
+failures</li>
+</ul>
+<h2 id="implementation-notes">📝 Implementation Notes</h2>
+<h3 id="current-dependencies"><strong>Current Dependencies</strong></h3>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode toml"><code class="sourceCode toml"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Already in pyproject.toml</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="dt">&quot;faiss-cpu&gt;=1.12.0&quot;</span><span class="er">,</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="dt">&quot;numpy&gt;=2.3.2&quot;</span><span class="er">,</span> </span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="dt">&quot;openai&gt;=1.106.1&quot;</span><span class="er">,</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="dt">&quot;aiosqlite&gt;=0.21.0&quot;</span></span></code></pre></div>
+<h3 id="environment-variables-needed"><strong>Environment Variables
+Needed</strong></h3>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="va">OPENROUTER_API_KEY</span><span class="op">=</span>your_key_here  <span class="co"># For embeddings</span></span></code></pre></div>
+<h3 id="database-schema"><strong>Database Schema</strong></h3>
+<ul>
+<li><strong>Existing</strong>: <code>chunks</code>,
+<code>chunk_embeddings</code>, <code>document_chunks</code>,
+<code>document_chunk_embeddings</code></li>
+<li><strong>Needed</strong>: FTS5 virtual tables and sync triggers</li>
+</ul>
+<h2 id="success-metrics">🎯 Success Metrics</h2>
+<h3 id="phase-1-success"><strong>Phase 1 Success</strong></h3>
+<ul class="task-list">
+<li><label><input type="checkbox" />FTS5 virtual tables created and
+functional</label></li>
+<li><label><input type="checkbox" />Basic keyword search working with
+BM25 scoring</label></li>
+<li><label><input type="checkbox" />Database migrations applied
+successfully</label></li>
+</ul>
+<h3 id="phase-2-success"><strong>Phase 2 Success</strong></h3>
+<ul class="task-list">
+<li><label><input type="checkbox" />Content chunking processing existing
+conversations</label></li>
+<li><label><input type="checkbox" />Embeddings generated for all
+searchable content</label></li>
+<li><label><input type="checkbox" />FAISS index built and
+searchable</label></li>
+</ul>
+<h3 id="phase-3-success"><strong>Phase 3 Success</strong></h3>
+<ul class="task-list">
+<li><label><input type="checkbox" />Hybrid search API endpoints
+functional</label></li>
+<li><label><input type="checkbox" />Search results include both keyword
+and semantic matches</label></li>
+<li><label><input type="checkbox" />Relevance scoring working
+correctly</label></li>
+</ul>
+<h3 id="phase-4-success"><strong>Phase 4 Success</strong></h3>
+<ul class="task-list">
+<li><label><input type="checkbox" />Frontend search interface
+updated</label></li>
+<li><label><input type="checkbox" />Users can choose search
+types</label></li>
+<li><label><input type="checkbox" />Search results show relevance scores
+and context</label></li>
+</ul>
+<h3 id="overall-success"><strong>Overall Success</strong></h3>
+<ul class="task-list">
+<li><label><input type="checkbox" />Search finds content that basic SQL
+queries miss</label></li>
+<li><label><input type="checkbox" />Users report improved content
+discovery</label></li>
+<li><label><input type="checkbox" />Search performance meets
+requirements (&lt; 1 second response time)</label></li>
+<li><label><input type="checkbox" />System handles expected content
+volume efficiently</label></li>
+</ul>
+<hr />
+<p><strong>Last Updated</strong>: January 2025<br />
+<strong>Status</strong>: Infrastructure Complete, Integration
+Needed<br />
+<strong>Next Action</strong>: Create FTS5 virtual tables and implement
+content chunking</p>
+</body>
+</html>

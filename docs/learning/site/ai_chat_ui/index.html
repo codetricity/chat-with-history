@@ -1,0 +1,1519 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Learning materials for the conversation management system">
+      
+      
+      
+        <link rel="canonical" href="https://example.com/learning/ai_chat_ui/">
+      
+      
+        <link rel="prev" href="..">
+      
+      
+        <link rel="next" href="../conversation_organization/">
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.20">
+    
+    
+      
+        <title>AI Chat UI - Learning Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.e53b48f4.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#ai-chat-ui-a-learning-guide" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Learning Documentation" class="md-header__button md-logo" aria-label="Learning Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Learning Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              AI Chat UI
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Learning Documentation" class="md-nav__button md-logo" aria-label="Learning Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Learning Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    AI Chat UI
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    AI Chat UI
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      🎯 Overview
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#core-chat-functionality" class="md-nav__link">
+    <span class="md-ellipsis">
+      🧠 Core Chat Functionality
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🧠 Core Chat Functionality">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-streaming-responses-for-interactivity" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Streaming Responses for Interactivity
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-chat-history-context-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Chat History &amp; Context Management
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-internet-search-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Internet Search Integration
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Internet Search Integration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#strategy-1-intent-classification" class="md-nav__link">
+    <span class="md-ellipsis">
+      Strategy 1: Intent Classification
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#strategy-2-llm-based-decision-making" class="md-nav__link">
+    <span class="md-ellipsis">
+      Strategy 2: LLM-Based Decision Making
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#strategy-3-hybrid-approach" class="md-nav__link">
+    <span class="md-ellipsis">
+      Strategy 3: Hybrid Approach
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#strategy-4-user-controlled-search" class="md-nav__link">
+    <span class="md-ellipsis">
+      Strategy 4: User-Controlled Search
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#strategy-5-time-based-triggers" class="md-nav__link">
+    <span class="md-ellipsis">
+      Strategy 5: Time-Based Triggers
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#advanced-database-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔍 Advanced Database Integration
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🔍 Advanced Database Integration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-hybrid-search-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Hybrid Search Integration
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. Hybrid Search Integration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#strategy-a-automatic-context-retrieval" class="md-nav__link">
+    <span class="md-ellipsis">
+      Strategy A: Automatic Context Retrieval
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#strategy-b-user-triggered-search" class="md-nav__link">
+    <span class="md-ellipsis">
+      Strategy B: User-Triggered Search
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#strategy-c-smart-context-injection" class="md-nav__link">
+    <span class="md-ellipsis">
+      Strategy C: Smart Context Injection
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-customer-database-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Customer Database Integration
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-document-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Document Integration
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Document Integration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#step-1-document-processing-pipeline" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 1: Document Processing Pipeline
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-2-document-search-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 2: Document Search Integration
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-3-smart-document-retrieval" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 3: Smart Document Retrieval
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#learning-path-building-advanced-chat-features" class="md-nav__link">
+    <span class="md-ellipsis">
+      🛠️ Learning Path: Building Advanced Chat Features
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🛠️ Learning Path: Building Advanced Chat Features">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#phase-1-core-functionality" class="md-nav__link">
+    <span class="md-ellipsis">
+      Phase 1: Core Functionality
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-2-database-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Phase 2: Database Integration
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-3-advanced-features" class="md-nav__link">
+    <span class="md-ellipsis">
+      Phase 3: Advanced Features
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-4-production-features" class="md-nav__link">
+    <span class="md-ellipsis">
+      Phase 4: Production Features
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#architecture-deep-dive" class="md-nav__link">
+    <span class="md-ellipsis">
+      🏗️ Architecture Deep Dive
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🏗️ Architecture Deep Dive">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#current-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      Current Architecture
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#enhanced-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      Enhanced Architecture
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#key-services" class="md-nav__link">
+    <span class="md-ellipsis">
+      Key Services
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#implementation-strategies" class="md-nav__link">
+    <span class="md-ellipsis">
+      📊 Implementation Strategies
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="📊 Implementation Strategies">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-gradual-enhancement-approach" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Gradual Enhancement Approach
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-user-centric-design" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. User-Centric Design
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-performance-considerations" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Performance Considerations
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#next-steps-for-learning" class="md-nav__link">
+    <span class="md-ellipsis">
+      🎯 Next Steps for Learning
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#advanced-concepts" class="md-nav__link">
+    <span class="md-ellipsis">
+      💡 Advanced Concepts
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="💡 Advanced Concepts">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-multi-agent-systems" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Multi-Agent Systems
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-context-aware-responses" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Context-Aware Responses
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-real-time-collaboration" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Real-Time Collaboration
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../conversation_organization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Conversation Organization
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../vector_db_hybrid_search/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Vector DB & Hybrid Search
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      🎯 Overview
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#core-chat-functionality" class="md-nav__link">
+    <span class="md-ellipsis">
+      🧠 Core Chat Functionality
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🧠 Core Chat Functionality">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-streaming-responses-for-interactivity" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Streaming Responses for Interactivity
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-chat-history-context-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Chat History &amp; Context Management
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-internet-search-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Internet Search Integration
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Internet Search Integration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#strategy-1-intent-classification" class="md-nav__link">
+    <span class="md-ellipsis">
+      Strategy 1: Intent Classification
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#strategy-2-llm-based-decision-making" class="md-nav__link">
+    <span class="md-ellipsis">
+      Strategy 2: LLM-Based Decision Making
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#strategy-3-hybrid-approach" class="md-nav__link">
+    <span class="md-ellipsis">
+      Strategy 3: Hybrid Approach
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#strategy-4-user-controlled-search" class="md-nav__link">
+    <span class="md-ellipsis">
+      Strategy 4: User-Controlled Search
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#strategy-5-time-based-triggers" class="md-nav__link">
+    <span class="md-ellipsis">
+      Strategy 5: Time-Based Triggers
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#advanced-database-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔍 Advanced Database Integration
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🔍 Advanced Database Integration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-hybrid-search-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Hybrid Search Integration
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. Hybrid Search Integration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#strategy-a-automatic-context-retrieval" class="md-nav__link">
+    <span class="md-ellipsis">
+      Strategy A: Automatic Context Retrieval
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#strategy-b-user-triggered-search" class="md-nav__link">
+    <span class="md-ellipsis">
+      Strategy B: User-Triggered Search
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#strategy-c-smart-context-injection" class="md-nav__link">
+    <span class="md-ellipsis">
+      Strategy C: Smart Context Injection
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-customer-database-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Customer Database Integration
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-document-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Document Integration
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Document Integration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#step-1-document-processing-pipeline" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 1: Document Processing Pipeline
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-2-document-search-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 2: Document Search Integration
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-3-smart-document-retrieval" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 3: Smart Document Retrieval
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#learning-path-building-advanced-chat-features" class="md-nav__link">
+    <span class="md-ellipsis">
+      🛠️ Learning Path: Building Advanced Chat Features
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🛠️ Learning Path: Building Advanced Chat Features">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#phase-1-core-functionality" class="md-nav__link">
+    <span class="md-ellipsis">
+      Phase 1: Core Functionality
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-2-database-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Phase 2: Database Integration
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-3-advanced-features" class="md-nav__link">
+    <span class="md-ellipsis">
+      Phase 3: Advanced Features
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-4-production-features" class="md-nav__link">
+    <span class="md-ellipsis">
+      Phase 4: Production Features
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#architecture-deep-dive" class="md-nav__link">
+    <span class="md-ellipsis">
+      🏗️ Architecture Deep Dive
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🏗️ Architecture Deep Dive">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#current-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      Current Architecture
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#enhanced-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      Enhanced Architecture
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#key-services" class="md-nav__link">
+    <span class="md-ellipsis">
+      Key Services
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#implementation-strategies" class="md-nav__link">
+    <span class="md-ellipsis">
+      📊 Implementation Strategies
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="📊 Implementation Strategies">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-gradual-enhancement-approach" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Gradual Enhancement Approach
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-user-centric-design" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. User-Centric Design
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-performance-considerations" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Performance Considerations
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#next-steps-for-learning" class="md-nav__link">
+    <span class="md-ellipsis">
+      🎯 Next Steps for Learning
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#advanced-concepts" class="md-nav__link">
+    <span class="md-ellipsis">
+      💡 Advanced Concepts
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="💡 Advanced Concepts">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-multi-agent-systems" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Multi-Agent Systems
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-context-aware-responses" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Context-Aware Responses
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-real-time-collaboration" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Real-Time Collaboration
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="ai-chat-ui-a-learning-guide">AI Chat UI: A Learning Guide</h1>
+<h2 id="overview">🎯 Overview</h2>
+<p>This guide explains how our <strong>FastAPI-based FastOpp application</strong> implements a ChatGPT/Claude-like AI chat interface with advanced features like streaming responses, internet search integration, and database connectivity. You'll learn about the technical architecture, implementation strategies, and potential enhancements for building production-ready chat applications.</p>
+<p><strong>FastOpp</strong> is an open source learning tool for AI applications with pre-built UI and admin components to help students spend more time on core AI learning concepts instead of configuring the full FastAPI stack from scratch with authentication and UI components. Learn more at <a href="https://github.com/Oppkey/fastopp">https://github.com/Oppkey/fastopp</a>.</p>
+<h2 id="core-chat-functionality">🧠 Core Chat Functionality</h2>
+<h3 id="1-streaming-responses-for-interactivity">1. Streaming Responses for Interactivity</h3>
+<p><strong>Why Streaming?</strong>
+- Instead of waiting for complete responses, streaming provides real-time feedback
+- Makes the chat feel more interactive and responsive
+- Reduces perceived latency and improves user experience</p>
+<p><strong>Technical Implementation:</strong>
+- Uses FastAPI's <code>EventSourceResponse</code> with OpenRouter's streaming API
+- Sends chunks as they arrive from the LLM
+- Frontend processes <code>data:</code> events for real-time UI updates</p>
+<p><strong>Code Flow:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>chat_with_llama_stream() → EventSourceResponse → Frontend processes data: events → Real-time UI updates
+</code></pre></div></p>
+<h3 id="2-chat-history-context-management">2. Chat History &amp; Context Management</h3>
+<p><strong>Context Window Strategy:</strong>
+- This app sends the last <strong>20 messages</strong> to the LLM for context
+- Balances conversation continuity with token limits
+- Llama 3.3 70B has a 128k token context window, but we limit to 20 messages for fast responses and cost management</p>
+<p><strong>Smart Retrieval:</strong>
+- Uses <code>get_conversation_context()</code> to fetch recent messages in chronological order
+- Maintains conversation flow while managing token usage
+- Database design: Messages stored with <code>conversation_id</code>, <code>role</code>, <code>content</code>, and <code>created_at</code></p>
+<h3 id="3-internet-search-integration">3. Internet Search Integration</h3>
+<p><strong>Current Implementation: Keyword-Based Triggering</strong>
+- Automatically detects when users ask about current events using keywords
+- Keywords: "latest", "current", "2024", "news", "price", "weather", etc.
+- Uses Tavily API for structured, LLM-optimized search results</p>
+<p><strong>Alternative Search Triggering Strategies:</strong></p>
+<h4 id="strategy-1-intent-classification">Strategy 1: Intent Classification</h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># Use a lightweight ML model to classify user intent</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="k">def</span><span class="w"> </span><span class="nf">classify_search_intent</span><span class="p">(</span><span class="n">user_message</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>    <span class="c1"># Train a model to detect when users need current information</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    <span class="c1"># More sophisticated than keyword matching</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>    <span class="k">pass</span>
+</code></pre></div>
+<h4 id="strategy-2-llm-based-decision-making">Strategy 2: LLM-Based Decision Making</h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># Ask the LLM itself if it needs current information</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="k">def</span><span class="w"> </span><span class="nf">should_search_web</span><span class="p">(</span><span class="n">user_message</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">llm_response</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>    <span class="c1"># LLM analyzes if it needs current data to answer properly</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    <span class="c1"># More context-aware than keyword detection</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>    <span class="k">pass</span>
+</code></pre></div>
+<h4 id="strategy-3-hybrid-approach">Strategy 3: Hybrid Approach</h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># Combine multiple signals</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="k">def</span><span class="w"> </span><span class="nf">should_search</span><span class="p">(</span><span class="n">user_message</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">conversation_history</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>    <span class="n">keyword_match</span> <span class="o">=</span> <span class="nb">any</span><span class="p">(</span><span class="n">keyword</span> <span class="ow">in</span> <span class="n">user_message</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">for</span> <span class="n">keyword</span> <span class="ow">in</span> <span class="n">SEARCH_KEYWORDS</span><span class="p">)</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>    <span class="n">intent_score</span> <span class="o">=</span> <span class="n">classify_intent</span><span class="p">(</span><span class="n">user_message</span><span class="p">)</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>    <span class="n">llm_confidence</span> <span class="o">=</span> <span class="n">get_llm_confidence</span><span class="p">(</span><span class="n">user_message</span><span class="p">)</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>    <span class="k">return</span> <span class="n">keyword_match</span> <span class="ow">or</span> <span class="p">(</span><span class="n">intent_score</span> <span class="o">&gt;</span> <span class="mf">0.7</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">llm_confidence</span> <span class="o">&lt;</span> <span class="mf">0.5</span><span class="p">)</span>
+</code></pre></div>
+<h4 id="strategy-4-user-controlled-search">Strategy 4: User-Controlled Search</h4>
+<ul>
+<li>Add a "Search Web" button to the UI</li>
+<li>Let users explicitly request web search</li>
+<li>Most reliable but requires user interaction</li>
+</ul>
+<h4 id="strategy-5-time-based-triggers">Strategy 5: Time-Based Triggers</h4>
+<ul>
+<li>Automatically search for topics that are likely to change over time</li>
+<li>Use embeddings to detect when users ask about "current" topics</li>
+<li>More sophisticated than simple keyword matching</li>
+</ul>
+<h2 id="advanced-database-integration">🔍 Advanced Database Integration</h2>
+<h3 id="1-hybrid-search-integration">1. Hybrid Search Integration</h3>
+<p><strong>Current Implementation:</strong>
+- Vector database (FAISS) + Full-text search (FTS5) + BM25 ranking
+- Available in the search page for document retrieval
+- Can be integrated into chat for context-aware responses</p>
+<p><strong>Integration Strategies:</strong></p>
+<h4 id="strategy-a-automatic-context-retrieval">Strategy A: Automatic Context Retrieval</h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">get_relevant_context</span><span class="p">(</span><span class="n">user_message</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">conversation_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>    <span class="c1"># Search for relevant documents/conversations</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>    <span class="n">search_results</span> <span class="o">=</span> <span class="n">hybrid_search_service</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">user_message</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>    <span class="c1"># Format results for LLM context</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>    <span class="n">context</span> <span class="o">=</span> <span class="n">format_search_results_for_llm</span><span class="p">(</span><span class="n">search_results</span><span class="p">)</span>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>    <span class="k">return</span> <span class="n">context</span>
+</code></pre></div>
+<h4 id="strategy-b-user-triggered-search">Strategy B: User-Triggered Search</h4>
+<ul>
+<li>Add a "Search Knowledge Base" button</li>
+<li>Let users explicitly search their data</li>
+<li>Most reliable but requires user interaction</li>
+</ul>
+<h4 id="strategy-c-smart-context-injection">Strategy C: Smart Context Injection</h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">smart_context_injection</span><span class="p">(</span><span class="n">user_message</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">conversation_history</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>    <span class="c1"># Analyze if user is asking about specific topics</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>    <span class="k">if</span> <span class="n">is_asking_about_customers</span><span class="p">(</span><span class="n">user_message</span><span class="p">):</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>        <span class="k">return</span> <span class="n">get_customer_context</span><span class="p">(</span><span class="n">user_message</span><span class="p">)</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>    <span class="k">elif</span> <span class="n">is_asking_about_projects</span><span class="p">(</span><span class="n">user_message</span><span class="p">):</span>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>        <span class="k">return</span> <span class="n">get_project_context</span><span class="p">(</span><span class="n">user_message</span><span class="p">)</span>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>    <span class="c1"># ... other domain-specific contexts</span>
+</code></pre></div>
+<h3 id="2-customer-database-integration">2. Customer Database Integration</h3>
+<p><strong>Use Cases:</strong>
+- "Find customers similar to Acme Corp"
+- "What products do our enterprise clients use?"
+- "Show me customers who haven't been contacted in 6 months"</p>
+<p><strong>Implementation Approach:</strong>
+1. <strong>Data Preparation</strong>: Convert customer data to embeddings
+2. <strong>Search Integration</strong>: Use hybrid search to find relevant customers
+3. <strong>Context Formatting</strong>: Format results for LLM consumption
+4. <strong>Response Enhancement</strong>: LLM provides human-like responses with data</p>
+<p><strong>Example Implementation:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">CustomerContextService</span><span class="p">:</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_customer_context</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>        <span class="c1"># Search customer database using hybrid search</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>        <span class="n">results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hybrid_search</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">content_type</span><span class="o">=</span><span class="s2">&quot;customer&quot;</span><span class="p">)</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>        <span class="c1"># Format for LLM</span>
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>        <span class="n">context</span> <span class="o">=</span> <span class="s2">&quot;Relevant customers:</span><span class="se">\n</span><span class="s2">&quot;</span>
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>        <span class="k">for</span> <span class="n">customer</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span>
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>            <span class="n">context</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;- </span><span class="si">{</span><span class="n">customer</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">customer</span><span class="o">.</span><span class="n">summary</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>
+<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a>        <span class="k">return</span> <span class="n">context</span>
+</code></pre></div></p>
+<h3 id="3-document-integration">3. Document Integration</h3>
+<p><strong>Document Types to Support:</strong>
+- PDFs (contracts, reports, manuals)
+- Word documents (proposals, specifications)
+- Text files (notes, procedures)
+- Web pages (company knowledge base)</p>
+<p><strong>Implementation Steps:</strong></p>
+<h4 id="step-1-document-processing-pipeline">Step 1: Document Processing Pipeline</h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">DocumentProcessor</span><span class="p">:</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">process_document</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Chunk</span><span class="p">]:</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>        <span class="c1"># Extract text from document</span>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>        <span class="n">text</span> <span class="o">=</span> <span class="n">extract_text</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>        <span class="c1"># Split into chunks</span>
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>        <span class="n">chunks</span> <span class="o">=</span> <span class="n">chunk_text</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>
+<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a>        <span class="c1"># Generate embeddings</span>
+<a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a>        <span class="n">embeddings</span> <span class="o">=</span> <span class="n">generate_embeddings</span><span class="p">(</span><span class="n">chunks</span><span class="p">)</span>
+<a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a>
+<a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a>        <span class="c1"># Store in database</span>
+<a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a>        <span class="n">store_chunks</span><span class="p">(</span><span class="n">chunks</span><span class="p">,</span> <span class="n">embeddings</span><span class="p">)</span>
+</code></pre></div>
+<h4 id="step-2-document-search-integration">Step 2: Document Search Integration</h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">search_documents</span><span class="p">(</span><span class="n">user_message</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>    <span class="c1"># Use hybrid search to find relevant documents</span>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>    <span class="n">results</span> <span class="o">=</span> <span class="n">hybrid_search</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">user_message</span><span class="p">,</span> <span class="n">content_type</span><span class="o">=</span><span class="s2">&quot;document&quot;</span><span class="p">)</span>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>    <span class="c1"># Format for LLM context</span>
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>    <span class="n">context</span> <span class="o">=</span> <span class="n">format_document_results</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>    <span class="k">return</span> <span class="n">context</span>
+</code></pre></div>
+<h4 id="step-3-smart-document-retrieval">Step 3: Smart Document Retrieval</h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">get_relevant_documents</span><span class="p">(</span><span class="n">user_message</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">conversation_history</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>    <span class="c1"># Analyze conversation context</span>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>    <span class="n">context_keywords</span> <span class="o">=</span> <span class="n">extract_keywords</span><span class="p">(</span><span class="n">conversation_history</span><span class="p">)</span>
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>    <span class="c1"># Search with context</span>
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>    <span class="n">search_query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">user_message</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">context_keywords</span><span class="si">}</span><span class="s2">&quot;</span>
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>    <span class="n">results</span> <span class="o">=</span> <span class="n">search_documents</span><span class="p">(</span><span class="n">search_query</span><span class="p">)</span>
+<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a>
+<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a>    <span class="k">return</span> <span class="n">results</span>
+</code></pre></div>
+<h2 id="learning-path-building-advanced-chat-features">🛠️ Learning Path: Building Advanced Chat Features</h2>
+<h3 id="phase-1-core-functionality">Phase 1: Core Functionality</h3>
+<ol>
+<li><strong>Study streaming implementation</strong> (<code>services/chat_service.py</code>)</li>
+<li><strong>Understand context management</strong> (<code>services/chat_history_service.py</code>)</li>
+<li><strong>Test different search triggering strategies</strong></li>
+</ol>
+<h3 id="phase-2-database-integration">Phase 2: Database Integration</h3>
+<ol>
+<li><strong>Integrate hybrid search</strong> into chat responses</li>
+<li><strong>Add customer database</strong> connectivity</li>
+<li><strong>Implement document processing</strong> pipeline</li>
+</ol>
+<h3 id="phase-3-advanced-features">Phase 3: Advanced Features</h3>
+<ol>
+<li><strong>Add intent classification</strong> for smarter search triggering</li>
+<li><strong>Implement multi-modal</strong> document support</li>
+<li><strong>Create domain-specific</strong> context injection</li>
+</ol>
+<h3 id="phase-4-production-features">Phase 4: Production Features</h3>
+<ol>
+<li><strong>Add conversation analytics</strong> and user behavior tracking</li>
+<li><strong>Implement conversation</strong> summarization</li>
+<li><strong>Add conversation</strong> export and sharing</li>
+</ol>
+<h2 id="architecture-deep-dive">🏗️ Architecture Deep Dive</h2>
+<h3 id="current-architecture">Current Architecture</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>User Input → Chat Service → OpenRouter API → Streaming Response
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>                ↓
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>        Chat History Service → Database Storage
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>                ↓
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>        Web Search Service → Tavily API (when triggered)
+</code></pre></div>
+<h3 id="enhanced-architecture">Enhanced Architecture</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>User Input → Chat Service → OpenRouter API → Streaming Response
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>                ↓
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>        Chat History Service → Database Storage
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>                ↓
+<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>        Hybrid Search Service → Vector DB + FTS5
+<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>                ↓
+<a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a>        Document Service → Document Processing
+<a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a>                ↓
+<a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a>        Customer Service → Customer Database
+</code></pre></div>
+<h3 id="key-services">Key Services</h3>
+<ul>
+<li><strong>ChatService</strong>: Core chat functionality and LLM integration</li>
+<li><strong>WebSearchService</strong>: Internet search with smart triggering</li>
+<li><strong>ChatHistoryService</strong>: Conversation management and context</li>
+<li><strong>HybridSearchService</strong>: Vector and text search capabilities</li>
+<li><strong>DocumentService</strong>: Document processing and retrieval</li>
+<li><strong>CustomerService</strong>: Customer data integration</li>
+</ul>
+<h2 id="implementation-strategies">📊 Implementation Strategies</h2>
+<h3 id="1-gradual-enhancement-approach">1. Gradual Enhancement Approach</h3>
+<ul>
+<li>Start with existing functionality</li>
+<li>Add one feature at a time</li>
+<li>Test and validate each addition</li>
+<li>Build on successful patterns</li>
+</ul>
+<h3 id="2-user-centric-design">2. User-Centric Design</h3>
+<ul>
+<li>Focus on user experience</li>
+<li>Make features discoverable</li>
+<li>Provide clear feedback</li>
+<li>Allow user control</li>
+</ul>
+<h3 id="3-performance-considerations">3. Performance Considerations</h3>
+<ul>
+<li>Cache frequently accessed data</li>
+<li>Optimize database queries</li>
+<li>Use async/await patterns</li>
+<li>Implement proper error handling</li>
+</ul>
+<h2 id="next-steps-for-learning">🎯 Next Steps for Learning</h2>
+<ol>
+<li><strong>Experiment</strong> with different search triggering strategies</li>
+<li><strong>Integrate hybrid search</strong> into chat responses</li>
+<li><strong>Add document processing</strong> capabilities</li>
+<li><strong>Implement customer database</strong> connectivity</li>
+<li><strong>Test and optimize</strong> performance</li>
+<li><strong>Deploy</strong> to production environment</li>
+</ol>
+<h2 id="advanced-concepts">💡 Advanced Concepts</h2>
+<h3 id="1-multi-agent-systems">1. Multi-Agent Systems</h3>
+<ul>
+<li>Different agents for different tasks</li>
+<li>Specialized search agents</li>
+<li>Document analysis agents</li>
+<li>Customer service agents</li>
+</ul>
+<h3 id="2-context-aware-responses">2. Context-Aware Responses</h3>
+<ul>
+<li>Understand conversation history</li>
+<li>Maintain user preferences</li>
+<li>Adapt to user behavior</li>
+<li>Provide personalized responses</li>
+</ul>
+<h3 id="3-real-time-collaboration">3. Real-Time Collaboration</h3>
+<ul>
+<li>Multiple users in same conversation</li>
+<li>Real-time updates</li>
+<li>Conflict resolution</li>
+<li>Shared context</li>
+</ul>
+<p>Remember: The best way to learn is by building! Start with small enhancements and gradually add more sophisticated features.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.973d3a69.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.f55a23d4.min.js"></script>
+      
+    
+  </body>
+</html>
