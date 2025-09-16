@@ -1,6 +1,10 @@
-# FastAPI Chat Application with Conversation Management
+# FastOpp Chat Application with Conversation Management
 
-A modern chat application built with FastAPI, featuring intelligent conversation management, automatic title generation, and persistent chat history.
+Chat application built with [FastOpp](https://github.com/Oppkey/fastopp), featuring intelligent conversation management, automatic title generation, and persistent chat history.
+FastOpp is an open source stack with FastAPI, SQLAlchemy, SQLModel and SQLAlchemy Admin.
+
+[Live Demonstration Site](https://fastfolder.fly.dev/)
+The live site may be sleeping. It may take up to a minute to wake up.
 
 ![sidebar](docs/images/readme/sidebar.webp)
 
@@ -193,6 +197,8 @@ uv run python main.py
 - **Environment Validation**: Run `uv run python scripts/check_env.py` to diagnose configuration issues
 
 **For Production Deployment:**
+
+*For sharing with friends or future employers, SQLite is fine.  If you are running a business with the database, use PostgreSQL.*
 
 - Set `ENVIRONMENT=production` in your `.env` file
 - Use a PostgreSQL database: `DATABASE_URL=postgresql+asyncpg://user:password@localhost/dbname`
@@ -478,23 +484,6 @@ uv run alembic current
 # View migration history
 uv run alembic history
 ```
-
-### Code Style
-
-The project follows Python best practices and uses:
-
-- Type hints throughout
-- Async/await patterns
-- Proper error handling
-- Clean separation of concerns
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
 
 ## License
 
