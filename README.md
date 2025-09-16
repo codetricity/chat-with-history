@@ -76,6 +76,7 @@ This will create the database, add sample data, and set up everything you need t
 
 - Python 3.12+ (tested with Python 3.12.11)
 - uv package manager
+- **SECRET_KEY** (required for authentication and security)
 - OpenRouter API key (for AI chat functionality)
 - Tavily API key (for web search functionality)
 - OpenAI API key (for hybrid search embeddings)
@@ -97,13 +98,13 @@ uv sync
 
 1. Set up environment variables:
 
-Create a `.env` file in the project root with the following variables:
+Create a `.env` file in the project root with the following variables (or copy from the example below):
 
 ```bash
 # Database Configuration
 DATABASE_URL=sqlite+aiosqlite:///./test.db
 
-# Application Security
+# Application Security (REQUIRED)
 SECRET_KEY=your_secure_secret_key_here_at_least_32_characters
 
 # Environment (development or production)
@@ -115,11 +116,13 @@ TAVILY_API_KEY=your_tavily_api_key_here
 OPENAI_API_KEY=your_openai_api_key_here
 ```
 
+**⚠️ IMPORTANT: The SECRET_KEY is required for the application to work properly.**
+
 **Environment Variable Details:**
 
 - **DATABASE_URL**: Database connection string. Defaults to SQLite for development. For production, use PostgreSQL: `postgresql+asyncpg://user:password@localhost/dbname`
-- **SECRET_KEY**: Application secret key for session management and JWT tokens. Must be at least 32 characters long. Generate a secure key for production.
-- **ENVIRONMENT**: Set to `development` for local development or `production` for deployment
+- **SECRET_KEY**: **REQUIRED** - Application secret key for session management and JWT tokens. Must be at least 32 characters long. Generate a secure key for production.
+- **ENVIRONMENT**: Set to `development` for local development or `production` for deployment. Controls debug mode and other environment-specific settings.
 - **OPENROUTER_API_KEY**: Required for AI chat functionality. Get your key from [OpenRouter](https://openrouter.ai/)
 - **TAVILY_API_KEY**: Required for web search integration. Get your key from [Tavily](https://tavily.com/)
 - **OPENAI_API_KEY**: Required for hybrid search embeddings. Get your key from [OpenAI](https://platform.openai.com/)
@@ -130,6 +133,13 @@ OPENAI_API_KEY=your_openai_api_key_here
 # Generate a secure 32-character secret key
 python -c "import secrets; print(secrets.token_urlsafe(32))"
 ```
+
+**Quick Setup Checklist:**
+1. ✅ Install dependencies: `uv sync`
+2. ✅ Create `.env` file with SECRET_KEY (required!)
+3. ✅ Add API keys for AI features
+4. ✅ Run migrations: `uv run python oppman.py migrate upgrade`
+5. ✅ Start the app: `uv run python main.py`
 
 **Validate your environment setup:**
 
@@ -191,6 +201,7 @@ uv run python main.py
 
 **Common Issues:**
 
+- **Missing SECRET_KEY**: The application requires a SECRET_KEY to function. Generate one using the command above.
 - **Missing API Keys**: Ensure all three API keys (OpenRouter, Tavily, OpenAI) are set in your `.env` file
 - **Database Connection Issues**: Check that `DATABASE_URL` is correctly formatted
 - **Secret Key Issues**: Ensure `SECRET_KEY` is at least 32 characters long and doesn't contain spaces
@@ -198,12 +209,55 @@ uv run python main.py
 
 **For Production Deployment:**
 
-*For sharing with friends or future employers, SQLite is fine.  If you are running a business with the database, use PostgreSQL.*
+*For sharing with friends or future employers, SQLite is fine. If you are running a business with the database, use PostgreSQL.*
 
-- Set `ENVIRONMENT=production` in your `.env` file
-- Use a PostgreSQL database: `DATABASE_URL=postgresql+asyncpg://user:password@localhost/dbname`
+### Fly.io Deployment
+
+This project is configured for deployment on Fly.io. The following secrets are already configured:
+
+```bash
+# Check current secrets
+fly secrets list
+
+# Expected secrets:
+# SECRET_KEY, DATABASE_URL, ENVIRONMENT, OPENROUTER_API_KEY, TAVILY_API_KEY, OPENAI_API_KEY
+```
+
+**Deploy to Fly.io:**
+
+```bash
+# Deploy the application
+fly deploy
+
+# Check deployment status
+fly status
+
+# View logs
+fly logs
+```
+
+**Setting Secrets on Fly.io:**
+
+```bash
+# Set individual secrets
+fly secrets set SECRET_KEY="your_secure_secret_key_here"
+fly secrets set DATABASE_URL="sqlite+aiosqlite:///./data/test.db"
+fly secrets set ENVIRONMENT="production"
+fly secrets set OPENROUTER_API_KEY="your_openrouter_key"
+fly secrets set TAVILY_API_KEY="your_tavily_key"
+fly secrets set OPENAI_API_KEY="your_openai_key"
+
+# Or set multiple secrets at once
+fly secrets set SECRET_KEY="your_key" DATABASE_URL="your_db_url" ENVIRONMENT="production"
+```
+
+### General Production Guidelines
+
+- Set `ENVIRONMENT=production` in your environment
+- Use a PostgreSQL database for high-traffic applications: `DATABASE_URL=postgresql+asyncpg://user:password@localhost/dbname`
 - Generate a secure secret key and never use the default development key
 - Ensure all API keys are valid and have appropriate quotas
+- Use environment variables or secrets management for all sensitive data
 
 ### Available Pages
 

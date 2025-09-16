@@ -12,7 +12,13 @@ from db import AsyncSessionLocal
 from models import User
 
 # JWT Configuration
-SECRET_KEY = "SECRET_KEY_CHANGE_ME_IN_PRODUCTION"
+import os
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
+
+SECRET_KEY = os.getenv("SECRET_KEY", "dev_secret_key_change_in_production")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 

@@ -26,8 +26,14 @@ async def get_user_manager(user_db=Depends(get_user_db)):  # type: ignore
 
 # JWT Authentication backend
 # Type warnings are expected with FastAPI Users async setup
+import os
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
+
 jwt_strategy = JWTStrategy(
-    secret="SECRET_KEY_CHANGE_ME",
+    secret=os.getenv("SECRET_KEY", "dev_secret_key_change_in_production"),
     lifetime_seconds=3600,
 )  # type: ignore
 
