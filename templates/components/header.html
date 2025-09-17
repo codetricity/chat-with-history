@@ -1,21 +1,21 @@
 <!-- Standardized Header Component -->
-<header class="bg-white shadow-sm border-b">
+<header class="bg-white shadow-sm border-b" x-data="{ mobileMenuOpen: false }">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center py-4">
             <!-- Left Section: Title and Badge -->
             <div class="flex items-center">
-                <h1 class="text-2xl font-bold text-gray-900">
+                <h1 class="text-xl sm:text-2xl font-bold text-gray-900">
                     {% block page_title %}{{ page_title or "Content Management Hub" }}{% endblock %}
                 </h1>
                 {% if page_badge %}
-                <span class="ml-3 px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full">
+                <span class="ml-2 sm:ml-3 px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full">
                     {{ page_badge }}
                 </span>
                 {% endif %}
             </div>
             
-            <!-- Right Section: Actions and Navigation -->
-            <div class="flex items-center space-x-4">
+            <!-- Desktop Navigation -->
+            <div class="hidden md:flex items-center space-x-4">
                 <!-- Action Buttons -->
                 {% block action_buttons %}
                 {% if show_search_button %}
@@ -89,6 +89,105 @@
                     {% endblock %}
                 </nav>
             </div>
+            
+            <!-- Mobile Menu Button -->
+            <div class="md:hidden">
+                <button @click="mobileMenuOpen = !mobileMenuOpen" 
+                        class="text-gray-500 hover:text-gray-700 focus:outline-none focus:text-gray-700">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Mobile Menu -->
+        <div x-show="mobileMenuOpen" 
+             x-transition:enter="transition ease-out duration-200"
+             x-transition:enter-start="opacity-0 transform scale-95"
+             x-transition:enter-end="opacity-100 transform scale-100"
+             x-transition:leave="transition ease-in duration-150"
+             x-transition:leave-start="opacity-100 transform scale-100"
+             x-transition:leave-end="opacity-0 transform scale-95"
+             class="md:hidden border-t border-gray-200 py-4">
+            
+            <!-- Mobile Action Buttons -->
+            <div class="space-y-2 mb-4">
+                {% block mobile_action_buttons %}
+                {% if show_search_button %}
+                <a href="/search" class="block w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium text-center">
+                    <i class="fas fa-search mr-1"></i>
+                    Search
+                </a>
+                {% endif %}
+                
+                {% if show_new_client_button %}
+                <button @click="showCreateClientModal = true; mobileMenuOpen = false" 
+                        class="block w-full bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-md text-sm font-medium">
+                    +Client
+                </button>
+                {% endif %}
+                
+                {% if show_new_project_button %}
+                <button @click="showCreateProjectModal = true; mobileMenuOpen = false" 
+                        class="block w-full bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-medium">
+                    +Project
+                </button>
+                {% endif %}
+                
+                {% if show_new_folder_button %}
+                <button @click="showCreateFolderModal = true; mobileMenuOpen = false" 
+                        class="block w-full bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md text-sm font-medium">
+                    +Folder
+                </button>
+                {% endif %}
+                
+                {% if show_conversations_button %}
+                <button @click="showConversations = !showConversations; mobileMenuOpen = false" 
+                        class="block w-full bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium">
+                    <i class="fas fa-comments mr-1"></i>
+                    Conversations
+                </button>
+                {% endif %}
+                
+                {% if show_new_chat_button %}
+                <button @click="newConversation(); mobileMenuOpen = false" 
+                        class="block w-full bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md text-sm font-medium">
+                    <i class="fas fa-plus mr-1"></i>
+                    New Chat
+                </button>
+                {% endif %}
+                {% endblock %}
+            </div>
+            
+            <!-- Mobile Navigation Links -->
+            <nav class="space-y-1">
+                {% block mobile_nav_links %}
+                <a href="/" @click="mobileMenuOpen = false" 
+                   class="block px-3 py-2 text-gray-500 hover:text-gray-700 hover:bg-gray-50 rounded-md text-sm font-medium">
+                    <i class="fas fa-comment-dots mr-2"></i>
+                    Chat
+                </a>
+                <a href="/conversation-browser" @click="mobileMenuOpen = false" 
+                   class="block px-3 py-2 text-gray-500 hover:text-gray-700 hover:bg-gray-50 rounded-md text-sm font-medium">
+                    <i class="fas fa-folder mr-2"></i>
+                    Organize
+                </a>
+                <a href="/search" @click="mobileMenuOpen = false" 
+                   class="block px-3 py-2 text-gray-500 hover:text-gray-700 hover:bg-gray-50 rounded-md text-sm font-medium">
+                    <i class="fas fa-search mr-2"></i>
+                    Search
+                </a>
+                <a href="/admin/" @click="mobileMenuOpen = false" 
+                   class="block px-3 py-2 text-gray-500 hover:text-gray-700 hover:bg-gray-50 rounded-md text-sm font-medium">
+                    <i class="fas fa-cog mr-2"></i>
+                    Admin
+                </a>
+                <a href="/login" @click="mobileMenuOpen = false" 
+                   class="block px-3 py-2 text-gray-500 hover:text-gray-700 hover:bg-gray-50 rounded-md text-sm font-medium">
+                    <i class="fas fa-arrow-right-to-bracket mr-2"></i>
+                    Login
+                </a>
+                {% endblock %}
+            </nav>
         </div>
     </div>
 </header>
